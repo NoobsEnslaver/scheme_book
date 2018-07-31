@@ -1,0 +1,73 @@
+* Chapter 2. Getting Started
+  This chapter is an introduction to Scheme for programmers who are new to the language. You will get more from this
+  chapter if you are sitting in front of an interactive Scheme system, trying out the examples as you go.
+
+  After reading this chapter and working the exercises, you should be able to start using Scheme. You will have learned
+  the syntax of Scheme programs and how they are executed, along with how to use simple data structures and control
+  mechanisms.
+
+** Section 2.1. Interacting with Scheme
+
+   Most Scheme systems provide an interactive programming environment that simplifies program development and
+   experimentation. The simplest interaction with Scheme follows a "read-evaluate-print" cycle. A program (often called
+   a read-evaluate-print loop, or REPL) reads each expression you type at the keyboard, evaluates it, and prints its
+   value.
+
+   With an interactive Scheme system, you can type an expression at the keyboard and see its value immediately. You
+   can define a procedure and apply it to arguments to see how it works. You can even type in an entire program
+   consisting of a set of procedure definitions and test it without leaving the system. When your program starts getting
+   longer, it will be more convenient to type it into a file (using a text editor), load the file and test it
+   interactively. In most Scheme systems, a file may be loaded with the nonstandard procedure load, which takes a string
+   argument naming the file. Preparing your program in a file has several advantages: you have a chance to compose your
+   program more carefully, you can correct errors without retyping the program, and you can retain a copy for later
+   use. Most Scheme implementations treat expressions loaded from a file the same as expressions typed at the keyboard.
+
+   While Scheme provides various input and output procedures, the REPL takes care of reading expressions and printing
+   their values. This frees you to concentrate on writing your program without worrying about how its results will be
+   displayed.
+
+   The examples in this chapter and in the rest of the book follow a regular format. An expression you might type from
+   your keyboard is given first, possibly spanning several lines. The value of the expression is given after the
+   →, to be read as "evaluates to." The → is omitted for definitions and when the value of an expression
+   is unspecified.
+
+   The example programs are formatted in a style that "looks nice" and conveys the structure of the program. The code
+   is easy to read because the relationship between each expression and its subexpressions is clearly shown. Scheme
+   ignores indentation and line breaks, however, so there is no need to follow a particular style. The important thing
+   is to establish one style and keep to it. Scheme sees each program as if it were on a single line, with its
+   subexpressions ordered from left to right.
+
+   If you have access to an interactive Scheme system, it might be a good idea to start it up now and type in the
+   examples as you read. One of the simplest Scheme expressions is a string constant. Try typing "Hi Mom!" (including
+   the double quotes) in response to the prompt. The system should respond with "Hi Mom!"; the value of any constant is
+   the constant itself.
+
+#+BEGIN_EXAMPLE
+"hello" → "hello"
+42 → 42
+22/7 → 22/7
+3.141592653 → 3.141592653
++ → #<procedure>
+(+ 76 31) → 107
+(* -12 10) → -120
+'(a b c d) → (a b c d)
+#+END_EXAMPLE
+
+Even though the next definition is short, you might enter it into a file. Let's assume you call the file "reciprocal.ss."
+
+#+begin_src scheme
+(define reciprocal
+  (lambda (n)
+    (if (= n 0)
+        "oops!"
+        (/ 1 n))))
+#+end_src
+
+** Section 2.2. Simple Expressions
+** Section 2.3. Evaluating Scheme Expressions
+** Section 2.4. Variables and Let Expressions
+** Section 2.5. Lambda Expressions
+** Section 2.6. Top-Level Definitions
+** Section 2.7. Conditional Expressions
+** Section 2.8. Simple Recursion
+** Section 2.9. Assignment

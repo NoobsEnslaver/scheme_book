@@ -1,0 +1,12 @@
+* Chapter 7. Input and Output
+** Section 7.1. Transcoders
+** Section 7.2. Opening Files
+** Section 7.3. Standard Ports
+** Section 7.4. String and Bytevector Ports
+** Section 7.5. Opening Custom Ports
+** Section 7.6. Port Operations
+** Section 7.7. Input Operations
+** Section 7.8. Output Operations
+** Section 7.9. Convenience I/O
+** Section 7.10. Filesystem Operations
+** Section 7.11. Bytevector/String Conversions

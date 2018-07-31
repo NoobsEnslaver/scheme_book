@@ -1,0 +1,4 @@
+* Chapter 11. Exceptions and Conditions
+** Section 11.1. Raising and Handling Exceptions
+** Section 11.2. Defining Condition Types
+** Section 11.3. Standard Condition Types

@@ -1,0 +1,4 @@
+* Chapter 9. Records
+** Section 9.1. Defining Records
+** Section 9.2. Procedural Interface
+** Section 9.3. Inspection
