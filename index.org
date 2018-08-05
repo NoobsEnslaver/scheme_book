@@ -4,20 +4,37 @@
 #+AUTHOR: R. Kent Dybvig
 
 #+INCLUDE: "./text/preface.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter1.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter2.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter3.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter4.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter5.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter6.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter7.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter8.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter9.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter10.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter11.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/chapter12.org" org-mode :minlevel 1
-#+INCLUDE: "./text/references.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/answers.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/syntax.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/forms.org" org-mode :minlevel 1
+
 #+INCLUDE: "./text/index.org" org-mode :minlevel 1
+
+#+INCLUDE: "./text/references.org" org-mode :minlevel 1
