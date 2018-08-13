@@ -1,40 +1,83 @@
+# -*- org-image-actual-width: nil; -*-
+
+#+LATEX_CLASS: book
+#+LATEX_CLASS_OPTIONS: [11pt,fleqn, oneside]
 #+LATEX_HEADER: \usepackage[russian]{babel}
+#+LATEX_HEADER: \usepackage[margin=0.8in]{geometry}
 #+LANGUAGE: RU
+#+OPTIONS: toc:nil title:nil
 #+TITLE: Язык программирования Scheme, 4-е издание
 #+AUTHOR: R. Kent Dybvig
 
-#+INCLUDE: "./text/preface.org" org-mode :minlevel 1
+#+NAME: cover
+#+ATTR_ORG: :width 300
+[[./images/cover.png]]
 
-#+INCLUDE: "./text/chapter1.org" org-mode :minlevel 1
+#+LATEX: \newpage
+#+LATEX: \tableofcontents
 
-#+INCLUDE: "./text/chapter2.org" org-mode :minlevel 1
+#+LATEX: \newpage
+#+INCLUDE: "./text/preface.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter3.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch1.png]]
+#+INCLUDE: "./text/chapter1.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter4.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch2.png]]
+#+INCLUDE: "./text/chapter2.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter5.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch3.png]]
+#+INCLUDE: "./text/chapter3.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter6.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch4.png]]
+#+INCLUDE: "./text/chapter4.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter7.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch5.png]]
+#+INCLUDE: "./text/chapter5.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter8.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch6.png]]
+#+INCLUDE: "./text/chapter6.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter9.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch7.png]]
+#+INCLUDE: "./text/chapter7.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter10.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch8.png]]
+#+INCLUDE: "./text/chapter8.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter11.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch9.png]]
+#+INCLUDE: "./text/chapter9.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/chapter12.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch10.png]]
+#+INCLUDE: "./text/chapter10.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/answers.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch11.png]]
+#+INCLUDE: "./text/chapter11.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/syntax.org" org-mode :minlevel 1
+#+LATEX: \newpage
+[[./images/ch12.png]]
+#+INCLUDE: "./text/chapter12.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/forms.org" org-mode :minlevel 1
+#+LATEX: \newpage
+#+INCLUDE: "./text/answers.org" org-mode :minlevel 2
 
-#+INCLUDE: "./text/index.org" org-mode :minlevel 1
+#+LATEX: \newpage
+#+INCLUDE: "./text/syntax.org" org-mode :minlevel 2
 
+#+LATEX: \newpage
+#+INCLUDE: "./text/forms.org" org-mode :minlevel 2
+
+#+LATEX: \newpage
+#+INCLUDE: "./text/index.org" org-mode :minlevel 2
+
+#+LATEX: \newpage
 #+INCLUDE: "./text/references.org" org-mode :minlevel 1

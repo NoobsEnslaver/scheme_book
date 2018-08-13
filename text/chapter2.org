@@ -1,4 +1,4 @@
-* Chapter 2. Getting Started
+* Getting Started
   This chapter is an introduction to Scheme for programmers who are new to the language. You will get more from this
   chapter if you are sitting in front of an interactive Scheme system, trying out the examples as you go.
 
@@ -6,7 +6,7 @@
   the syntax of Scheme programs and how they are executed, along with how to use simple data structures and control
   mechanisms.
 
-** Section 2.1. Interacting with Scheme
+** Interacting with Scheme
 
    Most Scheme systems provide an interactive programming environment that simplifies program development and
    experimentation. The simplest interaction with Scheme follows a "read-evaluate-print" cycle. A program (often called
@@ -63,11 +63,11 @@ Even though the next definition is short, you might enter it into a file. Let's 
         (/ 1 n))))
 #+end_src
 
-** Section 2.2. Simple Expressions
-** Section 2.3. Evaluating Scheme Expressions
-** Section 2.4. Variables and Let Expressions
-** Section 2.5. Lambda Expressions
-** Section 2.6. Top-Level Definitions
-** Section 2.7. Conditional Expressions
-** Section 2.8. Simple Recursion
-** Section 2.9. Assignment
+** Simple Expressions
+** Evaluating Scheme Expressions
+** Variables and Let Expressions
+** Lambda Expressions
+** Top-Level Definitions
+** Conditional Expressions
+** Simple Recursion
+** Assignment
