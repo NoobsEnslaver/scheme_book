@@ -14,7 +14,7 @@
   Программы, написанные на Scheme, обладают высокой переносимостью между различными машинами (в рамках одной реализации
   Scheme), потому что все машинозависимые части обычно полностью сокрыты от программиста. Часто программы переносимы и
   между различными реализациями Scheme благодаря усилиям группы создателей языка, которые опубликовали серию отчётов
-  "Revised Reports" для Scheme. Последний, "Revised6 Report" [fn:24], акцентирует внимание на переносимости, вводя ряд
+  'Revised Reports' для Scheme. Последний, 'Revised6 Report' [fn:24], акцентирует внимание на переносимости, вводя ряд
   стандартных библиотек и стандартный механизм для определения новых переносимых библиотек и программ верхнего уровня.
 
   Несмотря на то, что ранние реализации Scheme были неэффективны и медлительны, многие новые, основанные на компиляции,
@@ -257,27 +257,22 @@
    описывает синтаксическую форму ~or~, которая имеет ноль или более подвыражений, и ~(member obj list)~ описывает
    процедуру ~member~, которая ожидает два аргумента - объект и список.
 
-   In the description of a syntactic form or procedure, one or more prototype patterns show the syntactic form or forms
-   or the correct number or numbers of arguments for an application of the procedure. The keyword or procedure name is
-   given in typewriter font, as are parentheses. The remaining pieces of the syntax or arguments are shown in italics,
-   using a name that implies the type of expression or argument expected by the syntactic form or procedure. Ellipses
-   are used to specify zero or more occurrences of a subexpression or argument. For example, (or expr ...) describes the
-   or syntactic form, which has zero or more subexpressions, and (member obj list) describes the member procedure, which
-   expects two arguments, an object and a list.
+   Нарушением синтаксиса считается случай, когда структура синтаксической формы не совпадает с её прототипом. Обычно,
+   выбрасывается исключение типа ~&assertion~, если количество аргументов, переданных в стандартную процедуру не
+   совпадает с тем, которое ожидается к получению. Исключение с типом условия ~&assertion~ также выбрасывается, если
+   стандартная процедура получает аргумент, который не подразумевается в его названии, или не удовлетворяет другим
+   критериям, указанным в описании процедуры. Например, прототип для ~vector-set!~ таков:
 
-   A syntax violation occurs if the structure of a syntactic form does not match its prototype. Similarly, an exception
-   with condition type &assertion is raised if the number of arguments passed to a standard procedure does not match
-   what it is specified to receive. An exception with condition type &assertion is also raised if a standard procedure
-   receives an argument whose type is not the type implied by its name or does not meet other criteria given in the
-   description of the procedure. For example, the prototype for vector-set! is
+#+begin_src scheme
+(vector-set! vector n obj)
+#+end_src
 
-   (vector-set! vector n obj)
+   и описание говорится, что ~n~ должен быть неотрицательным целым числом, строго меньшим, чем длина вектора. Таким
+   образом, ~vector-set!~ должен получить три аргумента, первый из которых должен быть вектором, второй должен быть
+   неотрицательным целым числом, меньше длины вектора, и третьим может быть любой объект Scheme. В противном случае,
+   будет выброшено исключение с типом условий ~&assertion~.
 
-   and the description says that n must be an exact nonnegative integer strictly less than the length of vector. Thus,
-   vector-set! must receive three arguments, the first of which must be a vector, the second of which must be an exact
-   nonnegative integer less than the length of the vector, and the third of which may be any Scheme value. Otherwise, an
-   exception with condition type &assertion is raised.
-
-   In most cases, the type of argument required is obvious, as with vector, obj, or binary-input-port. In others, primarily
-   within the descriptions of numeric routines, abbreviations are used, such as int for integer, exint for exact integer,
-   and fx for fixnum. These abbreviations are explained at the start of the sections containing the affected entries.
+   В большинстве случаев тип ожидаемого аргумента очевиден, как в случае в ~vector~, ~obj~ или ~binary-input-port~. В
+   остальных же случаях, по большей части использующихся в описании числовых операций, используются сокращения, такие
+   как /int/ для целочисленных, /exint/ (от exact integer) для строгого указания целочисленного типа и /fx/ для типа
+   /fixnum/. Эти сокращения поясняются в начале разделов, где мы их впервые коснёмся.
