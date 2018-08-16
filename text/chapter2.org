@@ -1,59 +1,114 @@
-* Getting Started
-  This chapter is an introduction to Scheme for programmers who are new to the language. You will get more from this
-  chapter if you are sitting in front of an interactive Scheme system, trying out the examples as you go.
+* Начало
 
-  After reading this chapter and working the exercises, you should be able to start using Scheme. You will have learned
-  the syntax of Scheme programs and how they are executed, along with how to use simple data structures and control
-  mechanisms.
+  Данная глава является введением в Scheme для новичков. Вы извлечёте значительно больше пользы из главы, если
+  параллельно с чтением, будет сидеть за интерактивной оболочкой и набирать примеры и по мере чтения.
 
-** Interacting with Scheme
+  После окончания этой главы и работы над упражнениями, у вас будет достаточная база для того, чтобы начать использовать
+  Scheme. Вы изучите синтаксис программ на Scheme и как они выполняются, а так же как использовать простейшие структуры
+  данных и управляющие конструкции.
 
-   Most Scheme systems provide an interactive programming environment that simplifies program development and
-   experimentation. The simplest interaction with Scheme follows a "read-evaluate-print" cycle. A program (often called
-   a read-evaluate-print loop, or REPL) reads each expression you type at the keyboard, evaluates it, and prints its
-   value.
+** Взаимодействие с интерактивной оболочкой Scheme
 
-   With an interactive Scheme system, you can type an expression at the keyboard and see its value immediately. You
-   can define a procedure and apply it to arguments to see how it works. You can even type in an entire program
-   consisting of a set of procedure definitions and test it without leaving the system. When your program starts getting
-   longer, it will be more convenient to type it into a file (using a text editor), load the file and test it
-   interactively. In most Scheme systems, a file may be loaded with the nonstandard procedure load, which takes a string
-   argument naming the file. Preparing your program in a file has several advantages: you have a chance to compose your
-   program more carefully, you can correct errors without retyping the program, and you can retain a copy for later
-   use. Most Scheme implementations treat expressions loaded from a file the same as expressions typed at the keyboard.
+   Большенство реализаций Scheme систем предоставляют интерактивное окружение для программирования, которое упрощает
+   разработку программ и эксперименты. Простейшая интерактивная оболочка Scheme представляет из себя цикл
+   "чтение-выполнение-печать" (read-evaluate-print). Эта программа (обычно называемая по англ. read-evaluate-print loop,
+   или просто REPL) считывает каждое выражение, подаваемое вами с клавиатуры, выполняет его, и выводит результат
+   выполнения на экран.
 
-   While Scheme provides various input and output procedures, the REPL takes care of reading expressions and printing
-   their values. This frees you to concentrate on writing your program without worrying about how its results will be
-   displayed.
+   Благодаря интерактивной системе Scheme, вы можете набирать выражения с клавиатуры с сразу же видеть результат его
+   выполнения. Вы можете объявить процедуру и сразу применить её к аргументам, чтобы проверить, как она будет
+   работать. Вы можете даже набрать всю программу, представив её как последовательность объявления и применения процедур
+   и протестировать её, не покидая системы. Когда же ваша программа станет достаточно большой, удобнее будет набрать её
+   в файле (используя текстовый редактор), загрузить файл (в REPL) и тестировать его интерактивно. В большинстве
+   реализаций файл может быть загружен с помощью нестандартизированной процедуры ~load~ , принимающую путь к файлу в
+   качестве аргумента. Разработка программы в файле имеет ряд преимуществ: у вас есть возможность составлять свою
+   программу более аккуратно, вы можете исправлять ошибку, не перенабирая код заново, и вы можете сохранить копию кода
+   для дальнейшего использования. Большинство реализаций Scheme трактуют выражения, загруженные из файла, таким же
+   образом, как если бы они были набраны на клавиатуре интерактивно.
 
-   The examples in this chapter and in the rest of the book follow a regular format. An expression you might type from
-   your keyboard is given first, possibly spanning several lines. The value of the expression is given after the
-   →, to be read as "evaluates to." The → is omitted for definitions and when the value of an expression
-   is unspecified.
+   Хотя Scheme предоставляет различные процедуры ввода и вывода, REPL заботится о чтении выражений и печати их
+   значений. Это освобождает Вас от необходимости заботиться о том, как результаты выполнения будут отображены, и
+   позволяет сконцентрироваться на написании программы.
 
-   The example programs are formatted in a style that "looks nice" and conveys the structure of the program. The code
-   is easy to read because the relationship between each expression and its subexpressions is clearly shown. Scheme
-   ignores indentation and line breaks, however, so there is no need to follow a particular style. The important thing
-   is to establish one style and keep to it. Scheme sees each program as if it were on a single line, with its
-   subexpressions ordered from left to right.
+   Примеры в этой и остальных главах книги средуют определённым соглашениям в форматировании. Выражения, которые вы
+   можете набрать с клавиатуры, идут в первую очередь, возможно, в нескольких строках. После ⇒ следует значение
+   выражения, что следует читать как "имеет следующее значение". Знак ⇒ применим для определений и в тех случаях, когда
+   значение выражения неопределено.
 
-   If you have access to an interactive Scheme system, it might be a good idea to start it up now and type in the
-   examples as you read. One of the simplest Scheme expressions is a string constant. Try typing "Hi Mom!" (including
-   the double quotes) in response to the prompt. The system should respond with "Hi Mom!"; the value of any constant is
-   the constant itself.
+   Примеры в книге отформатированы в стиле "смотрится хорошо" и передают структуру программы. Код должен читаться легко,
+   потому что отношения между каждым выражением и подвыражением показаны явно. Scheme игнорирует отступы и переносы
+   строки, так что, мы вольны выбрирать любой стиль форматирования на своё усмотрение. Однако довольно важно, чтобы
+   выбраный вами стиль поддерживался на протяжении всей программы. Scheme востринимает вашу программу так, как если бы
+   она была написана в одну линию, перечисляя все входящие в неё подвыражения слева на право.
+
+   Если у вас сейчас есть возможность запустить интерактивную систему Scheme, будет неплохо, если вы сделаете это, и
+   будете набирать примеры по мере чтения. Одно из простейших выражений Scheme, это строковая константа. Попробуйте
+   набрать "Hi Mom!" (включая двойные кавычки) в ответ на преглашение. Система должна ответить "Hi Mom!", потому что
+   значение вычисления любой константы - сама константа.
 
 #+BEGIN_EXAMPLE
-"hello" → "hello"
-42 → 42
-22/7 → 22/7
-3.141592653 → 3.141592653
-+ → #<procedure>
-(+ 76 31) → 107
-(* -12 10) → -120
-'(a b c d) → (a b c d)
+  "Hi Mom!" ⇒ "Hi Mom!"
 #+END_EXAMPLE
 
-Even though the next definition is short, you might enter it into a file. Let's assume you call the file "reciprocal.ss."
+   Ниже приведёны несколько выражений с ответами Scheme на них. Они разъясняются в последующих секциях этой главы,
+   однако вы можете использовать их уже сейчас, чтобы попрактиковаться в использовании интерактивной оболочки.
+
+#+BEGIN_EXAMPLE
+  "hello" ⇒ "hello"
+  42 ⇒ 42
+  22/7 ⇒ 22/7
+  3.141592653 ⇒ 3.141592653
+  + ⇒ #<procedure>
+  (+ 76 31) ⇒ 107
+  (* -12 10) ⇒ -120
+  '(a b c d) ⇒ (a b c d)
+#+END_EXAMPLE
+
+  Будьте внимательны и не пропустите не одной одинарной кавычки ( ~'~ ), двойной кавычки, или скобки. Если вы пропустите
+  одинарную кавычку в последнем выражении, скорее всего вы получите сообщение о том, что произошло исключение. Просто
+  попробуйте еще раз. Если вы пропустите закрывающую скобку или двойную кавычку, система, скорее всего, продолжит
+  ожидать её даже после окончания ввода.
+
+  Ниже приведён еще один набор примеров для набора. Вы можете попробовать догадаться сами, что они значат, либо
+  дождаться пояснений, найдя их далее в главе.
+
+#+BEGIN_EXAMPLE
+  (car '(a b c)) ⇒ a
+  (cdr '(a b c)) ⇒ (b c)
+  (cons 'a '(b c)) ⇒ (a b c)
+  (cons (car '(a b c))
+        (cdr '(d e f))) ⇒ (a e f)
+#+END_EXAMPLE
+
+   Как вы могли заметить, выражения Scheme могут занимать несколько строк. Scheme система понимает, что это одно
+   выражение по парным двойным кавычкам и скобкам.
+
+   Теперь, давайте попробуем определить новую процедуру.
+
+#+begin_src scheme
+  (define square
+    (lambda (n)
+      (* n n)))
+#+end_src
+
+   Процедура ~square~ вычисляет квадрат некоего числа n. О выражении, производящем непосредственно определение
+   процедуры, мы поговорим подробнее чуть позже в этой главе. А пока будет тостаточно сказать, что ~define~ производит
+   связывание переменной, ~lambda~ создаёт процедуру, а ~*~ - имя процедуры умножения. Обратите внимание на форму этих
+   выражений. Все составные выражения заключены в круглые скобки и записаны в префиксной нотации т.е. оператор
+   предшествует аргументам. Как можно видеть, это правило выполняется всегда, даже для простейших арифметических
+   операций, вроде ~*~.
+
+   Опробуем наш ~square~ в деле:
+
+#+BEGIN_EXAMPLE
+(square 5) ⇒ 25
+(square -200) ⇒ 40000
+(square 0.5) ⇒ 0.25
+(square -1/2) ⇒ 1/4
+#+END_EXAMPLE
+
+   Несмотря на то, что определение ниже довольно короткое, давайте поместим его в файл. Предположим, вы назвали ваш файл
+   "reciprocal.ss."
 
 #+begin_src scheme
 (define reciprocal
@@ -62,6 +117,22 @@ Even though the next definition is short, you might enter it into a file. Let's 
         "oops!"
         (/ 1 n))))
 #+end_src
+
+   Эта процедура, ~reciprocal~ (пер. обратный), вычисляет значение 1/n для любого n ≠ 0. Для случая n = 0, ~reciprocal~
+   вернёт строку "oops!". Вернитесь в интерпретатор и попробуйте загрузить ваш файл, воспользовавшись процедурой ~load~:
+
+#+begin_src scheme
+(load "reciprocal.ss")
+#+end_src
+
+   Наконец, попробовав использовать эту процедуру, вы увидите именно то, что заключено в её определении:
+
+#+BEGIN_EXAMPLE
+(reciprocal 10) ⇒ 1/10
+(reciprocal 1/10) ⇒ 10
+(reciprocal 0) ⇒ "oops!"
+(reciprocal (reciprocal 1/10)) ⇒ 1/10
+#+END_EXAMPLE
 
 ** Simple Expressions
 ** Evaluating Scheme Expressions
