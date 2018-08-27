@@ -198,10 +198,195 @@
    Scheme различает их. Например, как Scheme отличит список объектов ~(obj1 obj2 ...)~ от применения процедуры
    ~(procedure arg ...)~?
 
-** Evaluating Scheme Expressions
+   In some cases, the distinction might seem obvious. The list of numbers (1 2 3 4 5) could hardly be confused with a
+   procedure application, since 1 is a number, not a procedure. So, the answer might be that Scheme looks at the first
+   element of the list or procedure application and makes its decision based on whether that first element is a
+   procedure or not. This answer is not good enough, since we might even want to treat a valid procedure application
+   such as (+ 3 4) as a list. The answer is that we must tell Scheme explicitly to treat a list as data rather than as a
+   procedure application. We do this with quote.
+
+#+BEGIN_EXAMPLE
+   (quote (1 2 3 4 5)) ⇒ (1 2 3 4 5)
+   (quote ("this" "is" "a" "list")) ⇒ ("this" "is" "a" "list")
+   (quote (+ 3 4)) ⇒ (+ 3 4)
+#+END_EXAMPLE
+
+   The quote forces the list to be treated as data. Try entering the above expressions without the quote; you will
+   likely receive a message indicating that an exception has occurred for the first two and an incorrect answer (7) for
+   the third.
+
+   Because quote is required fairly frequently in Scheme code, Scheme recognizes a single quotation mark ( ' ) preceding
+   an expression as an abbreviation for quote.
+
+#+BEGIN_EXAMPLE
+   '(1 2 3 4) ⇒ (1 2 3 4)
+   '((1 2) (3 4)) ⇒ ((1 2) (3 4))
+   '(/ (* 2 -1) 3) ⇒ (/ (* 2 -1) 3)
+#+END_EXAMPLE
+
+   Both forms are referred to as quote expressions. We often say an object is quoted when it is enclosed in a quote
+   expression.
+
+   A quote expression is not a procedure application, since it inhibits the evaluation of its subexpression. It is an
+   entirely different syntactic form. Scheme supports several other syntactic forms in addition to procedure
+   applications and quote expressions. Each syntactic form is evaluated differently. Fortunately, the number of
+   different syntactic forms is small. We will see more of them later in this chapter.
+
+   Not all quote expressions involve lists. Try the following expression with and without the quote wrapper.
+
+#+BEGIN_EXAMPLE
+   (quote hello) ⇒ hello
+#+END_EXAMPLE
+
+   The symbol hello must be quoted in order to prevent Scheme from treating hello as a variable. Symbols and variables
+   in Scheme are similar to symbols and variables in mathematical expressions and equations. When we evaluate the
+   mathematical expression 1 - x for some value of x, we think of x as a variable. On the other hand, when we consider
+   the algebraic equation x2 - 1 = (x - 1)(x + 1), we think of x as a symbol (in fact, we think of the whole equation
+   symbolically). Just as quoting a list tells Scheme to treat a parenthesized form as a list rather than as a procedure
+   application, quoting an identifier tells Scheme to treat the identifier as a symbol rather than as a variable. While
+   symbols are commonly used to represent variables in symbolic representations of equations or programs, symbols may
+   also be used, for example, as words in the representation of natural language sentences.
+
+   You might wonder why applications and variables share notations with lists and symbols. The shared notation allows
+   Scheme programs to be represented as Scheme data, simplifying the writing of interpreters, compilers, editors, and
+   other tools in Scheme. This is demonstrated by the Scheme interpreter given in Section 12.7, which is itself written
+   in Scheme. Many people believe this to be one of the most important features of Scheme.
+
+   Numbers and strings may be quoted, too.
+
+#+BEGIN_EXAMPLE
+   '2 ⇒ 2
+   '2/3 ⇒ 2/3
+   (quote "Hi Mom!") ⇒ "Hi Mom!"
+#+END_EXAMPLE
+
+   Numbers and strings are treated as constants in any case, however, so quoting them is unnecessary.
+
+   Now let's discuss some Scheme procedures for manipulating lists. There are two basic procedures for taking lists
+   apart: car and cdr (pronounced could-er). car returns the first element of a list, and cdr returns the remainder of
+   the list. (The names "car" and "cdr" are derived from operations supported by the first computer on which a Lisp
+   language was implemented, the IBM 704.) Each requires a nonempty list as its argument.
+
+#+BEGIN_EXAMPLE
+   (car '(a b c)) ⇒ a
+   (cdr '(a b c)) ⇒ (b c)
+   (cdr '(a)) ⇒ ()
+
+   (car (cdr '(a b c))) ⇒ b
+   (cdr (cdr '(a b c))) ⇒ (c)
+
+   (car '((a b) (c d))) ⇒ (a b)
+   (cdr '((a b) (c d))) ⇒ ((c d))
+#+END_EXAMPLE
+
+   The first element of a list is often called the "car" of the list, and the rest of the list is often called the "cdr"
+   of the list. The cdr of a list with one element is (), the empty list.
+
+   The procedure cons constructs lists. It takes two arguments. The second argument is usually a list, and in that case
+   cons returns a list.
+
+#+BEGIN_EXAMPLE
+   (cons 'a '()) ⇒ (a)
+   (cons 'a '(b c)) ⇒ (a b c)
+   (cons 'a (cons 'b (cons 'c '()))) ⇒ (a b c)
+   (cons '(a b) '(c d)) ⇒ ((a b) c d)
+
+   (car (cons 'a '(b c))) ⇒ a
+   (cdr (cons 'a '(b c))) ⇒ (b c)
+   (cons (car '(a b c))
+         (cdr '(d e f))) ⇒ (a e f)
+   (cons (car '(a b c))
+         (cdr '(a b c))) ⇒ (a b c)
+#+END_EXAMPLE
+
+   Just as "car" and "cdr" are often used as nouns, "cons" is often used as a verb. Creating a new list by adding an
+   element to the beginning of a list is referred to as consing the element onto the list.
+
+   Notice the word "usually" in the description of cons's second argument. The procedure cons actually builds pairs, and
+   there is no reason that the cdr of a pair must be a list. A list is a sequence of pairs; each pair's cdr is the next
+   pair in the sequence.
+
+# +ATTR_ORG: :width 300
+[[./images/1.gif]]
+
+   The cdr of the last pair in a proper list is the empty list. Otherwise, the sequence of pairs forms an improper
+   list. More formally, the empty list is a proper list, and any pair whose cdr is a proper list is a proper list.
+
+   An improper list is printed in dotted-pair notation, with a period, or dot, preceding the final element of the list.
+
+#+BEGIN_EXAMPLE
+   (cons 'a 'b) ⇒ (a . b)
+   (cdr '(a . b)) ⇒ b
+   (cons 'a '(b . c)) ⇒ (a b . c)
+#+END_EXAMPLE
+
+   Because of its printed notation, a pair whose cdr is not a list is often called a dotted pair. Even pairs whose cdrs
+   are lists can be written in dotted-pair notation, however, although the printer always chooses to write proper lists
+   without dots.
+
+#+BEGIN_EXAMPLE
+   '(a . (b . (c . ()))) ⇒ (a b c)
+#+END_EXAMPLE
+
+   The procedure list is similar to cons, except that it takes an arbitrary number of arguments and always builds a
+   proper list.
+
+#+BEGIN_EXAMPLE
+   (list 'a 'b 'c) ⇒ (a b c)
+   (list 'a) ⇒ (a)
+   (list) ⇒ ()
+#+END_EXAMPLE
+
+   Section 6.3 provides more information on lists and the Scheme procedures for manipulating them. This might be a good
+   time to turn to that section and familiarize yourself with the other procedures given there.
+
+   Упражнения
+
+   1. Convert the following arithmetic expressions into Scheme expressions and evaluate them.
+      1. ~1.2 × (2 - 1/3) + -8.7~
+      2. ~(2/3 + 4/9) ÷ (5/11 - 4/3)~
+      3. ~1 + 1 ÷ (2 + 1 ÷ (1 + 1/2))~
+      4. ~1 × -2 × 3 × -4 × 5 × -6 × 7~
+   2. Experiment with the procedures +, -, *, and / to determine Scheme's rules for the type of value returned by each
+      when given different types of numeric arguments.
+   3. Determine the values of the following expressions. Use your Scheme system to verify your answers.
+      1. a.     (cons 'car 'cdr)
+      2. (list 'this '(is silly))
+      3. (cons 'is '(this silly?))
+      4. (quote (+ 2 3))
+      5. (cons '+ '(2 3))
+      6. (car '(+ 2 3))
+      7. (cdr '(+ 2 3))
+      8. cons
+      9. (quote cons)
+      10. (quote (quote cons))
+      11. (car (quote (quote cons)))
+      12. (+ 2 3)
+      13. (+ '2 '3)
+      14. (+ (car '(2 3)) (car (cdr '(2 3))))
+      15. ((car (list + - * /)) 2 3)
+   4. (car (car '((a b) (c d)))) yields a. Determine which compositions of car and cdr applied to ((a b) (c d)) yield b,
+      c, and d.
+   5. Write a Scheme expression that evaluates to the following internal list structure.
+      #+ATTR_ORG: :width 300
+      [[./images/2.gif]]
+   6. Draw the internal list structure produced by the expression below.
+      ~(cons 1 (cons '(2 . ((3) . ())) (cons '(()) (cons 4 5))))~
+   7. The behavior of (car (car (car '((a b) (c d))))) is undefined because (car '((a b) (c d))) is (a b), (car '(a b))
+      is a, and (car 'a) is undefined. Determine all legal compositions of car and cdr applied to ((a b) (c d)).
+   8. Try to explain how Scheme expressions are evaluated. Does your explanation cover the last example in Exercise
+      2.2.3?
+
+** Выполнение Scheme выражений
 ** Variables and Let Expressions
 ** Lambda Expressions
 ** Top-Level Definitions
 ** Conditional Expressions
 ** Simple Recursion
 ** Assignment
+
+
+
+#+BEGIN_EXAMPLE
+
+#+END_EXAMPLE
