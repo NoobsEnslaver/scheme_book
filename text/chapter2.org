@@ -198,25 +198,26 @@
    Scheme различает их. Например, как Scheme отличит список объектов ~(obj1 obj2 ...)~ от применения процедуры
    ~(procedure arg ...)~?
 
-   In some cases, the distinction might seem obvious. The list of numbers (1 2 3 4 5) could hardly be confused with a
-   procedure application, since 1 is a number, not a procedure. So, the answer might be that Scheme looks at the first
-   element of the list or procedure application and makes its decision based on whether that first element is a
-   procedure or not. This answer is not good enough, since we might even want to treat a valid procedure application
-   such as (+ 3 4) as a list. The answer is that we must tell Scheme explicitly to treat a list as data rather than as a
-   procedure application. We do this with quote.
+   В некоторых случаях различие может показаться очевидным. Список чисел ~(1 2 3 4 5)~ довольно сложно спутать с
+   применением процедуры, потому что 1 это число, а не процедура. Итак, ответ на этот вопрос мог бы быть таким, что
+   Scheme смотрит на первый элемент списка и принимает решение, процедура это или нет. Такой ответ не совсем корректен,
+   потому что мы можем захотеть интерпретировать корректную запись применения процедуры, такую как ~(+ 3 4), как
+   список. На самом деле ответ таков, что вы сами должны сказать Scheme явно, что интерпретировать как список, а что как
+   применение процедуры. Это делается с помощью ~quote~ (пер. цитата, кавычка).
 
 #+BEGIN_EXAMPLE
    (quote (1 2 3 4 5)) ⇒ (1 2 3 4 5)
-   (quote ("this" "is" "a" "list")) ⇒ ("this" "is" "a" "list")
+   (quote ("да" "это" "всё" "ещё" "список")) ⇒ ("да" "это" "всё" "ещё" "список")
    (quote (+ 3 4)) ⇒ (+ 3 4)
 #+END_EXAMPLE
 
-   The quote forces the list to be treated as data. Try entering the above expressions without the quote; you will
-   likely receive a message indicating that an exception has occurred for the first two and an incorrect answer (7) for
-   the third.
+   С помощью ~quote~ мы явно даём указание интерпретировать список как данные. Попробуйте ввести выражение выше без
+   ~quote~, скорее всего вы получите сообщение об исключении для первых друх выражений и результат выполнения для
+   третьего.
 
-   Because quote is required fairly frequently in Scheme code, Scheme recognizes a single quotation mark ( ' ) preceding
-   an expression as an abbreviation for quote.
+   Поскольку использование ~quote~ крайне востребовано в Scheme коде, для него было введено специальное сокращённое
+   обозначение в виде одинарной цитирующей кавычки (~`~), предшествующей выражению, которая является просто
+   аббривеатурой для ~quote~.
 
 #+BEGIN_EXAMPLE
    '(1 2 3 4) ⇒ (1 2 3 4)
@@ -224,35 +225,37 @@
    '(/ (* 2 -1) 3) ⇒ (/ (* 2 -1) 3)
 #+END_EXAMPLE
 
-   Both forms are referred to as quote expressions. We often say an object is quoted when it is enclosed in a quote
-   expression.
+   Обе эти формы называются выражениями цитирования. Мы обычно будет говорить об объекте, что он цитируется, когда он
+   будет заключён в выражение ~quote~.
 
-   A quote expression is not a procedure application, since it inhibits the evaluation of its subexpression. It is an
-   entirely different syntactic form. Scheme supports several other syntactic forms in addition to procedure
-   applications and quote expressions. Each syntactic form is evaluated differently. Fortunately, the number of
-   different syntactic forms is small. We will see more of them later in this chapter.
+   Выражение ~quote~ это не применение процедуры, поскольку он препятствует вычислению своего подвыражения. Это
+   принципиально отличная синтаксическая форма. Scheme поддерживает и иные синтаксические формы, помимо применения
+   процедур и цитирования выражений. Каждая синтаксическая форма вычисляется по-своему. К счастью, не так много
+   принципиально различных синтаксических форм. Мы познакомимся с большинством из них далее в этой главе.
 
-   Not all quote expressions involve lists. Try the following expression with and without the quote wrapper.
+   Не все выражения цитаты содержат списки. Попробуйте выполнить следующее выражение /с/ и /без/ оператора ~quote~.
 
 #+BEGIN_EXAMPLE
    (quote hello) ⇒ hello
 #+END_EXAMPLE
 
-   The symbol hello must be quoted in order to prevent Scheme from treating hello as a variable. Symbols and variables
-   in Scheme are similar to symbols and variables in mathematical expressions and equations. When we evaluate the
-   mathematical expression 1 - x for some value of x, we think of x as a variable. On the other hand, when we consider
-   the algebraic equation x2 - 1 = (x - 1)(x + 1), we think of x as a symbol (in fact, we think of the whole equation
-   symbolically). Just as quoting a list tells Scheme to treat a parenthesized form as a list rather than as a procedure
-   application, quoting an identifier tells Scheme to treat the identifier as a symbol rather than as a variable. While
-   symbols are commonly used to represent variables in symbolic representations of equations or programs, symbols may
-   also be used, for example, as words in the representation of natural language sentences.
+   Символ ~hello~ должен быть цитирован, чтобы предостеречь Scheme от попыток интерпретировать ~hellp~ как
+   переменную. Символы и переменные в Scheme имеют такое же значение, как символы и переменные в математических
+   выражениях и уравнениях. Когда мы вычисляем математическое выражение ~1 - x~ для некоторого значения ~x~, мы думаем
+   об ~x~ как о переменной. С другой стороны, когда мы работаем с алгебраическим уравнением ~x^2 -1 = (x - 1)(x + 1)~ мы
+   думаем об ~x~ как о символе (мы вообще обо всём выражении размышляем в символьной форме). Так же как цитирование
+   списка говорит Scheme интерпретировать параметризованную форму как список, а не как применение процедуры, цитирование
+   идентификатора говорит Scheme интерпретировать идентификатор как сивол, а не как переменную. Хотя символы обычно
+   используются для представления переменных в описании символьных уравнений или программ, символы могут также
+   использоваться, например, как слова в описании предложений естественного языка.
 
-   You might wonder why applications and variables share notations with lists and symbols. The shared notation allows
-   Scheme programs to be represented as Scheme data, simplifying the writing of interpreters, compilers, editors, and
-   other tools in Scheme. This is demonstrated by the Scheme interpreter given in Section 12.7, which is itself written
-   in Scheme. Many people believe this to be one of the most important features of Scheme.
+   Вас наверное удивляет, почему применения процедур и переменные имеют такое же обозначение, как списки и
+   символы. Одинаковое обозначение позволяет программам на Scheme иметь такой же вид, как и данным Scheme, что упрощает
+   написание интерпретаторов, компиляторов, редакторов и других инструментов для работы с Scheme. Это продемонстрировано
+   в главе 12.7, где представлен интерпретатор Scheme, написанный на самом Scheme. Многие люди считают, что это одна из
+   самых значительных особенностей Scheme.
 
-   Numbers and strings may be quoted, too.
+   Числа и строки также могут цитироваться:
 
 #+BEGIN_EXAMPLE
    '2 ⇒ 2
