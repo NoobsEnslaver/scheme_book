@@ -477,9 +477,7 @@
          (if (= i 0)
              1
              (* i (fact (- i 1)))))))
-#+end_src
 
-#+begin_src scheme
    (factorial 0) → 1
    (factorial 1) → 1
    (factorial 2) → 2
@@ -511,9 +509,7 @@
            [(= i 0) 0]
            [(= i 1) 1]
            [else (+ (fib (- i 1)) (fib (- i 2)))]))))
-#+end_src
 
-#+begin_src scheme
    (fibonacci 0) → 0
    (fibonacci 1) → 1
    (fibonacci 2) → 1
@@ -702,15 +698,346 @@
     solve? Are there any additional improvements you can make?
 
 ** Section 3.3. Continuations
-** Section 3.4. Continuation Passing Style
-** Section 3.5. Internal Definitions
-** Section 3.6. Libraries
 
+   During the evaluation of a Scheme expression, the implementation must keep track of two things: (1) what to evaluate
+   and (2) what to do with the value. Consider the evaluation of (null? x) within the expression below.
 
 #+begin_src scheme
-
+   (if (null? x) (quote ()) (cdr x))
 #+end_src
 
-#+BEGIN_EXAMPLE
+   The implementation must first evaluate (null? x) and, based on its value, evaluate either (quote ()) or (cdr
+   x). "What to evaluate" is (null? x), and "what to do with the value" is to make the decision which of (quote ()) and
+   (cdr x) to evaluate and to do so. We call "what to do with the value" the continuation of a computation.
 
-#+END_EXAMPLE
+   Thus, at any point during the evaluation of any expression, there is a continuation ready to complete, or at least
+   continue, the computation from that point. Let's assume that x has the value (a b c). We can isolate six
+   continuations during the evaluation of (if (null? x) (quote ()) (cdr x)), the continuations waiting for
+
+   1. the value of (if (null? x) (quote ()) (cdr x)),
+   2. the value of (null? x),
+   3. the value of null?,
+   4. the value of x,
+   5. the value of cdr, and
+   6. the value of x (again).
+
+   The continuation of ~(cdr x)~ is not listed because it is the same as the one waiting for ~(if (null? x) (quote ())
+   (cdr x))~.
+
+   Scheme allows the continuation of any expression to be captured with the procedure call/cc. call/cc must be passed a
+   procedure p of one argument. call/cc constructs a concrete representation of the current continuation and passes it
+   to p. The continuation itself is represented by a procedure k. Each time k is applied to a value, it returns the
+   value to the continuation of the call/cc application. This value becomes, in essence, the value of the application of
+   call/cc.
+
+   If p returns without invoking k, the value returned by the procedure becomes the value of the application of call/cc.
+
+   Consider the simple examples below.
+
+#+begin_src scheme
+   (call/cc
+     (lambda (k)
+       (* 5 4))) → 20
+
+   (call/cc
+     (lambda (k)
+       (* 5 (k 4)))) → 4
+
+   (+ 2
+      (call/cc
+        (lambda (k)
+          (* 5 (k 4))))) → 6
+#+end_src
+
+   In the first example, the continuation is captured and bound to k, but k is never used, so the value is simply the
+   product of 5 and 4. In the second, the continuation is invoked before the multiplication, so the value is the value
+   passed to the continuation, 4. In the third, the continuation includes the addition by 2; thus, the value is the
+   value passed to the continuation, 4, plus 2.
+
+   Here is a less trivial example, showing the use of call/cc to provide a nonlocal exit from a recursion.
+
+#+begin_src scheme
+   (define product
+     (lambda (ls)
+       (call/cc
+         (lambda (break)
+           (let f ([ls ls])
+             (cond
+               [(null? ls) 1]
+               [(= (car ls) 0) (break 0)]
+               [else (* (car ls) (f (cdr ls)))]))))))
+
+   (product '(1 2 3 4 5)) → 120
+   (product '(7 3 8 0 1 9 5)) → 0
+#+end_src
+
+   The nonlocal exit allows product to return immediately, without performing the pending multiplications, when a zero
+   value is detected.
+
+   Each of the continuation invocations above returns to the continuation while control remains within the procedure
+   passed to call/cc. The following example uses the continuation after this procedure has already returned.
+
+#+begin_src scheme
+   (let ([x (call/cc (lambda (k) k))])
+     (x (lambda (ignore) "hi"))) → "hi"
+#+end_src
+
+   The continuation captured by this invocation of call/cc may be described as "Take the value, bind it to x, and apply
+   the value of x to the value of (lambda (ignore) "hi")." Since (lambda (k) k) returns its argument, x is bound to the
+   continuation itself; this continuation is applied to the procedure resulting from the evaluation of (lambda (ignore)
+   "hi"). This has the effect of binding x (again!) to this procedure and applying the procedure to itself. The
+   procedure ignores its argument and returns "hi".
+
+   The following variation of the example above is probably the most confusing Scheme program of its size; it might be
+   easy to guess what it returns, but it takes some thought to figure out why.
+
+#+begin_src scheme
+   (((call/cc (lambda (k) k)) (lambda (x) x)) "HEY!") → "HEY!"
+#+end_src
+
+   The value of the call/cc is its own continuation, as in the preceding example. This is applied to the identity
+   procedure (lambda (x) x), so the call/cc returns a second time with this value. Then, the identity procedure is
+   applied to itself, yielding the identity procedure. This is finally applied to "HEY!", yielding "HEY!".
+
+   Continuations used in this manner are not always so puzzling. Consider the following definition of factorial that
+   saves the continuation at the base of the recursion before returning 1, by assigning the top-level variable retry.
+
+#+begin_src scheme
+   (define retry #f)
+
+   (define factorial
+     (lambda (x)
+       (if (= x 0)
+           (call/cc (lambda (k) (set! retry k) 1))
+           (* x (factorial (- x 1))))))
+#+end_src
+
+   With this definition, factorial works as we expect factorial to work, except it has the side effect of assigning
+   retry.
+
+#+begin_src scheme
+   (factorial 4) → 24
+   (retry 1) → 24
+   (retry 2) → 48
+#+end_src
+
+   The continuation bound to retry might be described as "Multiply the value by 1, then multiply this result by 2, then
+   multiply this result by 3, then multiply this result by 4." If we pass the continuation a different value, i.e., not
+   1, we will cause the base value to be something other than 1 and hence change the end result.
+
+#+begin_src scheme
+   (retry 2) → 48
+   (retry 5) → 120
+#+end_src
+
+   This mechanism could be the basis for a breakpoint package implemented with call/cc; each time a breakpoint is
+   encountered, the continuation of the breakpoint is saved so that the computation may be restarted from the breakpoint
+   (more than once, if desired).
+
+   Continuations may be used to implement various forms of multitasking. The simple "light-weight process" mechanism
+   defined below allows multiple computations to be interleaved. Since it is nonpreemptive, it requires that each
+   process voluntarily "pause" from time to time in order to allow the others to run.
+
+#+begin_src scheme
+   (define lwp-list '())
+   (define lwp
+     (lambda (thunk)
+       (set! lwp-list (append lwp-list (list thunk)))))
+
+   (define start
+     (lambda ()
+       (let ([p (car lwp-list)])
+         (set! lwp-list (cdr lwp-list))
+         (p))))
+
+   (define pause
+     (lambda ()
+       (call/cc
+         (lambda (k)
+           (lwp (lambda () (k #f)))
+           (start)))))
+#+end_src
+
+   The following light-weight processes cooperate to print an infinite sequence of lines containing "hey!".
+
+#+begin_src scheme
+   (lwp (lambda () (let f () (pause) (display "h") (f))))
+   (lwp (lambda () (let f () (pause) (display "e") (f))))
+   (lwp (lambda () (let f () (pause) (display "y") (f))))
+   (lwp (lambda () (let f () (pause) (display "!") (f))))
+   (lwp (lambda () (let f () (pause) (newline) (f))))
+   (start) → hey!
+             hey!
+             hey!
+             hey!
+             ...
+#+end_src
+
+   See Section 12.11 for an implementation of engines, which support preemptive multitasking, with call/cc.
+
+*** Exercise 3.3.1
+
+    Use call/cc to write a program that loops indefinitely, printing a sequence of numbers beginning at zero. Do not use
+    any recursive procedures, and do not use any assignments.
+
+*** Exercise 3.3.2
+
+    Rewrite product without call/cc, retaining the feature that no multiplications are performed if any of the list
+    elements are zero.
+
+*** Exercise 3.3.3
+
+    What would happen if a process created by lwp as defined above were to terminate, i.e., simply return without
+    calling pause? Define a quit procedure that allows a process to terminate without otherwise affecting the lwp
+    system. Be sure to handle the case in which the only remaining process terminates.
+
+*** Exercise 3.3.4
+
+    Each time lwp is called, the list of processes is copied because lwp uses append to add its argument to the end of
+    the process list. Modify the original lwp code to use the queue data type developed in Section 2.9 to avoid this
+    problem.
+
+*** Exercise 3.3.5
+
+    The light-weight process mechanism allows new processes to be created dynamically, although the example given in
+    this section does not do so. Design an application that requires new processes to be created dynamically and
+    implement it using the light-weight process mechanism.
+
+** Section 3.4. Continuation Passing Style
+
+   As we discussed in the preceding section, a continuation waits for the value of each expression. In particular, a
+   continuation is associated with each procedure call. When one procedure invokes another via a nontail call, the
+   called procedure receives an implicit continuation that is responsible for completing what is left of the calling
+   procedure's body plus returning to the calling procedure's continuation. If the call is a tail call, the called
+   procedure simply receives the continuation of the calling procedure.
+
+   We can make the continuations explicit by encapsulating "what to do" in an explicit procedural argument passed along
+   on each call. For example, the continuation of the call to f in
+
+#+begin_src scheme
+   (letrec ([f (lambda (x) (cons 'a x))]
+            [g (lambda (x) (cons 'b (f x)))]
+            [h (lambda (x) (g (cons 'c x)))])
+     (cons 'd (h '()))) → (d b a c)
+#+end_src
+
+   conses the symbol b onto the value returned to it, then returns the result of this cons to the continuation of the
+   call to g. This continuation is the same as the continuation of the call to h, which conses the symbol d onto the
+   value returned to it. We can rewrite this in continuation-passing style, or CPS, by replacing these implicit
+   continuations with explicit procedures.
+
+#+begin_src scheme
+   (letrec ([f (lambda (x k) (k (cons 'a x)))]
+            [g (lambda (x k)
+                 (f x (lambda (v) (k (cons 'b v)))))]
+            [h (lambda (x k) (g (cons 'c x) k))])
+     (h '() (lambda (v) (cons 'd v))))
+#+end_src
+
+   Like the implicit continuation of h and g in the preceding example, the explicit continuation passed to h and on to
+   g,
+
+#+begin_src scheme
+   (lambda (v) (cons 'd v))
+#+end_src
+
+   conses the symbol d onto the value passed to it. Similarly, the continuation passed to f,
+
+#+begin_src scheme
+   (lambda (v) (k (cons 'b v)))
+#+end_src
+
+   conses b onto the value passed to it, then passes this on to the continuation of g.
+
+   Expressions written in CPS are more complicated, of course, but this style of programming has some useful
+   applications. CPS allows a procedure to pass more than one result to its continuation, because the procedure that
+   implements the continuation can take any number of arguments.
+
+#+begin_src scheme
+   (define car&cdr
+     (lambda (p k)
+       (k (car p) (cdr p))))
+
+   (car&cdr '(a b c)
+     (lambda (x y)
+       (list y x))) → ((b c) a)
+   (car&cdr '(a b c) cons) → (a b c)
+   (car&cdr '(a b c a d) memv) → (a d)
+#+end_src
+
+   (This can be done with multiple values as well; see Section 5.8.) CPS also allows a procedure to take separate
+   "success" and "failure" continuations, which may accept different numbers of arguments. An example is integer-divide
+   below, which passes the quotient and remainder of its first two arguments to its third, unless the second argument
+   (the divisor) is zero, in which case it passes an error message to its fourth argument.
+
+#+begin_src scheme
+   (define integer-divide
+     (lambda (x y success failure)
+       (if (= y 0)
+           (failure "divide by zero")
+           (let ([q (quotient x y)])
+             (success q (- x (* q y)))))))
+
+   (integer-divide 10 3 list (lambda (x) x)) → (3 1)
+   (integer-divide 10 0 list (lambda (x) x)) → "divide by zero"
+#+end_src
+
+   The procedure quotient, employed by integer-divide, returns the quotient of its two arguments, truncated toward
+   zero.
+
+   Explicit success and failure continuations can sometimes help to avoid the extra communication necessary to separate
+   successful execution of a procedure from unsuccessful execution. Furthermore, it is possible to have multiple success
+   or failure continuations for different flavors of success or failure, each possibly taking different numbers and
+   types of arguments. See Sections 12.10 and 12.11 for extended examples that employ continuation-passing style.
+
+   At this point you might be wondering about the relationship between CPS and the continuations captured via
+   call/cc. It turns out that any program that uses call/cc can be rewritten in CPS without call/cc, but a total rewrite
+   of the program (sometimes including even system-defined primitives) might be necessary. Try to convert the product
+   example on page 75 into CPS before looking at the version below.
+
+#+begin_src scheme
+   (define product
+     (lambda (ls k)
+       (let ([break k])
+         (let f ([ls ls] [k k])
+           (cond
+             [(null? ls) (k 1)]
+             [(= (car ls) 0) (break 0)]
+             [else (f (cdr ls)
+                      (lambda (x)
+                        (k (* (car ls) x))))])))))
+
+   (product '(1 2 3 4 5) (lambda (x) x)) → 120
+   (product '(7 3 8 0 1 9 5) (lambda (x) x)) → 0
+#+end_src
+
+*** Exercise 3.4.1
+
+    Rewrite the reciprocal example first given in Section 2.1 to accept both success and failure continuations, like
+    integer-divide above.
+
+*** Exercise 3.4.2
+
+    Rewrite the retry example from page 75 to use CPS.
+
+*** Exercise 3.4.3
+
+    Rewrite the following expression in CPS to avoid using call/cc.
+
+#+begin_src scheme
+    (define reciprocals
+      (lambda (ls)
+        (call/cc
+          (lambda (k)
+            (map (lambda (x)
+                   (if (= x 0)
+                       (k "zero found")
+                       (/ 1 x)))
+                 ls)))))
+
+    (reciprocals '(2 1/3 5 1/4)) → (1/2 3 1/5 4)
+    (reciprocals '(2 1/3 0 5 1/4)) → "zero found"
+#+end_src
+
+** Section 3.5. Internal Definitions
+** Section 3.6. Libraries
