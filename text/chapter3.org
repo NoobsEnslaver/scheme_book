@@ -1040,4 +1040,341 @@
 #+end_src
 
 ** Section 3.5. Internal Definitions
+
+   In Section 2.6, we discussed top-level definitions. Definitions may also appear at the front of a lambda, let, or
+   letrec body, in which case the bindings they create are local to the body.
+
+#+begin_src scheme
+   (define f (lambda (x) (* x x)))
+   (let ([x 3])
+     (define f (lambda (y) (+ y x)))
+     (f 4)) → 7
+   (f 4) → 16
+#+end_src
+
+   Procedures bound by internal definitions can be mutually recursive, as with letrec. For example, we can rewrite the
+   even? and odd? example from Section 3.2 using internal definitions as follows.
+
+#+begin_src scheme
+   (let ()
+     (define even?
+       (lambda (x)
+         (or (= x 0)
+             (odd? (- x 1)))))
+     (define odd?
+       (lambda (x)
+         (and (not (= x 0))
+              (even? (- x 1)))))
+     (even? 20)) → #t
+#+end_src
+
+   Similarly, we can replace the use of letrec to bind race with an internal definition of race in our first definition
+   of list?.
+
+#+begin_src scheme
+   (define list?
+     (lambda (x)
+       (define race
+         (lambda (h t)
+           (if (pair? h)
+               (let ([h (cdr h)])
+                 (if (pair? h)
+                     (and (not (eq? h t))
+                          (race (cdr h) (cdr t)))
+                     (null? h)))
+               (null? h))))
+       (race x x)))
+#+end_src
+
+   In fact, internal variable definitions and letrec are practically interchangeable. The only difference, other than
+   the obvious difference in syntax, is that variable definitions are guaranteed to be evaluated from left to right,
+   while the bindings of a letrec may be evaluated in any order. So we cannot quite replace a lambda, let, or letrec
+   body containing internal definitions with a letrec expression. We can, however, use letrec*, which, like let*,
+   guarantees left-to-right evaluation order. A body of the form
+
+#+begin_src scheme
+   (define var expr0)
+   ...
+   expr1
+   expr2
+   ...
+#+end_src
+
+   is equivalent to a letrec* expression binding the defined variables to the associated values in a body comprising the
+   expressions.
+
+#+begin_src scheme
+   (letrec* ((var expr0) ...) expr1 expr2 ...)
+#+end_src
+
+   Conversely, a letrec* of the form
+
+#+begin_src scheme
+   (letrec* ((var expr0) ...) expr1 expr2 ...)
+#+end_src
+
+   can be replaced with a let expression containing internal definitions and the expressions from the body as follows.
+
+#+begin_src scheme
+   (let ()
+     (define var expr0)
+     ...
+     expr1
+     expr2
+     ...
+   )
+#+end_src
+
+   The seeming lack of symmetry between these transformations is due to the fact that letrec* expressions can appear
+   anywhere an expression is valid, whereas internal definitions can appear only at the front of a body. Thus, in
+   replacing a letrec* with internal definitions, we must generally introduce a let expression to hold the definitions.
+
+   Another difference between internal definitions and letrec or letrec* is that syntax definitions may appear among the
+   internal definitions, while letrec and letrec* bind only variables.
+
+#+begin_src scheme
+   (let ([x 3])
+     (define-syntax set-x!
+       (syntax-rules ()
+         [(_ e) (set! x e)]))
+     (set-x! (+ x x))
+     x) → 6
+#+end_src
+
+   The scope of a syntactic extension established by an internal syntax definition, as with an internal variable
+   definition, is limited to the body in which the syntax definition appears.
+
+   Internal definitions may be used in conjunction with top-level definitions and assignments to help modularize
+   programs. Each module of a program should make visible only those bindings that are needed by other modules, while
+   hiding other bindings that would otherwise clutter the top-level namespace and possibly result in unintended use or
+   redefinition of those bindings. A common way of structuring a module is shown below.
+
+#+begin_src scheme
+   (define export-var #f)
+    ...
+   (let ()
+     (define var expr)
+      ...
+     init-expr
+      ...
+     (set! export-var export-val)
+      ...
+   )
+#+end_src
+
+   The first set of definitions establish top-level bindings for the variables we desire to export (make visible
+   globally). The second set of definitions establish local bindings visible only within the module. The expressions
+   init-expr ... perform any initialization that must occur after the local bindings have been established. Finally, the
+   set! expressions assign the exported variables to the appropriate values.
+
+   An advantage of this form of modularization is that the bracketing let expression may be removed or "commented out"
+   during program development, making the internal definitions top-level to facilitate interactive testing. This form of
+   modularization also has several disadvantages, as we discuss in the next section.
+
+   The following module exports a single variable, calc, which is bound to a procedure that implements a simple
+   four-function calculator.
+
+#+begin_src scheme
+   (define calc #f)
+   (let ()
+     (define do-calc
+       (lambda (ek expr)
+         (cond
+           [(number? expr) expr]
+           [(and (list? expr) (= (length expr) 3))
+            (let ([op (car expr)] [args (cdr expr)])
+              (case op
+                [(add) (apply-op ek + args)]
+                [(sub) (apply-op ek - args)]
+                [(mul) (apply-op ek * args)]
+                [(div) (apply-op ek / args)]
+                [else (complain ek "invalid operator" op)]))]
+           [else (complain ek "invalid expression" expr)])))
+     (define apply-op
+       (lambda (ek op args)
+         (op (do-calc ek (car args)) (do-calc ek (cadr args)))))
+     (define complain
+       (lambda (ek msg expr)
+         (ek (list msg expr))))
+     (set! calc
+       (lambda (expr)
+         ; grab an error continuation ek
+         (call/cc
+           (lambda (ek)
+             (do-calc ek expr))))))
+
+   (calc '(add (mul 3 2) -4)) → 2
+   (calc '(div 1/2 1/6)) → 3
+   (calc '(add (mul 3 2) (div 4))) → ("invalid expression" (div 4))
+   (calc '(mul (add 1 -2) (pow 2 7))) → ("invalid operator" pow)
+#+end_src
+
+   This example uses a case expression to determine which operator to apply. case is similar to cond except that the
+   test is always the same: (memv val (key ...)), where val is the value of the first case subform and (key ...) is the
+   list of items at the front of each case clause. The case expression in the example above could be rewritten using
+   cond as follows.
+
+#+begin_src scheme
+   (let ([temp op])
+     (cond
+       [(memv temp '(add)) (apply-op ek + args)]
+       [(memv temp '(sub)) (apply-op ek - args)]
+       [(memv temp '(mul)) (apply-op ek * args)]
+       [(memv temp '(div)) (apply-op ek / args)]
+       [else (complain ek "invalid operator" op)]))
+#+end_src
+
+*** Exercise 3.5.1
+
+    Redefine complain in the calc example as an equivalent syntactic extension.
+
+*** Exercise 3.5.2
+
+    In the calc example, the error continuation ek is passed along on each call to apply-op, complain, and do-calc. Move
+    the definitions of apply-op, complain, and do-calc inward as far as necessary to eliminate the ek argument from the
+    definitions and applications of these procedures.
+
+*** Exercise 3.5.3
+
+    Eliminate the call/cc from calc and rewrite complain to raise an exception using assertion-violation.
+
+*** Exercise 3.5.4
+
+    Extend calc to handle unary minus expressions, e.g.,
+
+    (calc '(minus (add 2 3))) → -5
+
+    and other operators of your choice.
+
 ** Section 3.6. Libraries
+
+   At the end of the preceding section, we discussed a form of modularization that involves assigning a set of top-level
+   variables from within a let while keeping unpublished helpers local to the let. This form of modularization has
+   several drawbacks:
+
+   * It is unportable, because the behavior and even existence of an interactive top level is not guaranteed by the
+     Revised6 Report.
+   * It requires assignments, which make the code appear somewhat awkward and may inhibit compiler analyses and
+     optimizations.
+   * It does not support the publication of keyword bindings, since there is no analogue to set! for keywords.
+
+   An alternative that does not share these drawbacks is to create a library. A library exports a set of identifiers,
+   each defined within the library or imported from some other library. An exported identifier need not be bound as a
+   variable; it may be bound as a keyword instead.
+
+   The following library exports two identifiers: the variable gpa->grade and the keyword gpa. The variable gpa->grade
+   is bound to a procedure that takes a grade-point average (GPA), represented as a number, and returns the
+   corresponding letter grade, based on a four-point scale. The keyword gpa names a syntactic extension whose subforms
+   must all be letter grades and whose value is the GPA computed from those letter grades.
+
+#+begin_src scheme
+   (library (grades)
+     (export gpa->grade gpa)
+     (import (rnrs))
+
+     (define in-range?
+       (lambda (x n y)
+         (and (>= n x) (< n y))))
+
+     (define-syntax range-case
+       (syntax-rules (- else)
+         [(_ expr ((x - y) e1 e2 ...) ... [else ee1 ee2 ...])
+          (let ([tmp expr])
+            (cond
+              [(in-range? x tmp y) e1 e2 ...]
+              ...
+              [else ee1 ee2 ...]))]
+         [(_ expr ((x - y) e1 e2 ...) ...)
+          (let ([tmp expr])
+            (cond
+              [(in-range? x tmp y) e1 e2 ...]
+              ...))]))
+
+     (define letter->number
+       (lambda (x)
+         (case x
+           [(a)  4.0]
+           [(b)  3.0]
+           [(c)  2.0]
+           [(d)  1.0]
+           [(f)  0.0]
+           [else (assertion-violation 'grade "invalid letter grade" x)])))
+
+     (define gpa->grade
+       (lambda (x)
+         (range-case x
+           [(0.0 - 0.5) 'f]
+           [(0.5 - 1.5) 'd]
+           [(1.5 - 2.5) 'c]
+           [(2.5 - 3.5) 'b]
+           [else 'a])))
+
+     (define-syntax gpa
+       (syntax-rules ()
+         [(_ g1 g2 ...)
+          (let ([ls (map letter->number '(g1 g2 ...))])
+            (/ (apply + ls) (length ls)))])))
+#+end_src
+
+   The name of the library is (grades). This may seem like a funny kind of name, but all library names are
+   parenthesized. The library imports from the standard (rnrs) library, which contains most of the primitive and keyword
+   bindings we have used in this chapter and the last, and everything we need to implement gpa->grade and gpa.
+
+   Along with gpa->grade and gpa, several other syntactic extensions and procedures are defined within the library, but
+   none of the others are exported. The ones that aren't exported are simply helpers for the ones that are. Everything
+   used within the library should be familiar, except for the apply procedure, which is described on page 107.
+
+   If your Scheme implementation supports import in the interactive top level, you can test the two exports as shown
+   below.
+
+#+begin_src scheme
+   (import (grades))
+   (gpa c a c b b) → 2.8
+   (gpa->grade 2.8) → b
+#+end_src
+
+   Chapter 10 describes libraries in more detail and provides additional examples of their use.
+
+*** Exercise 3.6.1
+
+    Modify gpa to handle "x" grades, which do not count in the grade-point average. Be careful to handle gracefully the
+    situation where each grade is x.
+
+#+begin_src scheme
+    (import (grades))
+    (gpa a x b c) → 3.0
+#+end_src
+
+*** Exercise 3.6.2
+
+    Export from (grades) a new syntactic form, distribution, that takes a set of grades, like gpa, but returns a list of
+    the form ((n g) ...), where n is the number of times g appears in the set, with one entry for each g. Have
+    distribution call an unexported procedure to do the actual work.
+
+#+begin_src scheme
+    (import (grades))
+    (distribution a b a c c c a f b a) → ((4 a) (2 b) (3 c) (0 d) (1 f))
+#+end_src
+
+*** Exercise 3.6.3
+
+    Now read about output operations in Section 7.8 and define a new export, histogram, as a procedure that takes a
+    textual output port and a distribution, such as might be produced by distribution, and prints a histogram in the
+    style illustrated by the example below.
+
+#+begin_src scheme
+    (import (grades))
+    (histogram
+      (current-output-port)
+      (distribution a b a c c a c a f b a))
+#+end_src
+
+    prints:
+
+#+BEGIN_EXAMPLE
+  a: *****
+  b: **
+  c: ***
+  d:
+  f: *
+#+END_EXAMPLE
