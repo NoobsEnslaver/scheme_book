@@ -1,5 +1,293 @@
 * Chapter 3. Going Further
+  The preceding chapter prepared you to write Scheme programs using a small set of the most useful primitive syntactic
+  forms and procedures. This chapter introduces a number of additional features and programming techniques that will
+  allow you to write more sophisticated and efficient programs.
+
 ** Section 3.1. Syntactic Extension
+   As we saw in Section 2.5, the let syntactic form is merely a syntactic extension defined in terms of a lambda
+   expression and a procedure application, both core syntactic forms. At this point, you might be wondering which
+   syntactic forms are core forms and which are syntactic extensions, and how new syntactic extensions may be
+   defined. This section provides some answers to these questions.
+
+   In truth, it is not necessary for us to draw a distinction between core forms and syntactic extensions, since once
+   defined, a syntactic extension has exactly the same status as a core form. Drawing a distinction, however, makes
+   understanding the language easier, since it allows us to focus attention on the core forms and to understand all
+   others in terms of them.
+
+   It is necessary for a Scheme implementation to distinguish between core forms and syntactic extensions. A Scheme
+   implementation expands syntactic extensions into core forms as the first step of compilation or interpretation,
+   allowing the rest of the compiler or interpreter to focus only on the core forms. The set of core forms remaining
+   after expansion to be handled directly by the compiler or interpreter is implementation-dependent, however, and may
+   be different from the set of forms described as core here.
+
+   The exact set of syntactic forms making up the core of the language is thus subject to debate, although it must be
+   possible to derive all other forms from any set of forms declared to be core forms. The set described here is among
+   the simplest for which this constraint is satisfied.
+
+   The core syntactic forms include top-level define forms, constants, variables, procedure applications, quote
+   expressions, lambda expressions, if expressions, and set! expressions. The grammar below describes the core syntax of
+   Scheme in terms of these definitions and expressions. In the grammar, vertical bars ( | ) separate alternatives, and a
+   form followed by an asterisk ( * ) represents zero or more occurrences of the form. <variable> is any Scheme
+   identifier. <datum> is any Scheme object, such as a number, list, symbol, or vector. <boolean> is either #t or #f,
+   <number> is any number, <character> is any character, and <string> is any string. We have already seen examples of
+   numbers, strings, lists, symbols, and booleans. See Chapter 6 or the formal syntax description starting on page 455 for
+   more on the object-level syntax of these and other objects.
+
+#+BEGIN_EXAMPLE
+   <program>             → <form>*
+   <form>                → <definition> | <expression>
+   <definition>          → <variable definition> | (begin <definition>*)
+   <variable definition> → (define <variable> <expression>)
+   <expression>          → <constant>
+                         | <variable>
+                         | (quote <datum>)
+                         | (lambda <formals> <expression> <expression>*)
+                         | (if <expression> <expression> <expression>)
+                         | (set! <variable> <expression>)
+                         | <application>
+   <constant>            → <boolean> | <number> | <character> | <string>
+   <formals>             → <variable>
+                         | (<variable>*)
+                         | (<variable> <variable>* . <variable>)
+   <application>         → (<expression> <expression>*)
+#+END_EXAMPLE
+
+   The grammar is ambiguous in that the syntax for procedure applications conflicts with the syntaxes for quote, lambda,
+   if, and set! expressions. In order to qualify as a procedure application, the first <expression> must not be one of
+   these keywords, unless the keyword has been redefined or locally bound.
+
+   The "defun" syntax for define given in Section 2.6 is not included in the core, since definitions in that form are
+   straightforwardly translated into the simpler define syntax. Similarly, the core syntax for if does not permit the
+   alternative to be omitted, as did one example in Section 2.9. An if expression lacking an alternative can be
+   translated into the core syntax for if merely by replacing the missing subexpression with an arbitrary constant, such
+   as #f.
+
+   A begin that contains only definitions is considered to be a definition in the grammar; this is permitted in order to
+   allow syntactic extensions to expand into more than one definition. begin expressions, i.e., begin forms containing
+   expressions, are not considered core forms. A begin expression of the form
+
+#+begin_src scheme
+   (begin e1 e2 ...)
+#+end_src
+
+   is equivalent to the lambda application
+
+#+begin_src scheme
+   ((lambda () e1 e2 ...))
+#+end_src
+
+   and hence need not be considered core.
+
+   Now that we have established a set of core syntactic forms, let's turn to a discussion of syntactic
+   extensions. Syntactic extensions are so called because they extend the syntax of Scheme beyond the core syntax. All
+   syntactic extensions in a Scheme program must ultimately be derived from the core forms. One syntactic extension,
+   however, may be defined in terms of another syntactic extension, as long as the latter is in some sense "closer" to
+   the core syntax. Syntactic forms may appear anywhere an expression or definition is expected, as long as the extended
+   form expands into a definition or expression as appropriate.
+
+   Syntactic extensions are defined with define-syntax. define-syntax is similar to define, except that define-syntax
+   associates a syntactic transformation procedure, or transformer, with a keyword (such as let), rather than
+   associating a value with a variable. Here is how we might define let with define-syntax.
+
+#+begin_src scheme
+   (define-syntax let
+     (syntax-rules ()
+       [(_ ((x e) ...) b1 b2 ...)
+        ((lambda (x ...) b1 b2 ...) e ...)]))
+#+end_src
+
+   The identifier appearing after define-syntax is the name, or keyword, of the syntactic extension being defined, in
+   this case let. The syntax-rules form is an expression that evaluates to a transformer. The item following
+   syntax-rules is a list of auxiliary keywords and is nearly always (). An example of an auxiliary keyword is the else
+   of cond. (Other examples requiring the use of auxiliary keywords are given in Chapter 8.) Following the list of
+   auxiliary keywords is a sequence of one or more rules, or pattern/template pairs. Only one rule appears in our
+   definition of let. The pattern part of a rule specifies the form that the input must take, and the template specifies
+   to what the input should be transformed.
+
+   The pattern should always be a structured expression whose first element is an underscore ( _ ). (As we will see in
+   Chapter 8, the use of _ is only a convention, but it is a good one to follow.) If more than one rule is present, the
+   appropriate one is chosen by matching the patterns, in order, against the input during expansion. It is a syntax
+   violation if none of the patterns match the input.
+
+   Identifiers other than an underscore or ellipsis appearing within a pattern are pattern variables, unless they are
+   listed as auxiliary keywords. Pattern variables match any substructure and are bound to that substructure within the
+   corresponding template. The notation pat ... in the pattern allows for zero or more expressions matching the ellipsis
+   prototype pat in the input. Similarly, the notation expr ... in the template produces zero or more expressions from
+   the ellipsis prototype expr in the output. The number of pats in the input determines the number of exprs in the
+   output; in order for this to work, any ellipsis prototype in the template must contain at least one pattern variable
+   from an ellipsis prototype in the pattern.
+
+   The single rule in our definition of let should be fairly self-explanatory, but a few points are worth
+   mentioning. First, the syntax of let requires that the body contain at least one form; hence, we have specified b1 b2
+   ... instead of b ..., which might seem more natural. On the other hand, let does not require that there be at least
+   one variable/value pair, so we were able to use, simply, (x e) .... Second, the pattern variables x and e, though
+   together within the same prototype in the pattern, are separated in the template; any sort of rearrangement or
+   recombination is possible. Finally, the three pattern variables x, e, and b2 that appear in ellipsis prototypes in
+   the pattern also appear in ellipsis prototypes in the template. This is not a coincidence; it is a requirement. In
+   general, if a pattern variable appears within an ellipsis prototype in the pattern, it cannot appear outside an
+   ellipsis prototype in the template.
+
+   The definition of and below is somewhat more complex than the one for ~let~.
+
+#+begin_src scheme
+   (define-syntax and
+     (syntax-rules ()
+       [(_) #t]
+       [(_ e) e]
+       [(_ e1 e2 e3 ...)
+        (if e1 (and e2 e3 ...) #f)]))
+#+end_src
+
+   This definition is recursive and involves more than one rule. Recall that (and) evaluates to #t; the first rule takes
+   care of this case. The second and third rules specify the base case and recursion steps of the recursion and together
+   translate and expressions with two or more subexpressions into nested if expressions. For example, (and a b c)
+   expands first into
+
+#+begin_src scheme
+   (if a (and b c) #f)
+#+end_src
+
+   then
+
+#+begin_src scheme
+   (if a (if b (and c) #f) #f)
+#+end_src
+
+   and finally
+
+#+begin_src scheme
+   (if a (if b c #f) #f)
+#+end_src
+
+   With this expansion, if a and b evaluate to a true value, then the value is the value of c, otherwise #f, as desired.
+
+   The version of and below is simpler but, unfortunately, incorrect.
+
+#+begin_src scheme
+   (define-syntax and ; incorrect!
+     (syntax-rules ()
+       [(_) #t]
+       [(_ e1 e2 ...)
+        (if e1 (and e2 ...) #f)]))
+#+end_src
+
+   The expression
+
+#+begin_src scheme
+   (and (not (= x 0)) (/ 1 x))
+#+end_src
+
+   should return the value of (/ 1 x) when x is not zero. With the incorrect version of and, the expression expands as
+   follows.
+
+#+begin_src scheme
+   (if (not (= x 0)) (and (/ 1 x)) #f) →
+   (if (not (= x 0)) (if (/ 1 x) (and) #f) #f) →
+   (if (not (= x 0)) (if (/ 1 x) #t #f) #f)
+#+end_src
+
+   The final answer if x is not zero is #t, not the value of (/ 1 x).
+
+   The definition of or below is similar to the one for and except that a temporary variable must be introduced for each
+   intermediate value so that we can both test the value and return it if it is a true value. (A temporary variable is not
+   needed for and since there is only one false value, #f.)
+
+#+begin_src scheme
+   (define-syntax or
+     (syntax-rules ()
+       [(_) #f]
+       [(_ e) e]
+       [(_ e1 e2 e3 ...)
+        (let ([t e1])
+          (if t t (or e2 e3 ...)))]))
+#+end_src
+
+   Like variables bound by lambda or let, identifiers introduced by a template are lexically scoped, i.e., visible only
+   within expressions introduced by the template. Thus, even if one of the expressions e2 e3 ... contains a reference to
+   t, the introduced binding for t does not "capture" those references. This is typically accomplished via automatic
+   renaming of introduced identifiers.
+
+   As with the simpler version of and given above, the simpler version of or below is incorrect.
+
+#+begin_src scheme
+   (define-syntax or ; incorrect!
+     (syntax-rules ()
+       [(_) #f]
+       [(_ e1 e2 ...)
+        (let ([t e1])
+          (if t t (or e2 ...)))]))
+#+end_src
+
+   The reason is more subtle, however, and is the subject of Exercise 3.2.6.
+
+*** Exercise 3.1.1
+
+    Write out the expansion steps necessary to expand
+
+#+begin_src scheme
+    (let ([x (memv 'a ls)])
+      (and x (memv 'b x)))
+#+end_src
+
+   into core forms.
+
+*** Exercise 3.1.2
+
+    Write out the expansion steps necessary to expand
+
+#+begin_src scheme
+    (or (memv x '(a b c)) (list x))
+#+end_src
+
+    into core forms.
+
+*** Exercise 3.1.3
+
+    ~let*~ is similar to let but evaluates its bindings in sequence. Each of the right-hand-side expressions is within
+    the scope of the earlier bindings.
+
+#+begin_src scheme
+    (let* ([a 5] [b (+ a a)] [c (+ a b)])
+      (list a b c)) → (5 10 15)
+#+end_src
+
+    ~let*~ can be implemented as nested let expressions. For example, the ~let*~ expression above is equivalent to the
+    nested let expressions below.
+
+#+begin_src scheme
+    (let ([a 5])
+      (let ([b (+ a a)])
+        (let ([c (+ a b)])
+          (list a b c)))) → (5 10 15)
+#+end_src
+
+    Define ~let*~ with define-syntax.
+
+*** Exercise 3.1.4
+
+    As we saw in Section 2.9, it is legal to omit the third, or alternative, subexpression of an if expression. Doing
+    so, however, often leads to confusion. Scheme provides two syntactic forms, when and unless, that may be used in
+    place of such "one-armed" if expressions.
+
+#+begin_src scheme
+    (when test expr1 expr2 ...)
+    (unless test expr1 expr2 ...)
+#+end_src
+
+    With both forms, test is evaluated first. For when, if test evaluates to true, the remaining forms are evaluated in
+    sequence as if enclosed in an implicit begin expression. If test evaluates to false, the remaining forms are not
+    evaluated, and the result is unspecified. unless is similar except that the remaining forms are evaluated only if
+    test evaluates to false.
+
+#+begin_src scheme
+    (let ([x 3])
+      (unless (= x 0) (set! x (+ x 1)))
+      (when (= x 4) (set! x (* x 2)))
+      x) → 8
+#+end_src
+
+    Define when as a syntactic extension in terms of if and begin, and define unless in terms of when.
+
 ** Section 3.2. More Recursion
 ** Section 3.3. Continuations
 ** Section 3.4. Continuation Passing Style
