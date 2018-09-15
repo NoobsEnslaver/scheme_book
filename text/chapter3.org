@@ -289,7 +289,428 @@
     Define when as a syntactic extension in terms of if and begin, and define unless in terms of when.
 
 ** Section 3.2. More Recursion
+   In Section 2.8, we saw how to define recursive procedures using top-level definitions. Before that, we saw how to
+   create local bindings for procedures using let. It is natural to wonder whether a let-bound procedure can be
+   recursive. The answer is no, at least not in a straightforward way. If you try to evaluate the expression
+
+#+begin_src scheme
+   (let ([sum (lambda (ls)
+                (if (null? ls)
+                    0
+                    (+ (car ls) (sum (cdr ls)))))])
+     (sum '(1 2 3 4 5)))
+#+end_src
+
+   it will probably raise an exception with a message to the effect that sum is undefined. This is because the variable
+   sum is visible only within the body of the let expression and not within the lambda expression whose value is bound
+   to sum. We can get around this problem by passing the procedure sum to itself as follows.
+
+#+begin_src scheme
+   (let ([sum (lambda (sum ls)
+                (if (null? ls)
+                    0
+                    (+ (car ls) (sum sum (cdr ls)))))])
+     (sum sum '(1 2 3 4 5))) → 15
+#+end_src
+
+   This works and is a clever solution, but there is an easier way, using letrec. Like let, the letrec syntactic form
+   includes a set of variable-value pairs, along with a sequence of expressions referred to as the body of the letrec.
+
+#+begin_src scheme
+   (letrec ((var expr) ...) body1 body2 ...)
+#+end_src
+
+   Unlike let, the variables var ... are visible not only within the body of the letrec but also within expr .... Thus,
+   we can rewrite the expression above as follows.
+
+#+begin_src scheme
+   (letrec ([sum (lambda (ls)
+                   (if (null? ls)
+                       0
+                       (+ (car ls) (sum (cdr ls)))))])
+     (sum '(1 2 3 4 5))) → 15
+#+end_src
+
+   Using ~letrec~, we can also define mutually recursive procedures, such as the procedures ~even?~ and ~odd?~ that were
+   the subject of Exercise 2.8.6.
+
+#+begin_src scheme
+   (letrec ([even?
+             (lambda (x)
+               (or (= x 0)
+                   (odd? (- x 1))))]
+            [odd?
+             (lambda (x)
+               (and (not (= x 0))
+                    (even? (- x 1))))])
+     (list (even? 20) (odd? 20))) → (#t #f)
+#+end_src
+
+   In a letrec expression, expr ... are most often lambda expressions, though this need not be the case. One restriction
+   on the expressions must be obeyed, however. It must be possible to evaluate each expr without evaluating any of the
+   variables var .... This restriction is always satisfied if the expressions are all lambda expressions, since even
+   though the variables may appear within the lambda expressions, they cannot be evaluated until the resulting
+   procedures are invoked in the body of the letrec. The following letrec expression obeys this restriction.
+
+#+begin_src scheme
+   (letrec ([f (lambda () (+ x 2))]
+            [x 1])
+     (f)) → 3
+#+end_src
+
+   while the following does not.
+
+#+begin_src scheme
+   (letrec ([y (+ x 2)]
+            [x 1])
+     y)
+#+end_src
+
+   In this case, an exception is raised indicating that x is not defined where it is referenced.
+
+   We can use letrec to hide the definitions of "help" procedures so that they do not clutter the top-level
+   namespace. This is demonstrated by the definition of list? below, which follows the "hare and tortoise" algorithm
+   outlined in Exercise 2.9.8.
+
+#+begin_src scheme
+   (define list?
+     (lambda (x)
+       (letrec ([race
+                 (lambda (h t)
+                   (if (pair? h)
+                       (let ([h (cdr h)])
+                         (if (pair? h)
+                             (and (not (eq? h t))
+                                  (race (cdr h) (cdr t)))
+                             (null? h)))
+                       (null? h)))])
+         (race x x))))
+#+end_src
+
+   When a recursive procedure is called in only one place outside the procedure, as in the example above, it is often
+   clearer to use a named let expression. Named let expressions take the following form.
+
+#+begin_src scheme
+   (let name ((var expr) ...)
+     body1 body2 ...)
+#+end_src
+
+   Named let is similar to unnamed let in that it binds the variables var ... to the values of expr ... within the body
+   body1 body2 .... As with unnamed let, the variables are visible only within the body and not within expr .... In
+   addition, the variable name is bound within the body to a procedure that may be called to recur; the arguments to the
+   procedure become the new values for the variables var ....
+
+   The definition of ~list?~ has been rewritten below to use named ~let~.
+
+#+begin_src scheme
+   (define list?
+     (lambda (x)
+       (let race ([h x] [t x])
+         (if (pair? h)
+             (let ([h (cdr h)])
+               (if (pair? h)
+                   (and (not (eq? h t))
+                        (race (cdr h) (cdr t)))
+                   (null? h)))
+             (null? h)))))
+#+end_src
+
+   Just as let can be expressed as a simple direct application of a lambda expression to arguments, named let can be
+   expressed as the application of a recursive procedure to arguments. A named let of the form
+
+#+begin_src scheme
+   (let name ((var expr) ...)
+     body1 body2 ...)
+#+end_src
+
+   can be rewritten in terms of letrec as follows.
+
+#+begin_src scheme
+   ((letrec ((name (lambda (var ...) body1 body2 ...)))
+      name)
+    expr ...)
+#+end_src
+
+   Alternatively, it can be rewritten as
+
+#+begin_src scheme
+   (letrec ((name (lambda (var ...) body1 body2 ...)))
+     (name expr ...))
+#+end_src
+
+   provided that the variable name does not appear free within expr ....
+
+   As we discussed in Section 2.8, some recursion is essentially iteration and executes as such. When a procedure call
+   is in tail position (see below) with respect to a lambda expression, it is considered to be a tail call, and Scheme
+   systems must treat it properly, as a "goto" or jump. When a procedure tail-calls itself or calls itself indirectly
+   through a series of tail calls, the result is tail recursion. Because tail calls are treated as jumps, tail recursion
+   can be used for indefinite iteration in place of the more restrictive iteration constructs provided by other
+   programming languages, without fear of overflowing any sort of recursion stack.
+
+   A call is in tail position with respect to a lambda expression if its value is returned directly from the lambda
+   expression, i.e., if nothing is left to do after the call but to return from the lambda expression. For example, a
+   call is in tail position if it is the last expression in the body of a lambda expression, the consequent or
+   alternative part of an if expression in tail position, the last subexpression of an and or or expression in tail
+   position, the last expression in the body of a let or letrec in tail position, etc. Each of the calls to f in the
+   expressions below are tail calls, but the calls to g are not.
+
+#+begin_src scheme
+   (lambda () (f (g)))
+   (lambda () (if (g) (f) (f)))
+   (lambda () (let ([x 4]) (f)))
+   (lambda () (or (g) (f)))
+#+end_src
+
+   In each case, the values of the calls to f are returned directly, whereas the calls to g are not.
+
+   Recursion in general and named let in particular provide a natural way to implement many algorithms, whether
+   iterative, recursive, or partly iterative and partly recursive; the programmer is not burdened with two distinct
+   mechanisms.
+
+   The following two definitions of factorial use named let expressions to compute the factorial, n!, of a nonnegative
+   integer n. The first employs the recursive definition n! = n × (n - 1)!, where 0! is defined to be 1.
+
+#+begin_src scheme
+   (define factorial
+     (lambda (n)
+       (let fact ([i n])
+         (if (= i 0)
+             1
+             (* i (fact (- i 1)))))))
+#+end_src
+
+#+begin_src scheme
+   (factorial 0) → 1
+   (factorial 1) → 1
+   (factorial 2) → 2
+   (factorial 3) → 6
+   (factorial 10) → 3628800
+#+end_src
+
+   The second is an iterative version that employs the iterative definition ~n! = n × (n - 1) × (n - 2) × ... × 1~,
+   using an accumulator, a, to hold the intermediate products.
+
+#+begin_src scheme
+   (define factorial
+     (lambda (n)
+       (let fact ([i n] [a 1])
+         (if (= i 0)
+             a
+             (fact (- i 1) (* a i))))))
+#+end_src
+
+   A similar problem is to compute the nth Fibonacci number for a given n. The Fibonacci numbers are an infinite
+   sequence of integers, 0, 1, 1, 2, 3, 5, 8, etc., in which each number is the sum of the two preceding numbers in the
+   sequence. A procedure to compute the nth Fibonacci number is most naturally defined recursively as follows.
+
+#+begin_src scheme
+   (define fibonacci
+     (lambda (n)
+       (let fib ([i n])
+         (cond
+           [(= i 0) 0]
+           [(= i 1) 1]
+           [else (+ (fib (- i 1)) (fib (- i 2)))]))))
+#+end_src
+
+#+begin_src scheme
+   (fibonacci 0) → 0
+   (fibonacci 1) → 1
+   (fibonacci 2) → 1
+   (fibonacci 3) → 2
+   (fibonacci 4) → 3
+   (fibonacci 5) → 5
+   (fibonacci 6) → 8
+   (fibonacci 20) → 6765
+   (fibonacci 30) → 832040
+#+end_src
+
+   This solution requires the computation of the two preceding Fibonacci numbers at each step and hence is doubly
+   recursive. For example, to compute (fibonacci 4) requires the computation of both (fib 3) and (fib 2), to compute
+   (fib 3) requires computing both (fib 2) and (fib 1), and to compute (fib 2) requires computing both (fib 1) and (fib
+   0). This is very inefficient, and it becomes more inefficient as n grows. A more efficient solution is to adapt the
+   accumulator solution of the factorial example above to use two accumulators, a1 for the current Fibonacci number and
+   a2 for the preceding one.
+
+#+begin_src scheme
+   (define fibonacci
+     (lambda (n)
+       (if (= n 0)
+           0
+           (let fib ([i n] [a1 1] [a2 0])
+             (if (= i 1)
+                 a1
+                 (fib (- i 1) (+ a1 a2) a1))))))
+#+end_src
+
+   Here, zero is treated as a special case, since there is no preceding value. This allows us to use the single base
+   case (= i 1). The time it takes to compute the nth Fibonacci number using this iterative solution grows linearly with
+   n, which makes a significant difference when compared to the doubly recursive version. To get a feel for the
+   difference, try computing (fibonacci 35) and (fibonacci 40) using both definitions to see how long each takes.
+
+   We can also get a feel for the difference by looking at a trace for each on small inputs. The first trace below shows
+   the calls to fib in the non-tail-recursive version of fibonacci, with input 5.
+
+#+BEGIN_EXAMPLE
+   |(fib 5)
+   | (fib 4)
+   | |(fib 3)
+   | | (fib 2)
+   | | |(fib 1)
+   | | |1
+   | | |(fib 0)
+   | | |0
+   | | 1
+   | | (fib 1)
+   | | 1
+   | |2
+   | |(fib 2)
+   | | (fib 1)
+   | | 1
+   | | (fib 0)
+   | | 0
+   | |1
+   | 3
+   | (fib 3)
+   | |(fib 2)
+   | | (fib 1)
+   | | 1
+   | | (fib 0)
+   | | 0
+   | |1
+   | |(fib 1)
+   | |1
+   | 2
+   |5
+#+END_EXAMPLE
+
+   Notice how there are several calls to fib with arguments 2, 1, and 0. The second trace shows the calls to fib in the
+   tail-recursive version, again with input 5.
+
+#+BEGIN_EXAMPLE
+   |(fib 5 1 0)
+   |(fib 4 1 1)
+   |(fib 3 2 1)
+   |(fib 2 3 2)
+   |(fib 1 5 3)
+   |5
+#+END_EXAMPLE
+
+   Clearly, there is quite a difference.
+
+   The named let examples shown so far are either tail-recursive or not tail-recursive. It often happens that one
+   recursive call within the same expression is tail-recursive while another is not. The definition of factor below
+   computes the prime factors of its nonnegative integer argument. The first call to f is not tail-recursive, but the
+   second one is.
+
+#+begin_src scheme
+   (define factor
+     (lambda (n)
+       (let f ([n n] [i 2])
+         (cond
+           [(>= i n) (list n)]
+           [(integer? (/ n i))
+            (cons i (f (/ n i) i))]
+           [else (f n (+ i 1))]))))
+#+end_src
+
+#+begin_src scheme
+   (factor 0) → (0)
+   (factor 1) → (1)
+   (factor 12) → (2 2 3)
+   (factor 3628800) → (2 2 2 2 2 2 2 2 3 3 3 3 5 5 7)
+   (factor 9239) → (9239)
+#+end_src
+
+   A trace of the calls to f, produced in Chez Scheme by replacing let with trace-let, in the evaluation of (factor 120)
+   below highlights the difference between the nontail calls and the tail calls.
+
+#+BEGIN_EXAMPLE
+   |(f 120 2)
+   | (f 60 2)
+   | |(f 30 2)
+   | | (f 15 2)
+   | | (f 15 3)
+   | | |(f 5 3)
+   | | |(f 5 4)
+   | | |(f 5 5)
+   | | |(5)
+   | | (3 5)
+   | |(2 3 5)
+   | (2 2 3 5)
+   |(2 2 2 3 5)
+#+END_EXAMPLE
+
+   A nontail call to f is shown indented relative to its caller, since the caller is still active, whereas tail calls
+   appear at the same level of indentation.
+
+*** Exercise 3.2.1
+
+    Which of the recursive procedures defined in Section 3.2 are tail-recursive, and which are not?
+
+*** Exercise 3.2.2
+
+    Rewrite factor using letrec to bind f in place of named let. Which version do you prefer?
+
+*** Exercise 3.2.3
+
+    Can the letrec expression below be rewritten using named let? If not, why not? If so, do it.
+
+#+begin_src scheme
+    (letrec ([even?
+              (lambda (x)
+                (or (= x 0)
+                    (odd? (- x 1))))]
+             [odd?
+              (lambda (x)
+                (and (not (= x 0))
+                     (even? (- x 1))))])
+      (even? 20))
+#+end_src
+
+*** Exercise 3.2.4
+
+    Rewrite both definitions of fibonacci given in this section to count the number of recursive calls to fib, using a
+    counter similar to the one used in the cons-count example of Section 2.9. Count the number of recursive calls made in
+    each case for several input values. What do you notice?
+
+*** Exercise 3.2.5
+
+    Augment the definition of let given in Section 3.1 to handle named let as well as unnamed let, using two rules.
+
+*** Exercise 3.2.6
+
+    The following definition of or is simpler than the one given in Section 3.1.
+
+#+begin_src scheme
+    (define-syntax or ; incorrect!
+      (syntax-rules ()
+        [(_) #f]
+        [(_ e1 e2 ...)
+         (let ([t e1])
+           (if t t (or e2 ...)))]))
+#+end_src
+
+    Say why it is not correct. [Hint: Think about what would happen if this version of or were used in the even? and
+    odd? example given on page 66 for very large inputs.]
+
+*** Exercise 3.2.7
+
+    The definition of factor is not the most efficient possible. First, no factors of n besides n itself can possibly be
+    found beyond →. Second, the division (/ n i) is performed twice when a factor is found. Third, after 2, no even
+    factors can possibly be found. Recode factor to correct all three problems. Which is the most important problem to
+    solve? Are there any additional improvements you can make?
+
 ** Section 3.3. Continuations
 ** Section 3.4. Continuation Passing Style
 ** Section 3.5. Internal Definitions
 ** Section 3.6. Libraries
+
+
+#+begin_src scheme
+
+#+end_src
+
+#+BEGIN_EXAMPLE
+
+#+END_EXAMPLE
