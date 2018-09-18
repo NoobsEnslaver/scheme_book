@@ -1,3 +1,5 @@
+# -*- fill-column: 120; -*-
+
 * Начало
 
   Данная глава является введением в Scheme для новичков. Вы извлечёте значительно больше пользы из главы, если
@@ -263,12 +265,12 @@
    (quote "Hi Mom!") ⇒ "Hi Mom!"
 #+END_EXAMPLE
 
-   Numbers and strings are treated as constants in any case, however, so quoting them is unnecessary.
+   Числа и строки интерпретируются как константы в любом случае, так что цитировать их не обязательно.
 
-   Now let's discuss some Scheme procedures for manipulating lists. There are two basic procedures for taking lists
-   apart: car and cdr (pronounced could-er). car returns the first element of a list, and cdr returns the remainder of
-   the list. (The names "car" and "cdr" are derived from operations supported by the first computer on which a Lisp
-   language was implemented, the IBM 704.) Each requires a nonempty list as its argument.
+   Теперь давайте обсудим некоторые процедуры Scheme для работы со списками. Рассмотри две базовые процедуры получения
+   значения из списка: ~car~ и ~cdr~ (произносится 'кудр'). ~car~ возвращает первый элемент из списка, ~cdr~ возвращает
+   оставшуюся часть, хвост списка. Имена ~car~ и ~cdr~ произошли от операций, поддерживаемых первым компьютером,
+   на котором впервые был реализован Lisp, IBM 704. Обе эти операции принимают не пустой список в качестве аргумента:
 
 #+BEGIN_EXAMPLE
    (car '(a b c)) ⇒ a
@@ -282,11 +284,11 @@
    (cdr '((a b) (c d))) ⇒ ((c d))
 #+END_EXAMPLE
 
-   The first element of a list is often called the "car" of the list, and the rest of the list is often called the "cdr"
-   of the list. The cdr of a list with one element is (), the empty list.
+   Первый элемент списка, часто называют /car/ или /головой/ списка, остальную часть списка часто называют /cdr/ или
+   /хвостом/. ~cdr~ от списка с одним элементом это ~()~, пустой список.
 
-   The procedure cons constructs lists. It takes two arguments. The second argument is usually a list, and in that case
-   cons returns a list.
+   Процедура ~cons~ создаёт список. Она принимает два аргумента. Второй элемент, обычно, это список, в этом случае
+   ~cons~ вернёт список.
 
 #+BEGIN_EXAMPLE
    (cons 'a '()) ⇒ (a)
@@ -302,20 +304,22 @@
          (cdr '(a b c))) ⇒ (a b c)
 #+END_EXAMPLE
 
-   Just as "car" and "cdr" are often used as nouns, "cons" is often used as a verb. Creating a new list by adding an
-   element to the beginning of a list is referred to as consing the element onto the list.
+   "car" и "cdr" обычно употребляются в качестве существительных, "cons" в качестве глагола. Создание нового списка
+   путём добавления элемента в начало списка называется /consing/.
 
-   Notice the word "usually" in the description of cons's second argument. The procedure cons actually builds pairs, and
-   there is no reason that the cdr of a pair must be a list. A list is a sequence of pairs; each pair's cdr is the next
-   pair in the sequence.
+   Обратите внимание на слово "обычно" в описании второго аргумента ~cons~. Процедура ~cons~, на самом деле, создаёт
+   пары и вовсе не обязательно, чтобы /cdr/ пары был списком. Список - это последовательность пар. /cdr/ каждой пары это
+   следующая пара в последовательности.
 
 # +ATTR_ORG: :width 300
 [[./images/1.gif]]
 
-   The cdr of the last pair in a proper list is the empty list. Otherwise, the sequence of pairs forms an improper
-   list. More formally, the empty list is a proper list, and any pair whose cdr is a proper list is a proper list.
+   /cdr/ последней пары в /правильном/ списке это пустой список. В противном случае, последовательность пар формирует
+   /неправильный/ список. Если говорить более формально, то пустой список - это /правильный/ список, а так же
+   /правильным/ становится любой список, /cdr/ которого /правильный/ список.
 
-   An improper list is printed in dotted-pair notation, with a period, or dot, preceding the final element of the list.
+   Неправильный список печатается в точечно-парной нотации, с периодом или точкой, предшествующей последнему элементу
+   списка.
 
 #+BEGIN_EXAMPLE
    (cons 'a 'b) ⇒ (a . b)
@@ -323,16 +327,16 @@
    (cons 'a '(b . c)) ⇒ (a b . c)
 #+END_EXAMPLE
 
-   Because of its printed notation, a pair whose cdr is not a list is often called a dotted pair. Even pairs whose cdrs
-   are lists can be written in dotted-pair notation, however, although the printer always chooses to write proper lists
-   without dots.
+   Из за этих соглашений о печати, пары, чей /cdr/ не является списком, часто называют /точечными парами/. Так же пары,
+   чей /cdr/ является списком так же могут быть записаны в точечно-парной нотации, однако функции печати всегда выводят
+   /правильные/ списки без точек.
 
 #+BEGIN_EXAMPLE
    '(a . (b . (c . ()))) ⇒ (a b c)
 #+END_EXAMPLE
 
-   The procedure list is similar to cons, except that it takes an arbitrary number of arguments and always builds a
-   proper list.
+   Процедура ~list~ похожа на ~cons~, с той разницей, что она принимает произвольное количество аргументов и всегда
+   строит /правильные/ списки.
 
 #+BEGIN_EXAMPLE
    (list 'a 'b 'c) ⇒ (a b c)
@@ -340,45 +344,47 @@
    (list) ⇒ ()
 #+END_EXAMPLE
 
-   Section 6.3 provides more information on lists and the Scheme procedures for manipulating them. This might be a good
-   time to turn to that section and familiarize yourself with the other procedures given there.
+   Глава 6.3 содержит больше информации о списках и процедурах Scheme для работы с ними. Возможно, сейчас самое время,
+   чтобы перейти к этой главе и получше разобраться со списками и представленными там процедурами.
 
    Упражнения
 
-   1. Convert the following arithmetic expressions into Scheme expressions and evaluate them.
+   1. Запишите следующие арифметические выражения в виде выражений Scheme и вычислите их:
       1. ~1.2 × (2 - 1/3) + -8.7~
       2. ~(2/3 + 4/9) ÷ (5/11 - 4/3)~
       3. ~1 + 1 ÷ (2 + 1 ÷ (1 + 1/2))~
       4. ~1 × -2 × 3 × -4 × 5 × -6 × 7~
-   2. Experiment with the procedures +, -, *, and / to determine Scheme's rules for the type of value returned by each
-      when given different types of numeric arguments.
-   3. Determine the values of the following expressions. Use your Scheme system to verify your answers.
-      1. a.     (cons 'car 'cdr)
-      2. (list 'this '(is silly))
-      3. (cons 'is '(this silly?))
-      4. (quote (+ 2 3))
-      5. (cons '+ '(2 3))
-      6. (car '(+ 2 3))
-      7. (cdr '(+ 2 3))
-      8. cons
-      9. (quote cons)
-      10. (quote (quote cons))
-      11. (car (quote (quote cons)))
-      12. (+ 2 3)
-      13. (+ '2 '3)
-      14. (+ (car '(2 3)) (car (cdr '(2 3))))
-      15. ((car (list + - * /)) 2 3)
-   4. (car (car '((a b) (c d)))) yields a. Determine which compositions of car and cdr applied to ((a b) (c d)) yield b,
-      c, and d.
-   5. Write a Scheme expression that evaluates to the following internal list structure.
+   2. Поэксперементируйте с процедурами ~+~, ~-~, ~*~, и ~/~ чтобы разобраться с правилами Scheme для типа значения,
+      возвращаемого каждой из процедур, когда она принимает на вход аргументы различных типов.
+   3. Определите, во что вычислятся следующие выражения. Используйте интерактивную систему Scheme, чтобы проверить свои
+      ответы:
+      1. ~(cons 'car 'cdr)~
+      2. ~(list 'this '(is silly))~
+      3. ~(cons 'is '(this silly?))~
+      4. ~(quote (+ 2 3))~
+      5. ~(cons '+ '(2 3))~
+      6. ~(car '(+ 2 3))~
+      7. ~(cdr '(+ 2 3))~
+      8. ~cons~
+      9. ~(quote cons)~
+      10. ~(quote (quote cons))~
+      11. ~(car (quote (quote cons)))~
+      12. ~(+ 2 3)~
+      13. ~(+ '2 '3)~
+      14. ~(+ (car '(2 3)) (car (cdr '(2 3))))~
+      15. ~((car (list + - * /)) 2 3)~
+   4. ~(car (car '((a b) (c d))))~ возвращает ~a~. Определите необходимую комбинацию из ~car~ и ~cdr~, применение
+      которой к ~((a b) (c d))~ вернёт ~b~, ~c~, ~d~.
+   5. Напишите выражение Scheme, которое бы вычислялось в список следующей структуры:
       #+ATTR_ORG: :width 300
       [[./images/2.gif]]
-   6. Draw the internal list structure produced by the expression below.
+   6. Нарисуйте, как будет выглядить список, возвращённый следующим выражением:
       ~(cons 1 (cons '(2 . ((3) . ())) (cons '(()) (cons 4 5))))~
-   7. The behavior of (car (car (car '((a b) (c d))))) is undefined because (car '((a b) (c d))) is (a b), (car '(a b))
-      is a, and (car 'a) is undefined. Determine all legal compositions of car and cdr applied to ((a b) (c d)).
-   8. Try to explain how Scheme expressions are evaluated. Does your explanation cover the last example in Exercise
-      2.2.3?
+   7. Поведение выражения ~(car (car (car '((a b) (c d)))))~ неопределено, потому что  ~(car '((a b) (c d)))~ это  ~(a
+      b)~, ~(car '(a b))~ это ~a~, а ~(car 'a)~ неопределно. Определите все корректные комбинации ~car~ и ~cdr~ для
+      выражения ~((a b) (c d))~.
+   8. Попробуйте объяснить, как вычисляются выражения Scheme. Последний пример из упражнения 2.2.3 укладывается в ваше
+      объяснение?
 
 ** Выполнение Scheme выражений
 ** Variables and Let Expressions
