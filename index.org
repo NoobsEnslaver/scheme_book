@@ -1,4 +1,5 @@
 # -*- org-image-actual-width: nil; -*-
+#+STARTUP: nofninline
 
 #+LATEX_CLASS: book
 #+LATEX_CLASS_OPTIONS: [11pt,fleqn, oneside]
@@ -17,7 +18,7 @@
 #+LATEX: \tableofcontents
 
 #+LATEX: \newpage
-#+INCLUDE: "./text/preface.org" org-mode :minlevel 2
+#+INCLUDE: "./text/preface.org" org-mode
 
 #+LATEX: \newpage
 [[./images/ch1.png]]
@@ -41,43 +42,42 @@
 
 #+LATEX: \newpage
 [[./images/ch6.png]]
-#+INCLUDE: "./text/chapter6.org" org-mode :minlevel 2
+#+INCLUDE: "./text/chapter6.org" :minlevel 2 org-mode
 
 #+LATEX: \newpage
 [[./images/ch7.png]]
-#+INCLUDE: "./text/chapter7.org" org-mode :minlevel 2
+#+INCLUDE: "./text/chapter7.org" :minlevel 2 org-mode
 
 #+LATEX: \newpage
 [[./images/ch8.png]]
-#+INCLUDE: "./text/chapter8.org" org-mode :minlevel 2
+#+INCLUDE: "./text/chapter8.org" :minlevel 2 org-mode
 
 #+LATEX: \newpage
 [[./images/ch9.png]]
-#+INCLUDE: "./text/chapter9.org" org-mode :minlevel 2
+#+INCLUDE: "./text/chapter9.org" :minlevel 2
 
 #+LATEX: \newpage
 [[./images/ch10.png]]
-#+INCLUDE: "./text/chapter10.org" org-mode :minlevel 2
+#+INCLUDE: "./text/chapter10.org" :minlevel 2
 
 #+LATEX: \newpage
 [[./images/ch11.png]]
-#+INCLUDE: "./text/chapter11.org" org-mode :minlevel 2
+#+INCLUDE: "./text/chapter11.org" :minlevel 2
 
 #+LATEX: \newpage
 [[./images/ch12.png]]
-#+INCLUDE: "./text/chapter12.org" org-mode :minlevel 2
+#+INCLUDE: "./text/chapter12.org" :minlevel 2
 
 #+LATEX: \newpage
-#+INCLUDE: "./text/answers.org" org-mode :minlevel 2
+#+INCLUDE: "./text/answers.org"
 
 #+LATEX: \newpage
-#+INCLUDE: "./text/syntax.org" org-mode :minlevel 2
+#+INCLUDE: "./text/syntax.org"
 
 #+LATEX: \newpage
-#+INCLUDE: "./text/forms.org" org-mode :minlevel 2
+#+INCLUDE: "./text/forms.org"
 
 #+LATEX: \newpage
-#+INCLUDE: "./text/index.org" org-mode :minlevel 2
+#+INCLUDE: "./text/index.org"
 
-#+LATEX: \newpage
-#+INCLUDE: "./text/references.org" org-mode :minlevel 1
+#+INCLUDE: "./text/references.org" org-mode

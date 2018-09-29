@@ -1,8 +1,8 @@
-* Chapter 4. Procedures and Variable Bindings
-** Section 4.1. Variable References
-** Section 4.2. Lambda
-** Section 4.3. Case-Lambda
-** Section 4.4. Local Binding
-** Section 4.5. Multiple Values
-** Section 4.6. Variable Definitions
-** Section 4.7. Assignment
+** Procedures and Variable Bindings
+*** Variable References
+*** Lambda
+*** Case-Lambda
+*** Local Binding
+*** Multiple Values
+*** Variable Definitions
+*** Assignment

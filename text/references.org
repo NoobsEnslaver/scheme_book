@@ -1,4 +1,6 @@
-* Ссылки
+#+STARTUP: nofninline
+
+* Footnotes
 
 [fn:1] Michael Adams and R. Kent Dybvig. Efficient nondestructive equality checking for trees and graphs. In Proceedings of the 13th ACM SIGPLAN International Conference on Functional Programming, 179-188, September 2008.
 

@@ -1,5 +1,5 @@
-* Chapter 10. Libraries and Top-Level Programs
-** Section 10.1. Standard Libraries
-** Section 10.2. Defining New Libraries
-** Section 10.3. Top-Level Programs
-** Section 10.4. Examples
+** Libraries and Top-Level Programs
+*** Standard Libraries
+*** Defining New Libraries
+*** Top-Level Programs
+*** Examples

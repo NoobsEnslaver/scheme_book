@@ -1,15 +1,15 @@
-* Chapter 6. Operations on Objects
-** Section 6.1. Constants and Quotation
-** Section 6.2. Generic Equivalence and Type Predicates
-** Section 6.3. Lists and Pairs
-** Section 6.4. Numbers
-** Section 6.5. Fixnums
-** Section 6.6. Flonums
-** Section 6.7. Characters
-** Section 6.8. Strings
-** Section 6.9. Vectors
-** Section 6.10. Bytevectors
-** Section 6.11. Symbols
-** Section 6.12. Booleans
-** Section 6.13. Hashtables
-** Section 6.14. Enumerations
+** Operations on Objects
+*** Constants and Quotation
+*** Generic Equivalence and Type Predicates
+*** Lists and Pairs
+*** Numbers
+*** Fixnums
+*** Flonums
+*** Characters
+*** Strings
+*** Vectors
+*** Bytevectors
+*** Symbols
+*** Booleans
+*** Hashtables
+*** Enumerations
