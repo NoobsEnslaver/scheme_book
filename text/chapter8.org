@@ -1,5 +1,0 @@
-** Syntactic Extension
-*** Keyword Bindings
-*** Syntax-Rules Transformers
-*** Syntax-Case Transformers
-*** Examples

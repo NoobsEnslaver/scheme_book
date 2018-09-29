@@ -1,8 +1,0 @@
-** Procedures and Variable Bindings
-*** Variable References
-*** Lambda
-*** Case-Lambda
-*** Local Binding
-*** Multiple Values
-*** Variable Definitions
-*** Assignment

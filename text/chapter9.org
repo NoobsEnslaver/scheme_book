@@ -1,4 +1,0 @@
-** Records
-*** Defining Records
-*** Procedural Interface
-*** Inspection

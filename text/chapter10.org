@@ -1,5 +1,0 @@
-** Libraries and Top-Level Programs
-*** Standard Libraries
-*** Defining New Libraries
-*** Top-Level Programs
-*** Examples

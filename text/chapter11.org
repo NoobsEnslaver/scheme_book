@@ -1,4 +1,0 @@
-** Exceptions and Conditions
-*** Raising and Handling Exceptions
-*** Defining Condition Types
-*** Standard Condition Types
