@@ -822,53 +822,53 @@
 
 *** Выполнение Scheme выражений
 
-    Let's turn to a discussion of how Scheme evaluates the expressions you type. We have already established the rules
-    for constant objects such as strings and numbers: the object itself is the value. You have probably also worked out
-    in your mind a rule for evaluating procedure applications of the form (procedure arg1 ... argn). Here, procedure is
-    an expression representing a Scheme procedure, and arg1 ... argn are expressions representing its arguments. One
-    possibility is the following.
+    Давайте вернёмся к обсуждению, как всётаки Scheme выполняет набранные Вами выражения. Мы уже установили правила для
+    константных  объектов, таких как строки и числа: эти объекты являются значениями сами по себе. Вы возможно уже
+    выработали у себя в голове некоторые правила для вычисления применения процедур вида ~(procedure arg1
+    ... argN)~. Здесь, ~procedure~ это выражение, представляющее Scheme процедуру, а ~arg1 ... argN~ выражения,
+    представляющие её аргументы. Один из возможных вариантов её применения следующий:
 
-    + Find the value of procedure.
-    + Find the value of arg1.
+    + Определить значение ~procedure~.
+    + Определить значение ~arg1~.
     + ...
-    + Find the value of argn.
-    + Apply the value of procedure to the values of arg1 ... argn.
+    + Определить значение ~argN~.
+    + Применить значение ~procedure~ к значениям ~arg1 ... argN~.
 
-    For example, consider the simple procedure application (+ 3 4). The value of + is the addition procedure, the value
-    of 3 is the number 3, and the value of 4 is the number 4. Applying the addition procedure to 3 and 4 yields 7, so our
-    value is the object 7.
+    Для примера, рассмотрим применение простой процедуры ~(+ 3 4)~. Значение ~+~ это процедура сложения, значение ~3~
+    это число ~3~, значение ~4~ это число ~4~. Применение процедуры сложения к ~3~ и ~4~ даёт ~7~, так что мы получаем
+    значение ~7~.
 
-    By applying this process at each level, we can find the value of the nested expression (* (+ 3 4) 2). The value of *
-    is the multiplication procedure, the value of (+ 3 4) we can determine to be the number 7, and the value of 2 is the
-    number 2. Multiplying 7 by 2 we get 14, so our answer is 14.
+    Применяя данный алгоритм на каждом уровне, мы можем найти значения вложенного выражения ~(* (+ 3 4) 2)~. Значение
+    ~*~ это процедура умножения, значение ~(+ 3 4)~, как мы выяснили выше, это ~7~, а значение ~2~ это ~2~. Перемножив
+    ~7~ и ~2~ мы получаем ~14~, так что наш ответ ~14~.
 
-    This rule works for procedure applications but not for quote expressions because the subexpressions of a procedure
-    application are evaluated, whereas the subexpression of a quote expression is not. The evaluation of a quote
-    expression is more similar to the evaluation of constant objects. The value of a quote expression of the form (quote
-    object) is simply object.
+    Это правило работает для применения процедуры, но не работает для /цитированного/ выражения, потому что подвыражения
+    примененияя процедуры вычисляются, в то время как подвыражения /цитированного/ выражения нет. Вычисление
+    /цитированного/ выражения более похоже на вычисление константного объекта. Значение /цитированного/ выражения ~(quote
+    object)~ это просто ~object~.
 
-    Constant objects, procedure applications, and quote expressions are only three of the many syntactic forms provided
-    by Scheme. Fortunately, only a few of the other syntactic forms need to be understood directly by a Scheme
-    programmer; these are referred to as core syntactic forms. The remaining syntactic forms are syntactic extensions
-    defined, ultimately, in terms of the core syntactic forms. We will discuss the remaining core syntactic forms and a
-    few syntactic extensions in the remaining sections of this chapter. Section 3.1 summarizes the core syntactic forms
-    and introduces the syntactic extension mechanism.
+    Константные объекты, применения процедур и /цитированные/ выражения это только три из множества синтаксических форм,
+    предоставляемых Scheme. К счастью, лишь немногие из оставшихся синтаксических форм неприменно должны быть понимаемы
+    Scheme программистом. Они называются /основными синтаксическими формами/. Остальные синтаксические формы это
+    синтаксические выражения, преимущественное, выраженные в терминах основных синтаксических форм. Мы обсудим
+    оставшиеся синтаксические формы и некоторые синтаксические выражение ниже в этой главе. Секция 3.1 подытоживает
+    обзор основных синтаксических форм и даёт введение в механизм расширения синтаксиса.
 
-    Before we go on to more syntactic forms and procedures, two points related to the evaluation of procedure
-    applications are worthy of note. First, the process given above is overspecified, in that it requires the
-    subexpressions to be evaluated from left to right. That is, procedure is evaluated before arg1, arg1 is evaluated
-    before arg2, and so on. This need not be the case. A Scheme evaluator is free to evaluate the expressions in any
-    order---left to right, right to left, or any other sequential order. In fact, the subexpressions may be evaluated in
-    different orders for different applications, even in the same implementation.
+    Прежде чем мы перейдём к новым синтаксическим формам и процедурам, будет не лишним сказать пару слов о вычислении
+    применения процедур. Во-первых, описанный выше процесс слишком строг, поскольку он требует вычисления подвыражений
+    слева направо, это значит, что значение ~procedure~ будет вычислено до вычисления ~arg1~, ~arg1~ до ~arg2~ и
+    т.д. Это вовсе не обязательно. /Вычислитель/ Scheme свободен вычислять выражения в любом порядке - слева направо,
+    справо налево, или в любой другой последовательности. На деле, подвыражения могут вычисляться в различном порядке в
+    различных случаях, даже в рамках одной и той же реализации.
 
-    The second point is that procedure is evaluated in the same way as arg1 ... argn. While procedure is often a variable
-    that names a particular procedure, this need not be the case. Exercise 2.2.3 had you determine the value of the
-    expression ((car (list + - * /)) 2 3). Here, procedure is (car (list + - * /)). The value of (car (list + - * /)) is
-    the addition procedure, just as if procedure were simply the variable +.
+    Во-вторых ~procedure~ вычисляется таким же образом, как и ~arg1 ... argN~. Хотя процедура часто является переменной,
+    которая указывает на конкретную процедуру, это не обязательно. Упражнение 2.2.3 предложит Вам определить значение
+    выражения ~((car (list + - * /)) 2 3)~. Здесь процедура это ~(car (list + - * /))~. Значение ~(car (list + - * /))~
+    это процедура сложения, как если бы была просто записана переменная +.
 
 **** Exercise 2.3.1
 
-     Write down the steps necessary to evaluate the expression below.
+     Опишите шаги, необходимые для вычисления выражения ниже:
 
 #+begin_src scheme
      ((car (cdr (list + - * /))) 17 5)
