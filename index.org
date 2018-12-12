@@ -1,6 +1,8 @@
 # -*- org-image-actual-width: 'true; -*-
 # -*- fill-column: 120; -*-
+
 #+STARTUP: nofninline
+#+STARTUP: showall
 
 #+LATEX_CLASS: book
 #+LATEX_CLASS_OPTIONS: [11pt,fleqn, oneside]
@@ -874,12 +876,12 @@
      ((car (cdr (list + - * /))) 17 5)
 #+end_src
 
-*** Variables and Let Expressions
+*** Переменые и ~let~ выражения
 
-    Suppose expr is a Scheme expression that contains a variable var. Suppose, additionally, that we would like var to
-    have the value val when we evaluate expr. For example, we might like x to have the value 2 when we evaluate (+ x
-    3). Or, we might want y to have the value 3 when we evaluate (+ 2 y). The following examples demonstrate how to do
-    this using Scheme's let syntactic form.
+    Пусть ~expr~ это Scheme выражение, содержащее переменную ~var~. Допустим также, что нам хотелось бы, чтобы
+    переменная ~var~ содержала бы значение ~val~, когда мы вычисляем значение ~expr~. Например, мы хотим, чтобы ~x~ имел
+    значение ~2~, когда вычисляется выражение ~(+ x 3)~. Или, мы хотим, чтобы ~y~ имел значение ~3~, при вычислении
+    выражения ~(+ 2 y)~. Примеры ниже показывают, как добиться такого поведения при помощи синтаксической формы ~let~:
 
 #+begin_src scheme
     (let ((x 2))
@@ -892,17 +894,19 @@
       (+ x y)) ⇒ 5
 #+end_src
 
-    The let syntactic form includes a list of variable-expression pairs, along with a sequence of expressions referred to
-    as the body of the let. The general form of a let expression is
+    Синтаксическая форма ~let~ включает в себя список пар /переменная->выражение/, а так же список выражений,
+    использующих эти переменные, называемый телом (/body/) ~let~. В общем виде выражение ~let~ имеет следующую форму:
 
 #+begin_src scheme
     (let ((var expr) ...) body1 body2 ...)
 #+end_src
 
-    We say the variables are bound to the values by the let. We refer to variables bound by let as let-bound variables.
+    Таким образом, с помощью ~let~, мы говорим, что переменные связываются со своими значениями, и далее мы можем
+    ссылаться на них в теле выражения.
 
-    A let expression is often used to simplify an expression that would contain two identical subexpressions. Doing so
-    also ensures that the value of the common subexpression is computed only once.
+    ~let~ выражения применяются очень часто и служат средством упрощения выражений, которые содержат несколько
+    идентичных подвыражений. Вынесение этого подвыражения в секцию связывания переменных гарантирует, что выражение
+    будет вычислено лишь единожды.
 
 #+begin_src scheme
     (+ (* 4 4) (* 4 4)) ⇒ 32
@@ -910,7 +914,8 @@
     (let ((a (* 4 4))) (+ a a)) ⇒ 32
 #+end_src
 
-    Brackets are often used in place of parentheses to delimit the bindings of a let expression.
+    В секции связывания переменных часто вместо круглых скобок применяют квадратные, чтобы визуально отделить эту
+    область от остального тела:
 
 #+begin_src scheme
     (let ([list1 '(a b c)] [list2 '(d e f)])
@@ -920,13 +925,14 @@
                   (car (cdr list2))))) ⇒ ((a . d) b . e)
 #+end_src
 
-    Scheme treats forms enclosed in brackets just like forms enclosed in parentheses. An open bracket must be matched by
-    a close bracket, and an open parenthesis must be matched by a close parenthesis. We use brackets for let (and, as
-    we'll see, several other standard syntactic forms) to improve readability, especially when we might otherwise have
-    two or more consecutive open parentheses.
+    Scheme интерпретирует формы, заключённые в квадратные скобки так, как будто они заключены в круглые скобки, но
+    нельзя их смешивать - открывающей круглой скобке должна соответствовать закрывающая круглая скобка, а открывающей
+    квадратной - квадратная. Мы используем квадратные скобки для ~let~ (и как вы скоро увидите, так же ещё для некоторых
+    стандартных синтаксических форм), чтобы улучшить читаемость кода, особенно когда мы могли бы иметь две или более
+    последовательные открывающие круглые скобки.
 
-    Since expressions in the first position of a procedure application are evaluated no differently from other
-    expressions, a let-bound variable may be used there as well.
+    Поскольку, при применении процедуры, вычисление выражения, стоящего в первой позиции, происходит таким же образом,
+    как и любого другого выражения, здесь так же может быть использована /let-связанная/ переменная:
 
 #+begin_src scheme
     (let ([f +])
@@ -939,7 +945,7 @@
       (f x y)) ⇒ 5
 #+end_src
 
-    The variables bound by let are visible only within the body of the let.
+    Переменные, связанные с помощью ~let~ видны только в пределах /тела/:
 
 #+begin_src scheme
     (let ([+ *])
@@ -948,9 +954,10 @@
     (+ 2 3) ⇒ 5
 #+end_src
 
-    This is fortunate, because we would not want the value of + to be the multiplication procedure everywhere.
+    И это очень хорошо, что оно работает именно так, потому что мы не хотели бы, чтобы значение + было методом умножения
+    всюду.
 
-    It is possible to nest let expressions.
+    Так же выражения ~let~ могут быть вложенными:
 
 #+begin_src scheme
     (let ([a 4] [b -3])
@@ -959,7 +966,8 @@
         (+ a-squared b-squared))) ⇒ 25
 #+end_src
 
-    When nested let expressions bind the same variable, only the binding created by the inner let is visible within its body.
+    Когда во вложенном ~let~ выражении производят связывание той же переменной, что и во внешнем, только связывание,
+    выполненное последним, на более глубоком уровне, считается действующим в пределах тела внутреннего ~let~-выражения:
 
 #+begin_src scheme
     (let ([x 1])
@@ -967,20 +975,22 @@
         (+ x x))) ⇒ 4
 #+end_src
 
-    The outer let expression binds x to 1 within its body, which is the second let expression. The inner let expression
-    binds x to (+ x 1) within its body, which is the expression (+ x x). What is the value of (+ x 1)? Since (+ x 1)
-    appears within the body of the outer let but not within the body of the inner let, the value of x must be 1 and hence
-    the value of (+ x 1) is 2. What about (+ x x)? It appears within the body of both let expressions. Only the inner
-    binding for x is visible, so x is 2 and (+ x x) is 4.
+    Здесь внешнее ~let~ выражение связывает ~x~ и 1 в пределах своего тела, место которого занимает второе ~let~
+    выражение. Внутреннее ~let~ выражение связывает ~x~ со значением ~(+ x 1)~ в рамках своего тела, которое
+    представлено выражением ~(+ x x)~. Каково значение выражения ~(+ x 1)~? Поскольку ~(+ x 1)~ появляется в теле
+    внешнего ~let~, но не в теле внутреннего ~let~, значение ~x~ должно быть 1, и, следовательно, значение ~(+ x 1)~
+    равно 2. А что насчёт ~(+ x x)~? Оно появляется в теле обоих выражений ~let~. Видно только внутреннее связывание для
+    ~x~, поэтому ~x~ равно 2, а ~(+ x x)~ равно 4.
 
-    The inner binding for x is said to shadow the outer binding. A let-bound variable is visible everywhere within the
-    body of its let expression except where it is shadowed. The region where a variable binding is visible is called its
-    scope. The scope of the first x in the example above is the body of the outer let expression minus the body of the
-    inner let expression, where it is shadowed by the second x. This form of scoping is referred to as lexical scoping,
-    since the scope of each binding can be determined by a straightforward textual analysis of the program.
+    Про внутреннее связывание для ~x~ говорят, что оно /затеняет/ внешнее связывание. let-связанная переменная видна
+    везде внутри тела ее выражения ~let~, кроме случаев, когда она затенена. Область, в которой действует связывание
+    переменной, называется /областью действия/ (scope). Область действия первого ~x~ в приведенном выше примере - это
+    тело внешнего выражения ~let~ минус тело внутреннего выражения ~let~, где он затеняется вторым ~x~. Эта форма
+    определения области видимости называется /лексической областью действия/, поскольку область действия каждого
+    связывания может быть определена путем простого текстового анализа программы.
 
-    Shadowing may be avoided by choosing different names for variables. The expression above could be rewritten so that
-    the variable bound by the inner let is new-x.
+    Затенения можно избежать, дав различные имена переменным. Выражение выше может быть переписано так, что во
+    внутреннем ~let~ выражении будет производиться связывание значения с именем ~new-x~:
 
 #+begin_src scheme
     (let ([x 1])
@@ -988,21 +998,21 @@
         (+ new-x new-x))) ⇒ 4
 #+end_src
 
-    Although choosing different names can sometimes prevent confusion, shadowing can help prevent the accidental use of
-    an "old" value. For example, with the original version of the preceding example, it would be impossible for us to
-    mistakenly refer to the outer x within the body of the inner let.
+    Хотя выбор разных имен иногда может предотвратить путаницу, затенение может помочь предотвратить случайное
+    использование "старого" значения. Например, в исходной версии предыдущего примера мы не могли бы ошибочно сослаться
+    на внешний ~x~ в теле внутреннего ~let~.
 
-**** Exercise 2.4.1
+**** Упражнение 2.4.1
 
-     Rewrite the following expressions, using let to remove common subexpressions and to improve the structure of the
-     code. Do not perform any algebraic simplifications.
+     Перепишите выражения ниже, используя ~let~, чтобы вынести общие подвыражения и улучшить структуру кода. Не
+     используйте математических упрощений.
 
      + ~(+ (- (* 3 a) b) (+ (* 3 a) b))~
      + ~(cons (car (list a b c)) (cdr (list a b c)))~
 
-**** Exercise 2.4.2
+**** Упражнение 2.4.2
 
-     Determine the value of the following expression. Explain how you derived this value.
+     Определите значение вычисления следующего выражение. Поясните, как вы получили это значение.
 
 #+begin_src scheme
      (let ([x 9])
@@ -1011,10 +1021,11 @@
             (+ x x))))
 #+end_src
 
-**** Exercise 2.4.3
+**** Упражнение 2.4.3
 
-     Rewrite the following expressions to give unique names to each different let-bound variable so that none of the
-     variables is shadowed. Verify that the value of your expression is the same as that of the original expression.
+     Перепишите следующие выражения, чтобы дать уникальные имена каждой отдельной let-связанной переменной, чтобы ни
+     одна из переменных не была затенена. Убедитесь, что значение вашего выражения совпадает со значением исходного
+     выражения.
 
      +
 #+begin_src scheme
