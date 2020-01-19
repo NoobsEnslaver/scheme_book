@@ -1292,14 +1292,15 @@
          (x y z)))
 #+end_src
 
-*** Top-Level Definitions
+*** Определения верхнего уровня
 
-    The variables bound by let and lambda expressions are not visible outside the bodies of these expressions. Suppose
-    you have created an object, perhaps a procedure, that must be accessible anywhere, like + or cons. What you need is a
-    top-level definition, which may be established with define. Top-level definitions, which are supported by most
-    interactive Scheme systems, are visible in every expression you enter, except where shadowed by another binding.
+    Переменные, связанные с помощью ~let~ и ~lambda~ не видны за пределами тел этих выражений. Допустим, у вас есть
+    некий объект или процедура, который должен быть доступи отовсюду, например, как ~+~ или ~cons~. Вам нужно
+    определение верхнего уровня, которое может быть установлено с помощью ~define~. Определения верхнего уровня,
+    поддерживаемые большенством интерактивных систем Scheme, доступны в любом введённом вами выражении, за исключением
+    случаев, когда оно затенено другим локальным связыванием.
 
-    Let's establish a top-level definition of the double-any procedure of the last section.
+    Давайте установим определение верхнего уровня для процедуры ~double-any~ из последней секции:
 
 #+begin_src scheme
     (define double-any
@@ -1307,26 +1308,25 @@
         (f x x)))
 #+end_src
 
-    The variable double-any now has the same status as cons or the name of any other primitive procedure. We can use
-    double-any as if it were a primitive procedure.
+    Теперь переменная ~double-any~ имеет тот же статус, что и ~cons~ или любая другая примитивная процедура. Мы можем
+    использовать ~double-any~ так, как если бы это была примитивная процедура.
 
 #+begin_src scheme
     (double-any + 10) ⇒ 20
     (double-any cons 'a) ⇒ (a . a)
 #+end_src
 
-    A top-level definition may be established for any object, not just for procedures.
+    Определение верхнего уровня может быть установлено для любого объекта, не только процедур.
 
 #+begin_src scheme
     (define sandwich "peanut-butter-and-jelly")
 
     sandwich ⇒ "peanut-butter-and-jelly"
-
 #+end_src
 
-    Most often, though, top-level definitions are used for procedures.
+    Однако чаще всего определения верхнего уровня используются для процедур.
 
-    As suggested above, top-level definitions may be shadowed by let or lambda bindings.
+    Как было отмечено выше, определения верхнего уровня могут быть затенены связываниями в ~let~ или ~lambda~.
 
 #+begin_src scheme
     (define xyz '(x y z))
@@ -1334,20 +1334,20 @@
       xyz) ⇒ (z y x)
 #+end_src
 
-    Variables with top-level definitions act almost as if they were bound by a let expression enclosing all of the
-    expressions you type.
+    Переменные, объявленные на верхнем уровне действуют почти так-же, как если бы они были связаны при помощи
+    let-выражения, охватывающего весь ваш код.
 
-    Given only the simple tools you have read about up to this point, it is already possible to define some of the
-    primitive procedures provided by Scheme and described later in this book. If you completed the exercises from the
-    last section, you should already know how to define list.
+    Учитывая только простые инструменты, о которых вы читали до этого момента, уже можно определить некоторые
+    примитивные процедуры, предоставляемые Scheme и описанные далее в этой книге. Если вы прошли упражнения из прошлой
+    главы, вы должны уже знать, как определить функцию ~list~.
 
 #+begin_src scheme
     (define list (lambda x x))
 #+end_src
 
-    Also, Scheme provides the abbreviations cadr and cddr for the compositions of car with cdr and cdr with cdr. That is,
-    (cadr list) is equivalent to (car (cdr list)), and, similarly, (cddr list) is equivalent to (cdr (cdr list)). They
-    are easily defined as follows.
+    Также, Scheme предоставляет сокращения ~cadr~ и ~cddr~ для сочетаний ~car~ и ~cdr~ с ~cdr~. Так, ~(cadr list)~
+    равнозначно ~(car (cdr list))~, а ~(cddr list)~ это ~(cdr (cdr list))~. Эти функции легко определяются, как описано
+    ниже.
 
 #+begin_src scheme
     (define cadr
@@ -1362,55 +1362,55 @@
     (cddr '(a b c)) ⇒ (c)
 #+end_src
 
-    Any definition (define var expr) where expr is a lambda expression can be written in a shorter form that suppresses
-    the lambda. The exact syntax depends upon the format of the lambda expression's formal parameter specifier, i.e.,
-    whether it is a proper list of variables, a single variable, or an improper list of variables. A definition of the
-    form
+    Любое определение ~(define var expr)~, где ~expr~ это лямбда, может быть записано в сокращённой форме, которая
+    скрывает ~lambda~. Явный синтаксис зависит от формата спецификатора формального параметра лямбда-выражения,
+    т.е. будь то правильный список переменных, единственная переменная или неправильный список переменных. Определение
+    формы
 
 #+begin_src scheme
     (define var0
-      (lambda (var1 ... varn)
+      (lambda (var1 ... varN)
         e1 e2 ...))
 #+end_src
 
-    may be abbreviated
+    может быть сокращено до
 
 #+begin_src scheme
-    (define (var0 var1 ... varn)
+    (define (var0 var1 ... varN)
       e1 e2 ...)
 #+end_src
 
-    while
+    в то время как
 
 #+begin_src scheme
     (define var0
-      (lambda varr
+      (lambda varR
         e1 e2 ...))
 #+end_src
 
-    may be abbreviated
+    может быть сокращено до
 
 #+begin_src scheme
-    (define (var0 . varr)
+    (define (var0 . varR)
       e1 e2 ...)
 #+end_src
 
-    and
+    и
 
 #+begin_src scheme
     (define var0
-      (lambda (var1 ... varn . varr)
+      (lambda (var1 ... varN . varR)
         e1 e2 ...))
 #+end_src
 
-    may be abbreviated
+    может быть сокращено до
 
 #+begin_src scheme
-    (define (var0 var1 ... varn . varr)
+    (define (var0 var1 ... varN . varR)
       e1 e2 ...)
 #+end_src
 
-    For example, the definitions of cadr and list might be written as follows.
+    Например, определения ~cadr~ и ~list~ могут быть записаны следующим образом
 
 #+begin_src scheme
     (define (cadr x)
@@ -1420,14 +1420,16 @@
 
 #+end_src
 
-    This book does not often employ this alternative syntax. Although it is shorter, it tends to mask the reality that
-    procedures are not intimately tied to variables, or names, as they are in many other languages. This syntax is often
-    referred to, somewhat pejoratively, as the "defun" syntax for define, after the defun form provided by Lisp languages
-    in which procedures are more closely tied to their names.
+    В этой книге данный альтернативный синтаксис используется редко. Несмотря на короткую запись, это приводит к
+    сокрытию того факта, что процедура не имеет такой тесной связи с переменными или именами, как во многих других
+    языках. Этот синтаксис часто называют несколько уничижительно, как «defun» для define, после формы defun,
+    введённой языками Lisp, в которой процедуры более тесно связаны с их именами.
 
-    Top-level definitions make it easier for us to experiment with a procedure interactively because we need not retype
-    the procedure each time it is used. Let's try defining a somewhat more complicated variation of double-any, one that
-    turns an "ordinary" two-argument procedure into a "doubling" one-argument procedure.
+    Определения верхнего уровня облегчают нам эксперименты с процедурой в интерактивном режиме, поскольку нам не нужно
+    повторно вводить процедуру каждый раз, когда она используется.
+
+    Давайте попробуем определить несколько более сложный вариант ~double-any~, который превращает «обычную» процедуру с
+    двумя аргументами в «дублирующую» процедуру с одним аргументом.
 
 #+begin_src scheme
     (define doubler
@@ -1435,9 +1437,9 @@
         (lambda (x) (f x x))))
 #+end_src
 
-    doubler accepts one argument, f, which must be a procedure that accepts two arguments. The procedure returned by
-    doubler accepts one argument, which it uses for both arguments in an application of f. We can define, with doubler,
-    the simple double and double-cons procedures of the last section.
+    ~doubler~ принимает один аргумент, ~f~, который должен быть процедурой, принимающей два аргумента. Процедура,
+    возвращаемая ~doubler~ принимает один аргумент, который используется как оба аргумента при применении ~f~. Мы можем
+    определить с помощью ~doubler~ процедуры ~double~ и ~double-cons~ из прошлой главы:
 
 #+begin_src scheme
     (define double (doubler +))
@@ -1447,7 +1449,7 @@
     (double-cons 'a) ⇒ (a . a)
 #+end_src
 
-    We can also define double-any with doubler.
+    Также мы можем определить ~double-any~ с помощью ~doubler~.
 
 #+begin_src scheme
     (define double-any
@@ -1455,21 +1457,22 @@
         ((doubler f) x)))
 #+end_src
 
-    Within double and double-cons, f has the appropriate value, i.e., + or cons, even though the procedures are clearly
-    applied outside the scope of f.
+    В ~double~ и ~double-cons~, ~f~ преобретает собственное значение т.е. ~+~ или ~cons~, даже если процедуры явно
+    применяются вне области действия ~f~.
 
-    What happens if you attempt to use a variable that is not bound by a let or lambda expression and that does not have
-    a top-level definition? Try using the variable i-am-not-defined to see what happens.
+    Что произойдёт, если вы попробуете использовать пременную, не связанную ~let~ или ~lambda~, а так же не имеющую
+    определения на верхнем уровне? Попробуйт использовать переменную ~i-am-not-defined~ чтобы увидеть, что произойдёт.
 
 #+begin_src scheme
     (i-am-not-defined 3)
 #+end_src
 
-    Most Scheme systems print a message indicating that an unbound- or undefined-variable exception has occurred.
+    Большенство реализаций Scheme выведет сообщение, уведомляющее о том, что произошло исключение из за использования
+    несвязанной или неопределённой переменной.
 
-    The system should not, however, complain about the appearance of an undefined variable within a lambda expression,
-    until and unless the resulting procedure is applied. The following should not cause an exception, even though we have
-    not yet established a top-level definition of proc2.
+    Однако система не должна жаловаться на появление неопределенной переменной в лямбда-выражении до тех пор, пока не
+    будет применена результирующая процедура. Следующее не должно вызывать исключения, хотя мы еще не установили
+    определение верхнего уровня для ~proc2~.
 
 #+begin_src scheme
     (define proc1
@@ -1477,39 +1480,44 @@
         (proc2 y x)))
 #+end_src
 
-    If you try to apply proc1 before defining proc2, you should get a undefined exception message. Let's give proc2 a
-    top-level definition and try proc1.
+    Если вы попробуете применить ~proc1~ до определения ~proc2~, вы должны получить сообщение об исключении из за
+    неопределённости переменной. Давайте дадим ~proc2~ определение верхнего уровня и опробуем ~proc1~.
 
 #+begin_src scheme
     (define proc2 cons)
     (proc1 'a 'b) ⇒ (b . a)
 #+end_src
 
-    When you define proc1, the system accepts your promise to define proc2, and does not complain unless you use proc1
-    before defining proc2. This allows you to define procedures in any order you please. This is especially useful when
-    you are trying to organize a file full of procedure definitions in a way that makes your program more readable. It is
-    necessary when two procedures defined at top level depend upon each other; we will see some examples of this later.
+    Когда вы определяете ~proc1~ система принимает ваше обещание определить ~proc2~ и не жалуется до тех пор, пока вы не
+    используете ~proc1~, так и не определив ~proc2~. Это позволяет вам определять процедуры в любом удобном для вас
+    порядке. Это особенно удобно, когда ты пытаешься организовать файл, полный определений процедур, таким образом,
+    чтобы сделать его более читаемым. Это так же нужно, когда две процедуры, определённых на верхнем уровне, зависят
+    друг от друга, вы увидите такие примеры далее.
 
-**** Exercise 2.6.1
-     What would happen if you were to type
+**** Упражнение 2.6.1
+
+     Что произойдёт, если вы наберёте
 
 #+begin_src scheme
      (double-any double-any double-any)
 #+end_src
 
-     given the definition of double-any from the beginning of this section?
+     давая определение ~double-any~ в начале этого раздела?
 
-**** Exercise 2.6.2
-     A more elegant (though possibly less efficient) way to define cadr and cddr than given in this section is to define a
-     procedure that composes two procedures to create a third. Write the procedure compose, such that (compose p1 p2) is
-     the composition of p1 and p2 (assuming both take one argument). That is, (compose p1 p2) should return a new
-     procedure of one argument that applies p1 to the result of applying p2 to the argument. Use compose to define cadr
-     and cddr.
+**** Упражнение 2.6.2
 
-**** Exercise 2.6.3
-     Scheme also provides caar, cdar, caaar, caadr, and so on, with any combination of up to four a's (representing car)
-     and d's (representing cdr) between the c and the r (see Section 6.3). Define each of these with the compose procedure
-     of the preceding exercise.
+     Более элегантный (а также возможно менее эффективный) способ определения ~cadr~ и ~cddr~, чем данный в этой главе,
+     это определить процедуру, которая объединяет две процедуры, чтобы создать третью. Создайте процедуру ~compose~,
+     вида ~(compose p1 p2)~, которая будет создавать композицию процедур ~p1~ и ~p2~ (предполагается, что они ожидают по
+     одному аргументу). Применение этой процедуры, ~(compose p1 p2)~, должно возвращать новую процедуру от одного
+     аргумента, которая применяет ~p1~ к результату применения ~p2~ к аргументу. Используйте эту процедуру, чтобы
+     определить ~cadr~ и ~cddr~.
+
+**** Упражнение 2.6.3
+
+     Scheme также предоставляет процедуры ~caar~, ~cdar~, ~caaar~, ~caadr~ и т.д., все компинации до четырёх /a/
+     (обозначающих ~car~) или /d/ (обозначающих ~cdr~) между /c/ и /r/ (см. Главу 6.3). Определите каждую из них с
+     помощью процедуры ~compose~ из предыдущего упражнения.
 
 *** Conditional Expressions
 
