@@ -66,7 +66,7 @@
   которые делают его полезным и приятным в использовании. В этой главе так же описаны типографические и нотационные
   соглашения, применяемые в этой книге.
 
-  Глава 2 это введение в программирование на Scheme для начинающий Scheme-программистов, которая проведёт читателя через
+  Глава 2 это введение в программирование на Scheme для начинающих Scheme-программистов, которая проведёт читателя через
   серию примеров, начиная с простейших выражений Scheme и продолжая всё более сложными примерами. Каждая секция второй
   главы представляет читателю маленький набор связанных функций языка, а в конце каждой секции содержится набор упражнений
   для дальнейшей практики. Читатель извлечёт значительно больше пользы из главы, если параллельно с чтением, будет сидеть
@@ -208,12 +208,12 @@
    пока программа не выполнится.
 
    В большинстве языков, объявление процедуры это просто сопоставление имени с блоком кода. Определённые переменные,
-   локальные для этого блока, являются параметрами процедуры. В некоторых языках, процедура может быть объявлена пределах
-   другого блока или процедуры, и существовать до тех пор, пока выполнение этого участка кода не достигнет конца блока.
-   В других, процедуры могут быть объявлены только на верхнем уровне. В Scheme, объявление процедуры может быть
-   произведено внутри другого блока или процедуры и эта процедура затем может быть выполнена в любое время, даже когда
-   внешний блок кода завершил своё выполнение. Для поддержки лексической области видимости, процедура, помимо самого
-   кодом, хранит в себе лексический контекст (окружение).
+   локальные для этого блока, являются параметрами процедуры. В некоторых языках, процедура может быть объявлена в
+   пределах другого блока или процедуры, и существовать до тех пор, пока выполнение этого участка кода не достигнет
+   конца блока. В других, процедуры могут быть объявлены только на верхнем уровне. В Scheme, объявление процедуры может
+   быть произведено внутри другого блока или процедуры и эта процедура затем может быть выполнена в любое время, даже
+   когда внешний блок кода завершил своё выполнение. Для поддержки лексической области видимости, процедура, помимо
+   самого кода, хранит в себе лексический контекст (окружение).
 
    Более того, процедуры в Scheme не всегда имеют имена. Вместо этого, процедуры являются объектами первого класса,
    такими как строки или числа, и переменная может быть связана с процедурой тем же способом, как связывается с любым
@@ -570,7 +570,7 @@
     целочисленные и рациональные имеют произвольную точность т.е. могут иметь произвольный размер. Неточные числа обычно
     используют внутреннее представление согласно стандарту IEEE о представлении чисел с плавающей точкой.
 
-    Scheme предстадоставляет имена ~+~, ~-~, ~*~, и ~/~ для соответствующих арифметических операций. Каждая процедура
+    Scheme предоставляет имена ~+~, ~-~, ~*~, и ~/~ для соответствующих арифметических операций. Каждая процедура
     поддерживает работу при передаче двух аргументов. Выражения ниже называются применением процедуры, потому что
     обозначают применение процедуры к набору аргументов.
 
@@ -655,7 +655,7 @@
     (quote hello) ⇒ hello
 #+end_src
 
-    Символ ~hello~ должен быть цитирован, чтобы предостеречь Scheme от попыток интерпретировать ~hellp~ как
+    Символ ~hello~ должен быть цитирован, чтобы предостеречь Scheme от попыток интерпретировать ~hello~ как
     переменную. Символы и переменные в Scheme имеют такое же значение, как символы и переменные в математических
     выражениях и уравнениях. Когда мы вычисляем математическое выражение ~1 - x~ для некоторого значения ~x~, мы думаем
     об ~x~ как о переменной. С другой стороны, когда мы работаем с алгебраическим уравнением ~x^2 -1 = (x - 1)(x + 1)~ мы
@@ -984,9 +984,9 @@
 
     Про внутреннее связывание для ~x~ говорят, что оно /затеняет/ внешнее связывание. let-связанная переменная видна
     везде внутри тела ее выражения ~let~, кроме случаев, когда она затенена. Область, в которой действует связывание
-    переменной, называется /областью действия/ (scope). Область действия первого ~x~ в приведенном выше примере - это
+    переменной, называется /областью видимости/ (scope). Область видимости первого ~x~ в приведенном выше примере - это
     тело внешнего выражения ~let~ минус тело внутреннего выражения ~let~, где он затеняется вторым ~x~. Эта форма
-    определения области видимости называется /лексической областью действия/, поскольку область действия каждого
+    определения области видимости называется /лексической областью видимости/, поскольку область видимости каждого
     связывания может быть определена путем простого текстового анализа программы.
 
     Затенения можно избежать, дав различные имена переменным. Выражение выше может быть переписано так, что во
@@ -1047,47 +1047,47 @@
                            (cdr x))))))
 #+end_src
 
-*** Lambda Expressions
+*** Лямбда выражения
 
-    In the expression ~(let ([x (* 3 4)]) (+ x x))~, the variable x is bound to the value of (* 3 4). What if we would
-    like the value of (+ x x) where x is bound to the value of (/ 99 11)? Where x is bound to the value of (- 2 7)? In
-    each case we need a different let expression. When the body of the let is complicated, however, having to repeat it
-    can be inconvenient.
+    В выражении ~(let ([x (* 3 4)]) (+ x x))~ переменная ~x~ связана со значением ~(* 3 4)~. Что будет, если мы захотим
+    получить значение выражения ~(+ x x)~ где  ~x~ связана со значением ~(/ 99 11)~? А где ~x~ связана со значением
+    ~(- 2 7)~? В каждом случае нам потребуется новое ~let~-выражение. И чем сложнее становится тело ~let~, тем менее
+    удобно становится повторять его.
 
-    Instead, we can use the syntactic form lambda to create a new procedure that has x as a parameter and has the same
-    body as the let expression.
+    Вместо этого мы можем использовать синтаксическую форму ~lambda~ для создания новой процедуры, которая имеет ~x~ в
+    качестве входного параметра и имеет такое же тело, как у ~let~-выражения.
 
 #+begin_src scheme
     (lambda (x) (+ x x)) ⇒ #<procedure>
 #+end_src
 
-    The general form of a lambda expression is
+    Общая форма лямбда-выражения:
 
 #+begin_src scheme
     (lambda (var ...) body1 body2 ...)
 #+end_src
 
-    The variables var ... are the formal parameters of the procedure, and the sequence of expressions body1 body2 ... is
-    its body. (Actually, the true general form is somewhat more general than this, as you will see later.)
+    Переменные ~var ...~ это формальные параметры процедуры, а последовательность выражений ~body1 body2 ...~ это её
+    тело. (В действительности, по-настоящему общая форма это нечто более обобщённое, чем это, как вы увидите позже).
 
-    A procedure is just as much an object as a number, string, symbol, or pair. It does not have any meaningful printed
-    representation as far as Scheme is concerned, however, so this book uses the notation #<procedure> to show that the
-    value of an expression is a procedure.
+    Процедура - это такой же объект, как число, строка, символ или пара. У неё нет какого-либо вменяемого печатного
+    представления, по крайней мере в Scheme, тем не менее, в этой книге мы будем использовать обозначение ~#<procedure>~
+    чтобы показать, что значение выражения это процедура.
 
-    The most common operation to perform on a procedure is to apply it to one or more values.
+    Простейшая операция, которую можно совершить над процедурой - это применить её к одному или более значений:
 
 #+begin_src scheme
     ((lambda (x) (+ x x)) (* 3 4)) ⇒ 24
 #+end_src
 
-    This is no different from any other procedure application. The procedure is the value of (lambda (x) (+ x x)), and
-    the only argument is the value of (* 3 4), or 12. The argument values, or actual parameters, are bound to the formal
-    parameters within the body of the lambda expression in the same way as let-bound variables are bound to their
-    values. In this case, x is bound to 12, and the value of (+ x x) is 24. Thus, the result of applying the procedure to
-    the value 12 is 24.
+    Здесь нет никакого отличия от какого-то другого способа применения процедуры. Процедура это результат вычисления
+    выражения ~(lambda (x) (+ x x))~ и единственный агрумент это значение выражения ~(* 3 4)~, или 12. Значения
+    аргументов, или параметры, связываются с формальными параметрами в пределах тела лямбда-выражения таким же образом,
+    как и let-связывание связывает переменные с их значениями. В этом случае, ~x~ связывается с 12, а значение ~(+ x x)~
+    равно 24. Таким образом, результат применения процедуры к значению 12 равен 24.
 
-    Because procedures are objects, we can establish a procedure as the value of a variable and use the procedure more
-    than once.
+    Посколько процедуры это объекты, мы можем установить процедуру как значение переменной и использовать эту процедуру
+    в дальнейшем не раз.
 
 #+begin_src scheme
     (let ([double (lambda (x) (+ x x))])
@@ -1096,19 +1096,20 @@
             (double (- 2 7)))) ⇒ (24 18 -10)
 #+end_src
 
-    Here, we establish a binding for double to a procedure, then use this procedure to double three different values.
+    Здесь мы установили связывание между ~double~ и процедурой, а затем использовали эту процедуру, чтобы удвоить три
+    различных значения.
 
-    The procedure expects its actual parameter to be a number, since it passes the actual parameter on to +. In general,
-    the actual parameter may be any sort of object. Consider, for example, a similar procedure that uses cons instead of
-    +.
+    Наша процедура ожидает, что её фактическим параметром будет число, поскольку он передаётся фактическим параметром в
+    ~+~. В общем же случае, фактическим параметром может быть объект любого сорта. Рассмотрим, для примера, простейшую
+    процедуру, которая использует ~cons~ вместо ~+~:
 
 #+begin_src scheme
     (let ([double-cons (lambda (x) (cons x x))])
       (double-cons 'a)) ⇒ (a . a)
 #+end_src
 
-    Noting the similarity between double and double-cons, you should not be surprised to learn that they may be collapsed
-    into a single procedure by adding an additional argument.
+    Отмечая сходство между ~double~ и ~double-cons~, вы не должны удивляться, узнав, что они могут быть объединены в
+    одну процедуру путем добавления дополнительного аргумента.
 
 #+begin_src scheme
     (let ([double-any (lambda (f x) (f x x))])
@@ -1116,11 +1117,11 @@
             (double-any cons 'a))) ⇒ (26 (a . a))
 #+end_src
 
-    This demonstrates that procedures may accept more than one argument and that arguments passed to a procedure may
-    themselves be procedures.
+    Здесь демонстрируется, что процедуры могут принимать более одного аргумента и эти аргументы, передаваемые в
+    процедуру, сами могу быть процедурами.
 
-    As with let expressions, lambda expressions become somewhat more interesting when they are nested within other lambda
-    or let expressions.
+    Как и с ~let~-выражениями, лямбда-выражения становятся несколько интереснее, когда они вложены в другие
+    лямбда- или let-выражения.
 
 #+begin_src scheme
     (let ([x 'a])
@@ -1128,15 +1129,15 @@
         (f 'b))) ⇒ (a b)
 #+end_src
 
-    The occurrence of x within the lambda expression refers to the x outside the lambda that is bound by the outer let
-    expression. The variable x is said to occur free in the lambda expression or to be a free variable of the lambda
-    expression. The variable y does not occur free in the lambda expression since it is bound by the lambda expression. A
-    variable that occurs free in a lambda expression should be bound, e.g., by an enclosing lambda or let expression,
-    unless the variable is (like the names of primitive procedures) bound outside of the expression, as we discuss in the
-    following section.
+    Вхождение ~x~ в лямбда-выражение ссылается на ~x~ за пределами лямбды, который был связан внешним
+    let-выражением. Говорят, что переменная ~x~ в лямбда-выражении свободна или является свободной переменной
+    лямбда-выражения. Переменная ~y~ не является свободной переменной в лямбда-выражении, поскольку она была связана в
+    лямбда-выражении. Переменная, которая становится свободной в лямбда-выражении должна уже быть связана, например,
+    окружающим лямбда- или let-выражением, кроме случая, когда переменная связывается вне выражения, который мы обсудим
+    в следующем разделе.
 
-    What happens when the procedure is applied somewhere outside the scope of the bindings for variables that occur free
-    within the procedure, as in the following expression?
+    Что происходит, когда процедура применяется где-то вне области привязок для переменных, которые встречаются в
+    процедуре свободно, как в следующем выражении?
 
 #+begin_src scheme
     (let ([f (let ([x 'sam])
@@ -1144,8 +1145,8 @@
       (f 'i 'am)) ⇒ (sam i am)
 #+end_src
 
-    The answer is that the same bindings that were in effect when the procedure was created are in effect again when the
-    procedure is applied. This is true even if another binding for x is visible where the procedure is applied.
+    Ответ заключается в том, что те же привязки, которые действовали при создании процедуры, снова применяются при
+    применении процедуры. Это верно, даже если другая привязка для ~x~ видна там, где применяется процедура.
 
 #+begin_src scheme
     (let ([f (let ([x 'sam])
@@ -1154,48 +1155,48 @@
         (f 'i 'am))) ⇒ (sam i am)
 #+end_src
 
-    In both cases, the value of x within the procedure named f is sam.
+    В обоих случаях, значение ~x~ за пределами процедуры названой ~f~ это ~sam~.
 
-    Incidentally, a let expression is nothing more than the direct application of a lambda expression to a set of
-    argument expressions. For example, the two expressions below are equivalent.
+    Примечательно, что let-выражение это ни что иное, как прямое применение лямбда-выражения с целью задать аргументы
+    выражения. Например, два выражения ниже эквивалентны:
 
 #+begin_src scheme
     (let ([x 'a]) (cons x x)) ≡ ((lambda (x) (cons x x)) 'a)
 #+end_src
 
-    In fact, a let expression is a syntactic extension defined in terms of lambda and procedure application, which are
-    both core syntactic forms. In general, any expression of the form
+    В действительности, let-выражение это синтаксическое выражение, определённое в терминах лямбда-выражения и
+    применения процедуры, которые оба являются базовыми синтаксическими формами. В общем случае, любое выражение вида
 
 #+begin_src scheme
     (let ((var expr) ...) body1 body2 ...)
 #+end_src
 
-    is equivalent to the following.
+    эквивалентно следующему
 
 #+begin_src scheme
     ((lambda (var ...) body1 body2 ...)
      expr ...)
 #+end_src
 
-    See Section 3.1 for more about core forms and syntactic extensions.
+    В секции 3.1 будут более подробно обсуждаться базовые формы и расширения синтаксиса.
 
-    As mentioned above, the general form of lambda is a bit more complicated than the form we saw earlier, in that the
-    formal parameter specification, (var ...), need not be a proper list, or indeed even a list at all. The formal
-    parameter specification can be in any of the following three forms:
+    Как упоминалось выше, общая форма лямбда-выражения несколько сложнее, чем форма, рассмотренная нами ранее, в том,
+    что формальное объявление параметра, ~(var ...)~, не обязано быть правильным списом, или даже списком
+    вообще. Формальное объявление параметра может быть любой из трёх форм ниже:
 
-    + a proper list of variables, (var1 ... varn), such as we have already seen,
-    + a single variable, varr, or
-    + an improper list of variables, (var1 ... varn . varr).
+    + правильный список переменных ~(var1 ... varN)~, как мы видели только что
+    + одна переменная ~varR~
+    + неправильный список переменных, ~(var1 ... varN . varR)~.
 
-    In the first case, exactly n actual parameters must be supplied, and each variable is bound to the corresponding
-    actual parameter. In the second, any number of actual parameters is valid; all of the actual parameters are put into
-    a single list and the single variable is bound to this list. The third case is a hybrid of the first two cases. At
-    least n actual parameters must be supplied. The variables var1 ... varn are bound to the corresponding actual
-    parameters, and the variable varr is bound to a list containing the remaining actual parameters. In the second and
-    third cases, varr is sometimes referred to as a "rest" parameter because it holds the rest of the actual parameters
-    beyond those that are individually named.
+    В первом случае должно быть передано ровно ~N~ параметров, и каждая переменная связана с соответствующим
+    переданным параметром. Во втором, любое количество переданных параметров валидно, все переданные параметры
+    собираются в один список и единственная переменная связывается с этим списком. Третий случай это гибрид первых
+    двух. По меньшей мере ~N~ параметров должно быть передано. Переменные ~var1 ... varN~ связываются с соответствующими
+    переданными параметрами, а переменная ~varR~ связывается со списком, содержащим остальные переданные параметры. Во
+    втором и третьем случаях, параметр ~varR~ иногда обозначают как "rest" (англ. остальные), потому что он содержит
+    оставшиеся переданные параметры, помимо тех, которые индивидуально названы.
 
-    Let's consider a few examples to help clarify the more general syntax of lambda expressions.
+    Давайте рассмотрим несколько примеров, чтобы прояснить более общий синтаксис лямбда-выражений:
 
 #+begin_src scheme
     (let ([f (lambda x x)])
@@ -1211,16 +1212,17 @@
       (h 'a 'b 'c 'd)) ⇒ (a b (c d))
 #+end_src
 
-    In the first two examples, the procedure named f accepts any number of arguments. These arguments are automatically
-    formed into a list to which the variable x is bound; the value of f is this list. In the first example, the arguments
-    are 1, 2, 3, and 4, so the answer is (1 2 3 4). In the second, there are no arguments, so the answer is the empty
-    list (). The value of the procedure named g in the third example is a list whose first element is the first argument
-    and whose second element is a list containing the remaining arguments. The procedure named h is similar but separates
-    out the second argument. While f accepts any number of arguments, g must receive at least one and h must receive at
-    least two.
+    В первых двух примерах, процедура, названная ~f~ принимает любое количество аргументов. Эти аргументы автоматически
+    групируются в список, с которым связывается переменная ~x~, значение ~f~ это этот список. В первом примере,
+    аргументы 1, 2, 3, 4, так что ответ ~(1 2 3 4)~. Во втором примере нет аргументов, так что ответ это пустой список
+    ~()~. Значение процедуры названой ~g~, в третьем примере, это список, чей первый элемент это первый аргумент, а
+    второй элемент это список, содержащий остальные аргументы. Процедура под именем ~h~ похожа, но здесь второй аргумент
+    отделён. Если процедура ~f~ принимает любое количество агрументов, ~g~ должен иметь по меньшей мере один, то ~h~
+    должен получать не меньше двух аргументов.
 
-**** Exercise 2.5.1
-     Determine the values of the expressions below.
+**** Упражнение 2.5.1
+
+     Определите значения выражений ниже.
 
      +
 #+begin_src scheme
@@ -1246,14 +1248,14 @@
        (f 'a))
 #+end_src
 
-**** Exercise 2.5.2
+**** Упраженение 2.5.2
 
-     How might the primitive procedure list be defined?
+     Как может выглядеть определение примитивной процедуры ~list~?
 
-**** Exercise 2.5.3
+**** Упражнение 2.5.3
 
-     List the variables that occur free in each of the lambda expressions below. Do not omit variables that name
-     primitive procedures such as + or cons.
+     Найдите все свободные переменные в лямбда-выражениях ниже. Переменные, указывающие на примитивные процедуры, такие
+     как ~+~ и ~cons~ не в счёт.
 
      +
 #+begin_src scheme
