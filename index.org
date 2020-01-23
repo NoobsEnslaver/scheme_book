@@ -1521,9 +1521,10 @@
 
 *** Conditional Expressions
 
-    So far we have considered expressions that perform a given task unconditionally. Suppose that we wish to write the
-    procedure abs. If its argument x is negative, abs returns -x; otherwise, it returns x. The most straightforward way
-    to write abs is to determine whether the argument is negative and if so negate it, using the if syntactic form.
+    До сих пор мы рассматривали выражения, которые выполняют свою задачу безоговорочно. Предположим, что мы хотим
+    написать процедуру ~abs~. Если аргумент ~x~ отрицательный, ~abs~ возвращает ~-x~; в противном случае возвращает
+    ~х~. Самый простой способ написать ~abs~ - это определить, является ли аргумент отрицательным и, если это так,
+    инвертировать его, используя синтаксическую форму ~if~.
 
 #+begin_src scheme
     (define abs
@@ -1536,11 +1537,13 @@
     (abs -77) ⇒ 77
 #+end_src
 
-    An if expression has the form (if test consequent alternative), where consequent is the expression to evaluate if
-    test is true and alternative is the expression to evaluate if test is false. In the expression above, test is (< n
-    0), consequent is (- 0 n), and alternative is n.
+    Выражение ~if~ имеет форму ~(if тест следствие альтернатива)~, где ~следствие~ это выражение, которое будет
+    вычислено, если ~тест~ будет истиной (true), а ~альтернатива~, соответственно, выражение, которое будет выполнено в
+    обратном случае т.е. если ~тест~ будет ложью (false). В выражении выше, тест это ~(< n 0)~, следствие ~(- 0 n)~, а
+    альтернатива это ~n~.
 
-    The procedure abs could be written in a variety of other ways. Any of the following are valid definitions of abs.
+    Процедура ~abs~ может быть написана множеством других способов. Любое из следующего является корректным определением
+    ~abs~.
 
 #+begin_src scheme
     (define abs
@@ -1576,14 +1579,14 @@
          n)))
 #+end_src
 
-    The first of these definitions asks if n is greater than or equal to zero, inverting the test. The second asks if n
-    is not less than zero, using the procedure not with <. The third asks if n is greater than zero or n is equal to
-    zero, using the syntactic form or. The fourth treats zero separately, though there is no benefit in doing so. The
-    fifth is somewhat tricky; n is either added to or subtracted from zero, depending upon whether n is greater than or
-    equal to zero.
+    Первое из этих определений спрашивает, является ли ~n~ больше или равно нулю, инвертируя тест. Второе спрашивает, если
+    ~n~ не меньше нуля, используя процедуру ~not~ с ~<~. Третье спрашивает, является ли ~n~ больше нуля или ~n~ равно нулю,
+    используя синтаксическую форму ~or~. Четвертое рассматривает ноль отдельно, хотя в этом нет никакой пользы. Пятое
+    несколько хитрее; ~n~ либо прибавляется, либо вычитается из нуля, в зависимости от того, больше или равно ~n~ чем
+    ноль.
 
-    Why is if a syntactic form and not a procedure? In order to answer this, let's revisit the definition of reciprocal
-    from the first section of this chapter.
+    Почему ~if~ это синтаксическая форма, а не процедура? Чтобы ответить на этот вопрос, давайте вернемся к определению
+    обратной величины из первого раздела этой главы.
 
 #+begin_src scheme
     (define reciprocal
@@ -1593,28 +1596,28 @@
             (/ 1 n))))
 #+end_src
 
-    The second argument to the division procedure should not be zero, since the result is mathematically undefined. Our
-    definition of reciprocal avoids this problem by testing for zero before dividing. Were if a procedure, its arguments
-    (including (/ 1 n)) would be evaluated before it had a chance to choose between the consequent and alternative. Like
-    quote, which does not evaluate its only subexpression, if does not evaluate all of its subexpressions and so cannot
-    be a procedure.
+    Второй аргумент процедуры деления не должен быть нулевым, поскольку результат математически не определен. Наше
+    определение обратной величины позволяет избежать этой проблемы путем проверки на ноль перед делением. Если бы ~if~
+    была процедурой, её аргументы (включая ~(/ 1 n)~) были бы вычислены прежде, чем у нее была возможность выбора между
+    следствием и альтернативой. Как и цитирование (~quote~), которое не вычисляет своё единственное подвыражение, ~if~
+    не вычисляет все его подвыражения и поэтому не может быть процедурой.
 
-    The syntactic form or operates in a manner similar to if. The general form of an or expression is (or expr ...). If
-    there are no subexpressions, i.e., the expression is simply (or), the value is false. Otherwise, each expr is
-    evaluated in turn until either (a) one of the expressions evaluates to true or (b) no more expressions are left. In
-    case (a), the value is true; in case (b), the value is false.
+    Синтаксическая форма ~or~ действует аналогично ~if~. Общая форма выражения ~or~ является ~(or expr ...)~. Если нет
+    подвыражений, то есть выражение просто ~(or)~, значение ложно. В противном случае каждое выражение вычисляется по
+    очереди, пока либо (а) одно из выражений не станет истинным, либо (б) больше не останется выражений. В случае (а)
+    значение истинно; в случае (б) значение ложно.
 
-    To be more precise, in case (a), the value of the or expression is the value of the last subexpression
-    evaluated. This clarification is necessary because there are many possible true values. Usually, the value of a test
-    expression is one of the two objects #t, for true, or #f, for false.
+    Чтобы быть более точным, в случае (a) значение выражения ~or~ является значением последнего вычисленного
+    подвыражения. Это уточнение необходимо, потому что существует много возможных истинных значений. Обычно результатом
+    тестового выражения является один из двух объектов ~#t~ для обозначения истины или ~#f~ для лжи.
 
 #+begin_src scheme
     (< -1 0) ⇒ #t
     (> -1 0) ⇒ #f
 #+end_src
 
-    Every Scheme object, however, is considered to be either true or false by conditional expressions and by the
-    procedure not. Only #f is considered false; all other objects are considered true.
+    Каждый объект Scheme, любой, является либо истиной либо ложью, для условных выражений, но не для процедур. Только
+    ~#f~ считается ложью, любой другой объект считается истиной.
 
 #+begin_src scheme
     (if #t 'true 'false) ⇒ true
@@ -1633,12 +1636,13 @@
     (or #f 'a #f) ⇒ a
 #+end_src
 
-    The and syntactic form is similar in form to or, but an and expression is true if all its subexpressions are true,
-    and false otherwise. In the case where there are no subexpressions, i.e., the expression is simply (and), the value
-    is true. Otherwise, the subexpressions are evaluated in turn until either no more subexpressions are left or the
-    value of a subexpression is false. The value of the and expression is the value of the last subexpression evaluated.
+    Синтаксическая форма ~and~ похожа на ~or~ или, но выражение ~and~ является истинным, если все его подвыражения
+    истинны, и ложным в противном случае. В случае, когда нет никаких подвыражений, то есть выражение просто ~(and)~,
+    значение равно ~true~. В противном случае подвыражения вычисляются по очереди до тех пор, пока либо не останется
+    подвыражений, либо значение подвыражения будет ложным. Результатом выполнения ~and~ является значение последнего
+    вычисленного подвыражения.
 
-    Using and, we can define a slightly different version of reciprocal.
+    Используя ~and~ мы можем определить ~reciprocal~ несколько иначе:
 
 #+begin_src scheme
     (define reciprocal
@@ -1651,12 +1655,13 @@
     (reciprocal 0) ⇒ #f
 #+end_src
 
-    In this version, the value is #f if n is zero and 1/n otherwise.
+    В этой версии значение равно ~#f~, если ~n~ равно нулю, и ~1/n~ в противном случае.
 
-    The procedures =, <, >, <=, and >= are called predicates. A predicate is a procedure that answers a specific question
-    about its arguments and returns one of the two values #t or #f. The names of most predicates end with a question mark
-    ( ? ); the common numeric procedures listed above are exceptions to this rule. Not all predicates require numeric
-    arguments, of course. The predicate null? returns true if its argument is the empty list () and false otherwise.
+    Процедуры ~=~, ~<~, ~>~, ~<=~, и ~>=~ называются предикатами. Предикаты это процедуры, которые отвечают на
+    специальный вопрос о своём аргументе и возвращают одно из двух значений, ~#t~ или ~#f~. Имена большинства предикатов
+    заканчиваются знаком вопроса (?). Простейшие численные процедуры, перечисленные выше, исключение из правил. Конечно
+    же не все предикаты требуют в качестве аргументов числа. Предикат ~null?~ возвращает истину, если его аргумент
+    пустой список ~()~, иначе ложь.
 
 #+begin_src scheme
     (null? '()) ⇒ #t
@@ -1665,9 +1670,9 @@
     (null? (cdddr '(x y z))) ⇒ #t
 #+end_src
 
-    The procedure cdr must not be passed anything other than a pair, and an exception is raised when this happens. Common
-    Lisp, however, defines (cdr '()) to be (). The following procedure, lisp-cdr, is defined using null? to return () if
-    its argument is ().
+    Процедуре ~cdr~ нельзя передавать ничего, кроме пары, иначе это приведёт к исключению. В Common Lisp, однако,
+    результат ~(cdr '())~ определен как ~()~. Следующая процедура, ~lisp-cdr~, определена с использованием ~null?~,
+    чтобы вернуть ~()~, если её аргумент был ~()~.
 
 #+begin_src scheme
     (define lisp-cdr
@@ -1681,8 +1686,8 @@
     (lisp-cdr '()) ⇒ ()
 #+end_src
 
-    Another useful predicate is eqv?, which requires two arguments. If the two arguments are equivalent, eqv? returns
-    true. Otherwise, eqv? returns false.
+    Еще один полезный предикат - ~eqv?~, который ожидает два аргумента. Если два аргумента эквивалентны, ~eqv?~
+    возвращает истину. Иначе ~eqv?~ возвращает ложь.
 
 #+begin_src scheme
     (eqv? 'a 'a) ⇒ #t
@@ -1699,12 +1704,13 @@
     (eqv? (cons 'a 'b) (cons 'a 'b)) ⇒ #f
 #+end_src
 
-    As you can see, eqv? returns true if the arguments are the same symbol, boolean, number, pair, or string. Two pairs
-    are not the same by eqv? if they are created by different calls to cons, even if they have the same
-    contents. Detailed equivalence rules for eqv? are given in Section 6.2.
+    Как видите, ~eqv?~ возвращает истину, если аргументы - это один и тот же символ, логическое значение, число, пара
+    или строка. Две пары не считаются эквивалентными с точки зрения ~eqv?~, если они были созданы различными вызовами
+    ~cons~, даже если их содержимое одинаково. Подробные правила эквивалентности для ~eqv?~ приведены в разделе 6.2.
 
-    Scheme also provides a set of type predicates that return true or false depending on the type of the object, e.g.,
-    pair?, symbol?, number?, and string?. The predicate pair?, for example, returns true only if its argument is a pair.
+    Scheme также предоставляет набор предикатов типа, которые возвращают истину или ложь в зависимости от типа объекта,
+    например, ~pair?~, ~symbol?~, ~number?~, и ~string?~. Предикат ~pair?~, например, возвращает истину только в случае,
+    если его аргумент - пара.
 
 #+begin_src scheme
     (pair? '(a . c)) ⇒ #t
@@ -1730,9 +1736,9 @@
     (reciprocal 'a) ⇒ "oops!"
 #+end_src
 
-    By the way, the code that uses reciprocal must check to see that the returned value is a number and not a string. To
-    relieve the caller of this obligation, it is usually preferable to report the error, using assertion-violation, as
-    follows.
+    Между прочим, код, использующий ~reciprocal~ должен проверять, что было возвращено процедурой - число или
+    строка. Чтобы освободить пользователя процедуры от этого обязательства, обычно предпочтительно сообщить об ошибке,
+    используя ~assertion-violation~ (науршение соглашения) следующим образом:
 
 #+begin_src scheme
     (define reciprocal
@@ -1748,13 +1754,14 @@
     (reciprocal 'a) ⇒ exception in reciprocal: improper argument a
 #+end_src
 
-    The first argument to assertion-violation is a symbol identifying where the message originates, the second is a
-    string describing the error, and the third and subsequent arguments are "irritants" to be included with the error
-    message.
+    Первый аргумент ~assertion-violation~ это символом, показывающий, откуда исходит сообщение, второй является строкой,
+    описывающей ошибку, а третий и последующие аргументы являются «раздражителями», которые будут включены в сообщение
+    об ошибке.
 
-    Let's look at one more conditional expression, cond, that is often useful in place of if. cond is similar to if
-    except that it allows multiple test and alternative expressions. Consider the following definition of sign, which
-    returns -1 for negative inputs, +1 for positive inputs, and 0 for zero.
+    Давайте рассмотрим ещё одно условное выражение, ~cond~, которое часто оказывается более полезно, чем ~if~. ~cond~
+    похож на ~if~ с той разницей, что он позволяет указывать множество пар тест -> выражение. Рассмотрим следующее
+    определение процедуры ~sign~, которая возвращает -1, если ей передали негативный аргумент, +1 если позитивный, иначе
+    ноль.
 
 #+begin_src scheme
     (define sign
@@ -1771,7 +1778,7 @@
     (* (sign -88.3) (abs -88.3)) ⇒ -88.3
 #+end_src
 
-    The two if expressions may be replaced by a single cond expression as follows.
+    Эти два ~if~ выражения могут быть заменены одним ~cond~ следующим образом:
 
 #+begin_src scheme
     (define sign
@@ -1782,14 +1789,14 @@
           [else 0])))
 #+end_src
 
-    A cond expression usually takes the form
+    Выражение ~cond~ обычно имеет следующую форму:
 
 #+begin_src scheme
     (cond (test expr) ... (else expr))
 #+end_src
 
-    though the else clause may be omitted. This should be done only when there is no possibility that all the tests will
-    fail, as in the new version of sign below.
+    Конечно же клауза ~else~ может быть опущена. Это следует делать только в том случае, если невозможно, чтобы все
+    тесты провалились, как в новой версии ~sign~ ниже:
 
 #+begin_src scheme
     (define sign
@@ -1800,9 +1807,9 @@
           [(= n 0) 0])))
 #+end_src
 
-    These definitions of sign do not depend on the order in which the tests are performed, since only one of the tests
-    can be true for any value of n. The following procedure computes the tax on a given amount of income in a progressive
-    tax system with breakpoints at 10,000, 20,000, and 30,000 dollars.
+    В этом определении ~sign~ не зависит от порядка в котором тесты будут проводиться, потому что только один из тестов
+    может быть истиной, для любого ~n~. Следующая процедура рассчитывает налог для указанного дохода в прогрессивной
+    налоговой системе с контрольными точками для 10000, 20000, 30000 долларов.
 
 #+begin_src scheme
     (define income-tax
@@ -1819,17 +1826,17 @@
     (income-tax 50000) ⇒ 6800.0
 #+end_src
 
-    In this example, the order in which the tests are performed, left to right (top to bottom), is significant.
+    В этом примере важен порядок выполнения тестов - слева направо (сверху вниз).
 
 **** Exercise 2.7.1
 
-     Define the predicate atom?, which returns true if its argument is not a pair and false if it is.
+     Определите предикат ~atom?~, который возвращает истину, если его аргумент не пара и ложь в обратном случае.
 
 **** Exercise 2.7.2
 
-     The procedure length returns the length of its argument, which must be a list. For example, (length '(a b c))
-     is 3. Using length, define the procedure shorter, which returns the shorter of two list arguments. Have it return the
-     first list if they have the same length.
+     Процедура ~length~ возвращает длину своего аргумента, который должен быть списком. Например, ~(length '(a b c))~
+     это 3. Используя ~length~, определите процедуру ~shorter~, возвращающую кратчайший из двух списков в
+     аргументах. Пусть она возвращает первый список, если длины равны.
 
 #+begin_src scheme
      (shorter '(a b) '(c d e)) ⇒ (a b)
