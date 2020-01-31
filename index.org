@@ -719,7 +719,9 @@
 #+end_src
 
     "car" и "cdr" обычно употребляются в качестве существительных, "cons" в качестве глагола. Создание нового списка
-    путём добавления элемента в начало списка называется /consing/.
+    путём добавления элемента в начало списка называется /consing/ (устоявшегося перевода на русский язык нет, но
+    примерный - /кортежирование/, или возможно /спаривание/, ведь здесь речь идёт о кортежах именно длины 2, у которых
+    есть устоявшееся название - пары).
 
     Обратите внимание на слово "обычно" в описании второго аргумента ~cons~. Процедура ~cons~, на самом деле, создаёт
     пары и вовсе не обязательно, чтобы /cdr/ пары был списком. Список - это последовательность пар. /cdr/ каждой пары это
@@ -1828,11 +1830,11 @@
 
     В этом примере важен порядок выполнения тестов - слева направо (сверху вниз).
 
-**** Exercise 2.7.1
+**** Упражнение 2.7.1
 
      Определите предикат ~atom?~, который возвращает истину, если его аргумент не пара и ложь в обратном случае.
 
-**** Exercise 2.7.2
+**** Упражнение 2.7.2
 
      Процедура ~length~ возвращает длину своего аргумента, который должен быть списком. Например, ~(length '(a b c))~
      это 3. Используя ~length~, определите процедуру ~shorter~, возвращающую кратчайший из двух списков в
@@ -1844,17 +1846,17 @@
      (shorter '(a b) '(c)) ⇒ (c)
 #+end_src
 
-*** Simple Recursion
+*** Простая рекурсия
 
-    We have seen how we can control whether or not expressions are evaluated with if, and, or, and cond. We can also
-    perform an expression more than once by creating a procedure containing the expression and invoking the procedure
-    more than once. What if we need to perform some expression repeatedly, say for all the elements of a list or all the
-    numbers from one to ten? We can do so via recursion. Recursion is a simple concept: the application of a procedure
-    from within that procedure. It can be tricky to master recursion at first, but once mastered it provides expressive
-    power far beyond ordinary looping constructs.
+    Мы видели, кака можно контролировать выполнение с помощью ~if~, ~or~ и ~cond~. Мы также можем выполнить выражение
+    более одного раза, создав процедуру, содержащую это выражение и вызвав её несколько раз. Но что, если нам необходимо
+    повторять некоторое выражение, например, для каждого элемента в списке или для каждого числа от одного до десяти? Мы
+    можем сделать это с помощью рекурсии. В основе рекурсии лежит простая идея: вызов процедуры из самой этой
+    процедуры. Освоение рекурсии может показаться сложным, на первых порах, однако освоившись с ней, вы получаете в своё
+    распоряжение мощную силу, намного превосходящую обычные циклы.
 
-    A recursive procedure is a procedure that applies itself. Perhaps the simplest recursive procedure is the following,
-    which we will call goodbye.
+    Рекурсивная процедура это процедура, вызывающая саму себя. Ниже представлен, возможно, самый простой вариант
+    рекурсивной процедуры, которую мы назвали ~goodbye~.
 
 #+begin_src scheme
     (define goodbye
@@ -1864,20 +1866,21 @@
     (goodbye) ⇒
 #+end_src
 
-    This procedure takes no arguments and simply applies itself immediately. There is no value after the ⇒
-    because goodbye never returns.
+    Эта процедура не принимает аргументов и просто немедленно вызывает саму себя. Здесь нет значения после ⇒ потому что
+    ~goodbye~ никогда не вернёт управление (и результат).
 
-    Obviously, to make practical use out of a recursive procedure, we must have some way to terminate the recursion. Most
-    recursive procedures should have at least two basic elements, a base case and a recursion step. The base case
-    terminates the recursion, giving the value of the procedure for some base argument. The recursion step gives the
-    value in terms of the value of the procedure applied to a different argument. In order for the recursion to
-    terminate, the different argument must be closer to the base argument in some way.
+    Обычно, чтобы получить практическую пользу от рекурсивной процедуры мы должны предусмотреть некое условие остановки
+    рекурсии. Большинство рекурсивных процедур должно содержать по меньшей мере два базовых элемента - /базовый вариант/
+    и /шаг рекурсии/. Базовый вариант останавливает процедуру, возвращая значение в случае получения некого базового
+    аргумента. Шаг рекурсии описывает результат в терминах вызова этой же процедуры, примененной к новому аргументу. Чтобы
+    завершить рекурсию, этот новый аргумент должен быть ближе к базовому случаю, чем предыдущий.
 
-    Let's consider the problem of finding the length of a proper list recursively. We need a base case and a recursion
-    step. The logical base argument for recursion on lists is nearly always the empty list. The length of the empty list
-    is zero, so the base case should give the value zero for the empty list. In order to become closer to the empty list,
-    the natural recursion step involves the cdr of the argument. A nonempty list is one element longer than its cdr, so
-    the recursion step gives the value as one more than the length of the cdr of the list.
+    Давайте рассмотрим проблему поиска длины правильного списка рекурсивным способом. Нам нужны базовый случай и шаг
+    рекурсии. Логичным базовым аргументом при рекурсии по списку почти всегда будет пустой список. Длина пустого списка
+    равна нулю, так что базовый случай должен возвращать ноль, если его аргументом будет пустой список. Чтобы
+    последовательно приближаться к пустому списку, естественнно будет на  шаге рекурсии применять ~cdr~ к
+    аргументу. Непустой список на один элемент длинее, чем его ~cdr~, так что шаг рекурсии дает значение на единицу
+    больше длины ~cdr~ списка.
 
 #+begin_src scheme
     (define length
@@ -1891,13 +1894,13 @@
     (length '(a b)) ⇒ 2
 #+end_src
 
-    The if expression asks if the list is empty. If so, the value is zero. This is the base case. If not, the value is
-    one more than the length of the cdr of the list. This is the recursion step.
+    Выражение ~if~ проверяет не пуст ли список. Если это так, результат - ноль. Это базовый случай. Если нет, результат
+    будет на единицу больше, чем длина ~cdr~ этого списка. Это шаг рекурсии.
 
-    Many Scheme implementations allow you to trace the execution of a procedure to see how it operates. In Chez Scheme,
-    for example, one way to trace a procedure is to type (trace name), where name is the name of a procedure you have
-    defined at top level. If you trace length as defined above and pass it the argument '(a b c d), you should see
-    something like this:
+    Многие реализации Scheme позволяют отслеживать выполнение процедуры, чтобы увидеть, как она работает. Например, в
+    Chez Scheme одним из способов трассировки процедуры является ввод ~(trace name)~, где ~name~ - это имя процедуры,
+    которую вы определили на верхнем уровне. Если вы трассируете ~length~, как определено выше, и передадите ей аргумент
+    ~'(a b c d)~, вы должны увидеть что-то вроде этого:
 
 #+BEGIN_EXAMPLE
     |(length (a b c d))
@@ -1912,20 +1915,21 @@
     |4
 #+END_EXAMPLE
 
-    The indentation shows the nesting level of the recursion; the vertical lines associate applications visually with
-    their values. Notice that on each application of length the list gets smaller until it finally reaches (). The value
-    at () is 0, and each outer level adds 1 to arrive at the final value.
+    Отступами обозначен уровень глубины рекурсии; вертикальные линии визуально соотносят вызовы процедур с их
+    результатами. Обратите внимание, что с каждым вызовом ~length~ список становится меньше, пока окончательно не станет
+    ~()~. Результат для ~()~ известен - это 0, и каждый уровень глубины добавляет к этому результату единицу.
 
-    Let's write a procedure, list-copy, that returns a copy of its argument, which must be a list. That is, list-copy
-    returns a new list consisting of the elements (but not the pairs) of the old list. Making a copy might be useful if
-    either the original list or the copy might be altered via set-car! or set-cdr!, which we discuss later.
+    Давайте напишем процедуру ~list-copy~, возвращающую копию своего аргумента, который должен быть списком. Именно
+    новый список из заново спареных элементов (но не старых пар) старого списка. Создание копии может быть полезным,
+    если исходный список или копия могут быть модифицированы с помощью ~set-car!~ или ~set-cdr!~, о которые мы поговорим
+    позже.
 
 #+begin_src scheme
     (list-copy '()) ⇒ ()
     (list-copy '(a b c)) ⇒ (a b c)
 #+end_src
 
-    See if you can define list-copy before studying the definition below.
+    Посмотрите, можете ли вы определить ~list-copy~, прежде чем изучать определение ниже.
 
 #+begin_src scheme
     (define list-copy
@@ -1936,14 +1940,13 @@
                   (list-copy (cdr ls))))))
 #+end_src
 
-    The definition of list-copy is similar to the definition of length. The test in the base case is the same, (null?
-    ls). The value in the base case is (), however, not 0, because we are building up a list, not a number. The recursive
-    call is the same, but instead of adding one, list-copy conses the car of the list onto the value of the recursive
-    call.
+    Определение ~list-copy~ аналогично определению ~length~. Тест в базовом случае такой же, ~(null? ls)~.  Значение в
+    базовом случае равно ~()~, а не 0, потому что мы строим список, а не число. Рекурсивный вызов такой же, но вместо
+    добавления единицы, ~list-copy~ спаривает ~car~ списка-аргумента с результатом рекурсивного вызова.
 
-    There is no reason why there cannot be more than one base case. The procedure memv takes two arguments, an object and
-    a list. It returns the first sublist, or tail, of the list whose car is equal to the object, or #f if the object is
-    not found in the list. The value of memv may be used as a list or as a truth value in a conditional expression.
+    Нет причин, по которым не может быть более одного базового случая. Процедура ~memv~ принимает два аргумента, объект
+    и список. Возвращает первый подсписок (хвост списка), чей ~car~ равен объекту, или ~#f~, если объект не найден в
+    списке. Значение ~memv~ может использоваться как список или как значение истинности в условном выражении.
 
 #+begin_src scheme
     (define memv
@@ -1962,13 +1965,13 @@
         "no") ⇒ "yes"
 #+end_src
 
-    Here there are two conditions to check, hence the use of cond. The first cond clause checks for the base value of ();
-    no object is a member of (), so the answer is #f. The second clause asks if the car of the list is the object, in
-    which case the list is returned, being the first tail whose car contains the object. The recursion step just
-    continues down the list.
+    Здесь есть два условия для проверки, так что используем ~cond~. Первое условие ~cond~ проверяет базовое
+    значение ~()~; ни один объект не является членом ~()~, поэтому ответ ~#f~. Вторая клауза проверяет, является ли
+    ~car~ списка искомым объектом, и в этом случае возвращается список, являющийся первым хвостом, ~car~ которого
+    содержит искомый объект. Шаг рекурсии просто продолжает обход дальше по списку.
 
-    There may also be more than one recursion case. Like memv, the procedure remv defined below takes two arguments, an
-    object and a list. It returns a new list with all occurrences of the object removed from the list.
+    Также может быть более одного случая рекурсии. Как и ~memv~, процедура ~remv~, определенная ниже, принимает два
+    аргумента, объект и список. Возвращает новый список, в котором все вхождения объекта удалены из списка.
 
 #+begin_src scheme
     (define remv
@@ -1984,15 +1987,14 @@
     (remv 'd '(a b b d)) ⇒ (a b b)
 #+end_src
 
-    This definition is similar to the definition of memv above, except remv does not quit once it finds the element in
-    the car of the list. Rather, it continues, simply ignoring the element. If the element is not found in the car of the
-    list, remv does the same thing as list-copy above: it conses the car of the list onto the recursive value.
+    Это определение аналогично определению ~memv~ выше, за исключением того, что ~remv~ не завершает работу, когда находит
+    нужный элемент в ~car~ списка. Выполнение продолжается, просто игнорируя элемент. Если элемент не найден в ~car~,
+    ~remv~ делает то же самое, что и ~list-copy~ выше: он спаривает ~car~ списка с результатом рекурсии.
 
-    Up to now, the recursion has been only on the cdr of a list. It is sometimes useful, however, for a procedure to
-    recur on the car as well as the cdr of the list. The procedure tree-copy defined below treats the structure of pairs
-    as a tree rather than as a list, with the left subtree being the car of the pair and the right subtree being the cdr
-    of the pair. It performs a similar operation to list-copy, building new pairs while leaving the elements (leaves)
-    alone.
+    До сих пор рекурсия проходила только по ~cdr~ списка. Однако иногда полезно, чтобы процедура повторялась как на
+    ~cdr~, так и на ~car~ списка. Процедура ~tree-copy~, определённая ниже, интерпретирует структуру пар как дерево, а
+    не как список, где левое поддерево является ~car~ от пары, а правое - ~cdr~. Процедура совершает схожие с
+    ~list-copy~ операции, образуя новые пары, но оставляя старые элементы (листья).
 
 #+begin_src scheme
     (define tree-copy
@@ -2005,20 +2007,21 @@
     (tree-copy '((a . b) . c)) ⇒ ((a . b) . c)
 #+end_src
 
-    The natural base argument for a tree structure is anything that is not a pair, since the recursion traverses pairs
-    rather than lists. The recursive step in this case is doubly recursive, finding the value recursively for the car as
-    well as the cdr of the argument.
+    Естественным базовым аргументом для древовидной структуры является все, что не является парой, поскольку рекурсия
+    проходит через пары, а не списки. В этом случае рекурсивный шаг вдвойне рекурсивен, рекурсивно находит значение для
+    ~car~, а также ~cdr~ аргумента.
 
-    At this point, readers who are familiar with other languages that provide special iteration constructs, e.g., while
-    or for loops, might wonder whether similar constructs are required in Scheme. Such constructs are unnecessary;
-    iteration in Scheme is expressed more clearly and succinctly via recursion. Recursion is more general and eliminates
-    the need for the variable assignments required by many other languages' iteration constructs, resulting in code that
-    is more reliable and easier to follow. Some recursion is essentially iteration and executes as such; Section 3.2 has
-    more to say about this. Often, there is no need to make a distinction, however. Concentrate instead on writing clear,
-    concise, and correct programs.
+    На этом этапе читатели, знакомые с другими языками, которые предоставляют специальные итерационные конструкции,
+    например циклы ~while~ или ~for~, могут задаться вопросом, требуются ли подобные конструкции в Scheme. Такие
+    конструкции не нужны; итерация в Scheme выражается более ясно и лаконично через рекурсию. Рекурсия носит более общий
+    характер и устраняет необходимость назначения переменных, требуемых итерационными конструкциями многих других
+    языков, в результате чего получается более надежный и понятный код. Некоторая рекурсия по сути является итерацией и
+    выполняется таким же образом; Раздел 3.2 может сказать больше об этом. Однако зачастую нет необходимости проводить
+    различие. Вместо этого сконцентрируйтесь на написании ясных, кратких и правильных программ.
 
-    Before we leave the topic of recursion, let's consider a special form of repetition called mapping. Consider the
-    following procedure, abs-all, that takes a list of numbers as input and returns a list of their absolute values.
+    Прежде чем мы оставим тему рекурсии, давайте рассмотрим специальную форму повторения, называемую /отображением/.
+    Рассмотрим следующую процедуру ~abs-all~, которая принимает список чисел в качестве входных данных и возвращает
+    список их абсолютных значений.
 
 #+begin_src scheme
     (define abs-all
@@ -2031,10 +2034,10 @@
     (abs-all '(1 -2 3 -4 5 -6)) ⇒ (1 2 3 4 5 6)
 #+end_src
 
-    This procedure forms a new list from the input list by applying the procedure abs to each element. We say that
-    abs-all maps abs over the input list to produce the output list. Mapping a procedure over a list is a fairly common
-    thing to do, so Scheme provides the procedure map, which maps its first argument, a procedure, over its second, a
-    list. We can use map to define abs-all.
+    Эта процедура формирует новый список из входного списка, применяя процедуру ~abs~ к каждому элементу. Мы говорим,
+    что ~abs-all~ отображает входной список в выходной при помощи ~abs~. Отображение списков через процедуры - довольно
+    распространенная вещь, поэтому Scheme предоставляет процедуру ~map~, которая отображает с помощью своего первого
+    аргумента, процедуры, свой второй аргумент, список. Мы можем использовать ~map~, чтобы определить ~abs-all~.
 
 #+begin_src scheme
     (define abs-all
@@ -2042,32 +2045,34 @@
         (map abs ls)))
 #+end_src
 
-    We really do not need abs-all, however, since the corresponding direct application of map is just as short and
-    perhaps clearer.
+    Однако в действительности мы не нуждаемся в ~abs-all~, поскольку соответствующее прямое применение ~map~ такое же
+    короткое и, возможно, более понятное.
 
 #+begin_src scheme
     (map abs '(1 -2 3 -4 5 -6)) ⇒ (1 2 3 4 5 6)
 #+end_src
 
-    Of course, we can use lambda to create the procedure argument to map, e.g., to square the elements of a list of
-    numbers.
+    Конечно, мы можем использовать ~lambda~ чтобы создать аргумент-процедуру для ~map~, например, чтобы возводить в
+    квадрат числа в списке.
 
 #+begin_src scheme
     (map (lambda (x) (* x x))
          '(1 -3 -5 7)) ⇒ (1 9 25 49)
 #+end_src
 
-    We can map a multiple-argument procedure over multiple lists, as in the following example.
+    Мы можем отображать сразу несколько списков с помощью процедуры, имеющей столько же аргументов, например:
 
 #+begin_src scheme
     (map cons '(a b c) '(1 2 3)) ⇒ ((a . 1) (b . 2) (c . 3))
 #+end_src
 
-    The lists must be of the same length, and the procedure should accept as many arguments as there are lists. Each
-    element of the output list is the result of applying the procedure to corresponding members of the input list.
+    Списки должны иметь одинаковую длину, и процедура должна принимать столько аргументов, сколько списков
+    передано. Каждый элемент выходного списка является результатом применения процедуры к соответствующим элементам
+    входных списков.
 
-    Looking at the first definition of abs-all above, you should be able to derive, before studying it, the following
-    definition of map1, a restricted version of map that maps a one-argument procedure over a single list.
+    Глядя на первое определение ~abs-all~ выше, вы должны были уже начать догадываться, ещё до изученного только что,
+    как могла бы быть устроена процедура ~map1~ - ограниченная версия ~map~, которая отображает процедуру с одним
+    аргументом в одном списке.
 
 #+begin_src scheme
     (define map1
@@ -2080,34 +2085,35 @@
     (map1 abs '(1 -2 3 -4 5 -6)) ⇒ (1 2 3 4 5 6)
 #+end_src
 
-    All we have done is to replace the call to abs in abs-all with a call to the new parameter p. A definition of the
-    more general map is given in Section 5.4.
+    Все, что мы сделали, это заменили вызов ~abs~ в ~abs-all~ вызовом нового параметра ~p~. Определение более общего
+    ~map~ дано в разделе 5.4.
 
-**** Exercise 2.8.1
+**** Упражнение 2.8.1
 
-     Describe what would happen if you switched the order of the arguments to cons in the definition of tree-copy.
+     Опишите, что произойдет, если вы измените порядок аргументов ~cons~ в определении ~tree-copy~.
 
-**** Exercise 2.8.2
+**** Упражнение 2.8.2
 
-     Consult Section 6.3 for the description of append and define a two-argument version of it. What would happen if you
-     switched the order of the arguments in the call to append within your definition of append?
+     Обратитесь к разделу 6.3 для описания ~append~ и напишите её новую версию с двумя аргументами. Что произойдет, если
+     вы измените порядок аргументов в вызове ~append~ в пределах вашего определения ~append~?
 
-**** Exercise 2.8.3
+**** Упражнение 2.8.3
 
-     Define the procedure make-list, which takes a nonnegative integer n and an object and returns a new list, n long,
-     each element of which is the object.
+     Определите процедуру ~make-list~, которая принимает неотрицательное целое число ~n~ и объект и возвращает новый
+     список длиной ~n~, каждый элемент которого является этим объектом.
 
 #+begin_src scheme
      (make-list 7 '()) ⇒ (() () () () () () ())
 #+end_src
 
-     [Hint: The base test should be (= n 0), and the recursion step should involve (- n 1). Whereas () is the natural base
-     case for recursion on lists, 0 is the natural base case for recursion on nonnegative integers. Similarly, subtracting
-     1 is the natural way to bring a nonnegative integer closer to 0.]
+     [Подсказка: базовый тест должен быть ~(= n 0)~, а шаг рекурсии должен включать ~(- n 1)~. Тогда как ~()~ -
+     естественный базовый случай для рекурсии по спискам, 0 - естественный базовый случай для рекурсии по
+     неотрицательным целым числам. Точно так же вычитание 1 является естественным способом приблизить неотрицательное
+     целое число к 0.]
 
-**** Exercise 2.8.4
+**** Упражнение 2.8.4
 
-     The procedures list-ref and list-tail return the nth element and nth tail of a list ls.
+     Процедуры ~list-ref~ и ~list-tail~ возвращают N-ный элемент и N-ный хвост списка соответственно.
 
 #+begin_src scheme
      (list-ref '(1 2 3 4) 0) ⇒ 1
@@ -2116,35 +2122,36 @@
      (list-tail '(a short (nested) list) 2) ⇒ ((nested) list)
 #+end_src
 
-     Define both procedures.
+     Определите обе процедуры.
 
-**** Exercise 2.8.5
+**** Упражнение 2.8.5
 
-     Exercise 2.7.2 had you use length in the definition of shorter, which returns the shorter of its two list arguments,
-     or the first if the two have the same length. Write shorter without using length. [Hint: Define a recursive helper,
-     shorter?, and use it in place of the length comparison.]
+     В упражнении 2.7.2 вы использовали ~length~ в определении процедуры ~shorter~, возвращающей кратчайший из двух
+     переданных списков, или первый, если длины равны. Напишите ~shorter~ без использования ~length~. [Подсказка:
+     определите рекурсивную процедуру-помошник ~shorter?~ и используйте её вместо сравнения длин списков.]
 
-**** Exercise 2.8.6
+**** Упражнение 2.8.6
 
-     All of the recursive procedures shown so far have been directly recursive. That is, each procedure directly applies
-     itself to a new argument. It is also possible to write two procedures that use each other, resulting in indirect
-     recursion. Define the procedures odd? and even?, each in terms of the other. [Hint: What should each return when its
-     argument is 0?]
+     Все рекурсивные процедуры, показанные до сих пор, были непосредственно рекурсивными. То есть каждая процедура
+     непосредственно применяет себя к новому аргументу. Также возможно написать две процедуры, которые используют друг
+     друга, что приводит к косвенной рекурсии. Определите процедуры ~even?~ (чётно?) и ~odd?~ (нечётно?), каждую в
+     терминах другой. [Подсказка: что каждый должен возвращать, когда его аргумент равен 0?]
 
 #+begin_src scheme
      (even? 17) ⇒ #f
      (odd? 17) ⇒ #t
 #+end_src
 
-**** Exercise 2.8.7
+**** Упражнение 2.8.7
 
-     Use map to define a procedure, transpose, that takes a list of pairs and returns a pair of lists as follows.
+     Используйте ~map~, чтобы определить процедуру ~transpose~, которая берет список пар и возвращает пару списков
+     следующим образом.
 
 #+begin_src scheme
      (transpose '((a . 1) (b . 2) (c . 3))) ⇒ ((a b c) 1 2 3)
 #+end_src
 
-     [Hint: ((a b c) 1 2 3) is the same as ((a b c) . (1 2 3)).]
+     [Подсказка: ~((a b c) 1 2 3)~ это то же, что и ~((a b c) . (1 2 3))~.]
 
 *** Assignment
 
@@ -2483,17 +2490,17 @@
     (getq myq) ⇒ d
 #+end_src
 
-**** Exercise 2.9.1
+**** Упражнение 2.9.1
 
      Modify make-counter to take two arguments: an initial value for the counter to use in place of 0 and an amount to
      increment the counter by each time.
 
-**** Exercise 2.9.2
+**** Упражнение 2.9.2
 
      Look up the description of case in Section 5.3. Replace the cond expression in make-stack with an equivalent case
      expression. Add mt? as a second name for the empty? message.
 
-**** Exercise 2.9.3
+**** Упражнение 2.9.3
 
      Modify the stack object to allow the two messages ref and set!. (stack 'ref i) should return the ith element from the
      top of the stack; (stack 'ref 0) should be equivalent to (stack 'top). (stack 'set! i v) should change the ith
@@ -2517,7 +2524,7 @@
 
      [Hint: Use list-ref to implement ref and list-tail with set-car! to implement set!.]
 
-**** Exercise 2.9.4
+**** Упражнение 2.9.4
 
      Scheme supports vectors as well as lists. Like lists, vectors are aggregate objects that contain other
      objects. Unlike lists, vectors have a fixed size and are laid out in one flat block of memory, typically with a
@@ -2533,18 +2540,18 @@
      to hold the stack contents. Include the ref and set! messages of Exercise 2.9.3. Have the new make-stack accept a
      size argument n and make the vector length n, but do not otherwise change the external (abstract) interface.
 
-**** Exercise 2.9.5
+**** Упражнение 2.9.5
 
      Define a predicate, emptyq?, for determining if a queue is empty. Modify getq and delq! to raise an exception when an
      empty queue is found, using assertion-violation.
 
-**** Exercise 2.9.6
+**** Упражнение 2.9.6
 
      In the queue implementation, the last pair in the encapsulated list is a placeholder, i.e., it never holds anything
      useful. Recode the queue operators to avoid this wasted pair. Make sure that the series of queue operations given
      earlier works with the new implementation. Which implementation do you prefer?
 
-**** Exercise 2.9.7
+**** Упражнение 2.9.7
 
      Using set-cdr!, it is possible to create cyclic lists. For example, the following expression evaluates to a list
      whose car is the symbol a and whose cdr is the list itself.
@@ -2558,7 +2565,7 @@
      What happens when you enter the above expression during an interactive Scheme session? What will the implementation
      of length on page 42 do when given a cyclic list? What does the built-in length primitive do?
 
-**** Exercise 2.9.8
+**** Упражнение 2.9.8
 
      Define the predicate list?, which returns #t if its argument is a proper list and #f otherwise (see Section 6.3). It
      should return #f for cyclic lists as well as for lists terminated by objects other than ().
@@ -2804,7 +2811,7 @@
 
     The reason is more subtle, however, and is the subject of Exercise 3.2.6.
 
-**** Exercise 3.1.1
+**** Упражнение 3.1.1
 
      Write out the expansion steps necessary to expand
 
@@ -2815,7 +2822,7 @@
 
     into core forms.
 
-**** Exercise 3.1.2
+**** Упражнение 3.1.2
 
      Write out the expansion steps necessary to expand
 
@@ -2825,7 +2832,7 @@
 
      into core forms.
 
-**** Exercise 3.1.3
+**** Упражнение 3.1.3
 
      ~let*~ is similar to let but evaluates its bindings in sequence. Each of the right-hand-side expressions is within
      the scope of the earlier bindings.
@@ -2847,7 +2854,7 @@
 
      Define ~let*~ with define-syntax.
 
-**** Exercise 3.1.4
+**** Упражнение 3.1.4
 
      As we saw in Section 2.9, it is legal to omit the third, or alternative, subexpression of an if expression. Doing
      so, however, often leads to confusion. Scheme provides two syntactic forms, when and unless, that may be used in
@@ -3224,15 +3231,15 @@
     A nontail call to f is shown indented relative to its caller, since the caller is still active, whereas tail calls
     appear at the same level of indentation.
 
-**** Exercise 3.2.1
+**** Упражнение 3.2.1
 
      Which of the recursive procedures defined in Section 3.2 are tail-recursive, and which are not?
 
-**** Exercise 3.2.2
+**** Упражнение 3.2.2
 
      Rewrite factor using letrec to bind f in place of named let. Which version do you prefer?
 
-**** Exercise 3.2.3
+**** Упражнение 3.2.3
 
      Can the letrec expression below be rewritten using named let? If not, why not? If so, do it.
 
@@ -3248,17 +3255,17 @@
        (even? 20))
 #+end_src
 
-**** Exercise 3.2.4
+**** Упражнение 3.2.4
 
      Rewrite both definitions of fibonacci given in this section to count the number of recursive calls to fib, using a
      counter similar to the one used in the cons-count example of Section 2.9. Count the number of recursive calls made in
      each case for several input values. What do you notice?
 
-**** Exercise 3.2.5
+**** Упражнение 3.2.5
 
      Augment the definition of let given in Section 3.1 to handle named let as well as unnamed let, using two rules.
 
-**** Exercise 3.2.6
+**** Упражнение 3.2.6
 
      The following definition of or is simpler than the one given in Section 3.1.
 
@@ -3274,7 +3281,7 @@
      Say why it is not correct. [Hint: Think about what would happen if this version of or were used in the even? and
      odd? example given on page 66 for very large inputs.]
 
-**** Exercise 3.2.7
+**** Упражнение 3.2.7
 
      The definition of factor is not the most efficient possible. First, no factors of n besides n itself can possibly be
      found beyond →. Second, the division (/ n i) is performed twice when a factor is found. Third, after 2, no even
@@ -3459,29 +3466,29 @@
 
     See Section 12.11 for an implementation of engines, which support preemptive multitasking, with call/cc.
 
-**** Exercise 3.3.1
+**** Упражнение 3.3.1
 
      Use call/cc to write a program that loops indefinitely, printing a sequence of numbers beginning at zero. Do not use
      any recursive procedures, and do not use any assignments.
 
-**** Exercise 3.3.2
+**** Упражнение 3.3.2
 
      Rewrite product without call/cc, retaining the feature that no multiplications are performed if any of the list
      elements are zero.
 
-**** Exercise 3.3.3
+**** Упражнение 3.3.3
 
      What would happen if a process created by lwp as defined above were to terminate, i.e., simply return without
      calling pause? Define a quit procedure that allows a process to terminate without otherwise affecting the lwp
      system. Be sure to handle the case in which the only remaining process terminates.
 
-**** Exercise 3.3.4
+**** Упражнение 3.3.4
 
      Each time lwp is called, the list of processes is copied because lwp uses append to add its argument to the end of
      the process list. Modify the original lwp code to use the queue data type developed in Section 2.9 to avoid this
      problem.
 
-**** Exercise 3.3.5
+**** Упражнение 3.3.5
 
      The light-weight process mechanism allows new processes to be created dynamically, although the example given in
      this section does not do so. Design an application that requires new processes to be created dynamically and
@@ -3595,16 +3602,16 @@
     (product '(7 3 8 0 1 9 5) (lambda (x) x)) → 0
 #+end_src
 
-**** Exercise 3.4.1
+**** Упражнение 3.4.1
 
      Rewrite the reciprocal example first given in Section 2.1 to accept both success and failure continuations, like
      integer-divide above.
 
-**** Exercise 3.4.2
+**** Упражнение 3.4.2
 
      Rewrite the retry example from page 75 to use CPS.
 
-**** Exercise 3.4.3
+**** Упражнение 3.4.3
 
      Rewrite the following expression in CPS to avoid using call/cc.
 
@@ -3808,21 +3815,21 @@
         [else (complain ek "invalid operator" op)]))
 #+end_src
 
-**** Exercise 3.5.1
+**** Упражнение 3.5.1
 
      Redefine complain in the calc example as an equivalent syntactic extension.
 
-**** Exercise 3.5.2
+**** Упражнение 3.5.2
 
      In the calc example, the error continuation ek is passed along on each call to apply-op, complain, and do-calc. Move
      the definitions of apply-op, complain, and do-calc inward as far as necessary to eliminate the ek argument from the
      definitions and applications of these procedures.
 
-**** Exercise 3.5.3
+**** Упражнение 3.5.3
 
      Eliminate the call/cc from calc and rewrite complain to raise an exception using assertion-violation.
 
-**** Exercise 3.5.4
+**** Упражнение 3.5.4
 
      Extend calc to handle unary minus expressions, e.g.,
 
@@ -3919,7 +3926,7 @@
 
     Chapter 10 describes libraries in more detail and provides additional examples of their use.
 
-**** Exercise 3.6.1
+**** Упражнение 3.6.1
 
      Modify gpa to handle "x" grades, which do not count in the grade-point average. Be careful to handle gracefully the
      situation where each grade is x.
@@ -3929,7 +3936,7 @@
      (gpa a x b c) → 3.0
 #+end_src
 
-**** Exercise 3.6.2
+**** Упражнение 3.6.2
 
      Export from (grades) a new syntactic form, distribution, that takes a set of grades, like gpa, but returns a list of
      the form ((n g) ...), where n is the number of times g appears in the set, with one entry for each g. Have
@@ -3940,7 +3947,7 @@
      (distribution a b a c c c a f b a) → ((4 a) (2 b) (3 c) (0 d) (1 f))
 #+end_src
 
-**** Exercise 3.6.3
+**** Упражнение 3.6.3
 
      Now read about output operations in Section 7.8 and define a new export, histogram, as a procedure that takes a
      textual output port and a distribution, such as might be produced by distribution, and prints a histogram in the
