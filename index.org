@@ -6,8 +6,10 @@
 
 #+LATEX_CLASS: book
 #+LATEX_CLASS_OPTIONS: [11pt,fleqn, oneside]
-#+LATEX_HEADER: \usepackage[russian]{babel}
 #+LATEX_HEADER: \usepackage[margin=0.8in]{geometry}
+#+LATEX_HEADER: \usepackage[T1,T2A]{fontenc}
+#+LATEX_HEADER: \usepackage[unicode]{hyperref}
+#+LATEX_HEADER: \usepackage[english,russian]{babel}
 #+LANGUAGE: RU
 #+OPTIONS: toc:nil title:nil
 #+TITLE: Язык программирования Scheme, 4-е издание
@@ -1521,7 +1523,7 @@
      (обозначающих ~car~) или /d/ (обозначающих ~cdr~) между /c/ и /r/ (см. Главу 6.3). Определите каждую из них с
      помощью процедуры ~compose~ из предыдущего упражнения.
 
-*** Conditional Expressions
+*** Условные выражения
 
     До сих пор мы рассматривали выражения, которые выполняют свою задачу безоговорочно. Предположим, что мы хотим
     написать процедуру ~abs~. Если аргумент ~x~ отрицательный, ~abs~ возвращает ~-x~; в противном случае возвращает
@@ -2153,11 +2155,11 @@
 
      [Подсказка: ~((a b c) 1 2 3)~ это то же, что и ~((a b c) . (1 2 3))~.]
 
-*** Assignment
+*** Присваивания
 
-    Although many programs can be written without them, assignments to top-level variables or let-bound and lambda-bound
-    variables are sometimes useful. Assignments do not create new bindings, as with let or lambda, but rather change the
-    values of existing bindings. Assignments are performed with set!.
+    Хотя многие программы могут быть написаны без них, иногда полезны определения переменных верхнего уровня,
+    let-связывания и lambda-связывания. /Присваивания/ не создают новые связывания, как в случае ~let~ или ~lambda~, а
+    скорее изменяют значения существующих связываний. Присваивания выполняются с помощью  ~set!~.
 
 #+begin_src scheme
     (define abcde '(a b c d e))
@@ -2169,15 +2171,16 @@
       abcde) ⇒ (e d c b a)
 #+end_src
 
-    Many languages require the use of assignments to initialize local variables, separate from the declaration or binding
-    of the variables. In Scheme, all local variables are given a value immediately upon binding. Besides making the
-    separate assignment to initialize local variables unnecessary, it ensures that the programmer cannot forget to
-    initialize them, a common source of errors in most languages.
+    Многие языки требуют использования присваиваний для инициализации локальных переменных, отдельно от объявления или
+    связывания переменных. В Scheme все локальные переменные получают значение сразу после связывания. Помимо
+    необходимости выполнять отдельное присваивание для инициализации локальных переменных, это гарантирует, что
+    программист не сможет забыть инициализировать их, что является распространенным источником ошибок в большинстве
+    языков.
 
-    In fact, most of the assignments that are either necessary or convenient in other languages are both unnecessary and
-    inconvenient in Scheme, since there is typically a clearer way to express the same algorithm without assignments. One
-    common practice in some languages is to sequence expression evaluation with a series of assignments, as in the
-    following procedure that finds the roots of a quadratic equation.
+    Фактически, большинство назначений, которые либо необходимы, либо удобны в других языках, в Scheme как ненужны, так
+    и неудобные, поскольку обычно существует более понятный способ выражения того же алгоритма без присвоений. Обычной
+    практикой в некоторых языках является последовательное выполнение выражений и присваиваний, как в следующей
+    процедуре, которая находит корни квадратного уравнения.
 
 #+begin_src scheme
     (define quadratic-formula
@@ -2191,27 +2194,26 @@
           (cons root1 root2))))
 #+end_src
 
-    The roots are computed according to the well-known quadratic formula,
+    Корни вычисляются по известной формуле поиска корней квадратного уравнения,
 
 #+ATTR_LATEX: :width 60px
 [[./images/4.png]]
 
-    which yields the solutions to the equation 0 = ax2 + bx + c. The let expression in this definition is employed solely
-    to establish the variable bindings, corresponding to the declarations required in other languages. The first three
-    assignment expressions compute subpieces of the formula, namely -b,
+    что дает решения уравнения /0 = ax^2 + bx + c/. Выражение ~let~ в этом определении используется исключительно для
+    установления привязок переменных, соответствующих объявлениям, требуемым в других языках. Первые три выражения
+    присваивания вычисляют части формулы, а именно ~-b~ и ~2а~.
 
 #+ATTR_LATEX: :width 60px
 [[./images/5.png]]
 
-    and 2a. The last two assignment
-    expressions compute the two roots in terms of the subpieces. A pair of the two roots is the value of
-    quadratic-formula. For example, the two roots of 2x2 - 4x - 6 are x = 3 and x = -1.
+    Последние два выражения присваивания вычисляют два корня. Пара из двух корней является результатом вычисления
+    квадратичной формулы. Например, два корня /2x^2 - 4x - 6/ - это x = 3 и x = -1.
 
 #+begin_src scheme
     (quadratic-formula 2 -4 -6) ⇒ (3 . -1)
 #+end_src
 
-    The definition above works, but it can be written more clearly without the assignments, as shown below.
+    Вышеприведенное определение работает, но оно может быть написано более четко без присвоений, как показано ниже.
 
 #+begin_src scheme
     (define quadratic-formula
@@ -2224,20 +2226,21 @@
             (cons root1 root2)))))
 #+end_src
 
-    In this version, the set! expressions are gone, and we are left with essentially the same algorithm. By employing two
-    let expressions, however, the definition makes clear the dependency of root1 and root2 on the values of minusb,
-    radical, and divisor. Equally important, the let expressions make clear the lack of dependencies among minusb,
-    radical, and divisor and between root1 and root2.
+    В этой версии ~set!~ выражения ушли, и у нас остался по сути тот же алгоритм. Однако, используя два выражения ~let~,
+    определение яснее показывает зависимость ~root1~ и ~root2~ от значений ~minusb~, ~radius~ и ~divisor~. Не менее
+    важно, что выражения let ясно показывают отсутствие зависимостей между собой для ~minusb~, ~radical~ и ~divisor~, а
+    также между ~root1~ и ~root2~.
 
-    Assignments do have some uses in Scheme, otherwise the language would not support them. Consider the following
-    version of cons that counts the number of times it is called, storing the count in a variable named cons-count. It
-    uses set! to increment the count; there is no way to achieve the same behavior without assignments.
+    Присвоения действительно имеют определённые применения в Scheme, иначе язык бы их не поддерживал. Рассмотрим
+    следующую версию ~cons~, которая подсчитывает количество её вызовов, сохраняя счетчик в переменной с именем
+    ~cons-count~. Здесь используется ~set!~ чтобы увеличить счетчик; нет способа добиться того же поведения без
+    использования подобного рода присвоений.
 
 #+begin_src scheme
-    (define kons-count 0)
-    (define kons
+    (define cons-count 0)
+    (define cons
       (lambda (x y)
-        (set! kons-count (+ kons-count 1))
+        (set! cons-count (+ cons-count 1))
         (cons x y)))
 #+end_src
 
@@ -2248,9 +2251,10 @@
     kons-count ⇒ 4
 #+end_src
 
-    Assignments are commonly used to implement procedures that must maintain some internal state. For example, suppose we
-    would like to define a procedure that returns 0 the first time it is called, 1 the second time, 2 the third time, and
-    so on indefinitely. We could write something similar to the definition of cons-count above:
+    Присвоения обычно используются для реализации процедур, которые должны поддерживать некоторое внутреннее
+    состояние. Например, предположим, что мы хотим определить процедуру, которая возвращает 0 в первый раз, когда она
+    вызывается, 1 во второй раз, 2 в третий раз и так далее до бесконечности. Мы могли бы написать что-то похожее на
+    определенный выше ~cons-count~:
 
 #+begin_src scheme
     (define next 0)
@@ -2264,10 +2268,10 @@
     (count) ⇒ 1
 #+end_src
 
-    This solution is somewhat undesirable in that the variable next is visible at top level even though it need not
-    be. Since it is visible at top level, any code in the system can change its value, perhaps inadvertently affecting
-    the behavior of count in a subtle way. We can solve this problem by let-binding next outside of the lambda
-    expression:
+    Это решение несколько нежелательно в том смысле, что переменная ~next~ видна на верхнем уровне, даже если это не
+    обязательно. Так как она видна на верхнем уровне, любой код в системе может изменить её значение, возможно,
+    непреднамеренно повлиять на поведение счетчика неявным образом. Мы можем решить эту проблему с помощью
+    let-связывания вне лямбда-выражения:
 
 #+begin_src scheme
     (define count
@@ -2278,8 +2282,9 @@
             v))))
 #+end_src
 
-    The latter solution also generalizes easily to provide multiple counters, each with its own local counter. The
-    procedure make-counter, defined below, returns a new counting procedure each time it is called.
+    Последнее решение также легко обобщается для предоставления нескольких счетчиков, каждый из которых имеет свой
+    собственный локальный счетчик. Процедура ~make-counter~, определенная ниже, возвращает новую процедуру подсчета
+    каждый раз, когда она вызывается.
 
 #+begin_src scheme
     (define make-counter
@@ -2291,8 +2296,8 @@
               v)))))
 #+end_src
 
-    Since next is bound inside of make-counter but outside of the procedure returned by make-counter, each procedure it
-    returns maintains its own unique counter.
+    Поскольку ~next~ связывается внутри ~make-counter~, но вне процедуры, возвращаемой ~make-counter~, каждая
+    возвращаемая процедура использует свой уникальный счетчик.
 
 #+begin_src scheme
     (define count1 (make-counter))
@@ -2305,9 +2310,9 @@
     (count2) ⇒ 1
 #+end_src
 
-    If a state variable must be shared by more than one procedure defined at top level, but we do not want the state
-    variable to be visible at top level, we can use let to bind the variable and set! to make the procedures visible at
-    top level.
+   Если переменная состояния должна совместно использоваться более чем одной процедурой, определенной на верхнем уровне,
+   но мы не хотим, чтобы переменная состояния была видимой на верхнем уровне, мы можем использовать ~let~, чтобы связать
+   переменную и ~set!~ сделать процедуры видимыми на верхнем уровне.
 
 #+begin_src scheme
     (define shhh #f)
@@ -2325,16 +2330,17 @@
     secret ⇒ exception: variable secret is not bound
 #+end_src
 
-    Variables must be defined before they can be assigned, so we define shhh and tell to be #f initially. (Any initial
-    value would do.) We'll see this structure again in Section 3.5 and a better way to structure code like this as a
-    library in Section 3.6.
+    Переменные должны быть определены до того, как им будет присвоено значение, поэтому мы вначале определяем ~shhh~ и
+    присваиваем ему ~#f~ (подойдет любое начальное значение). Мы увидим эту структуру снова в Разделе 3.5, а лучший
+    способ структурировать подобный код как библиотеку в Разделе 3.6.
 
-    Local state is sometimes useful for caching computed values or allowing a computation to be evaluated lazily, i.e.,
-    only once and only on demand. The procedure lazy below accepts a thunk, or zero-argument procedure, as an
-    argument. Thunks are often used to "freeze" computations that must be delayed for some reason, which is exactly what
-    we need to do in this situation. When passed a thunk t, lazy returns a new thunk that, when invoked, returns the
-    value of invoking t. Once computed, the value is saved in a local variable so that the computation need not be
-    performed again. A boolean flag is used to record whether t has been invoked and its value saved.
+    Локальное состояние иногда полезно для кэширования вычисленных значений, а так же позволяет производить ленивые
+    вычисления, т. е. производить вычисления только один раз и только по требованию. Процедура ~lazy~ ниже принимает
+    чанк (англ. thunk), процедуру нулевой арности, в качестве аргумента. Чанки часто используются для «замораживания»
+    вычислений, которые по какой-то причине должны быть отложены, что в точности то, что нам нужно в данной
+    ситуации. При передаче чанка ~t~, ~lazy~ возвращает новый чанк, который при вызове возвращает значение вызова
+    ~t~. Единожды вычисленое, значение сохраняется в локальной переменной, так что вычисление больше не
+    требуется. Логический флаг используется для записи того, был ли вычислен ~t~ и сохранено ли его значение.
 
 #+begin_src scheme
     (define lazy
@@ -2347,16 +2353,18 @@
             val))))
 #+end_src
 
-    The syntactic form begin, used here for the first time, evaluates its subexpressions in sequence from left to right
-    and returns the value of the last subexpression, like the body of a let or lambda expression. We also see that the
-    alternative subexpression of an if expression can be omitted. This should be done only when the value of the if is
-    discarded, as it is in this case.
 
-    Lazy evaluation is especially useful for values that require considerable time to compute. By delaying the
-    evaluation, we might avoid computing the value altogether, and by saving the value, we avoid computing it more than
-    once.
+    Синтаксическая форма ~begin~, используемая здесь впервые, выполняет свои подвыражения в последовательности слева
+    направо и возвращает значение последнего подвыражения, как тело выражения ~let~ или лямбда-выражения. Мы также
+    видим, что альтернативное подвыражение выражения ~if~ может быть опущено. Это должно быть сделано только тогда,
+    когда значение ~if~ отбрасывается, как в этом случае.
 
-    The operation of lazy can best be illustrated by printing a message from within a thunk passed to lazy.
+    Ленивые вычисления особенно полезны для значений, которые требуют значительного времени для рассчёта. Откладывая
+    вычисление, мы можем избежать рассчёта значения в целом, а сохраняя результат, мы избегаем вычисления его более
+    одного раза.
+
+    Функционирование ~lazy~ может быть лучше всего проиллюстрирована выводом сообщения из чанка, переданного в
+    ~lazy~ в качестве аргумента.
 
 #+begin_src scheme
     (define p
@@ -2366,16 +2374,15 @@
               "got me")))
 #+end_src
 
-    The first time p is invoked, the message Ouch! is printed and the string "got me" is returned. Thereafter, "got me"
-    is returned but the message is not printed. The procedures display and newline are the first examples of explicit
-    input/output we have seen; display prints the string without quotation marks, and newline prints a newline
-    character.
+    При первом вызове ~p~  печатается сообщение ~"Ouch!"~ , и возвращается строка ~"got me"~ . Последующие вызовы
+    возвращают ~"got me"~ , но сообщение не печатают. Процедуры ~display~ и ~newline~ - это первые примеры явного
+    ввода/вывода, которые мы видели; ~display~ выводит строку без кавычек, а ~newline~  печатает символ новой строки.
 
-    To further illustrate the use of set!, let's consider the implementation of stack objects whose internal workings are
-    not visible on the outside. A stack object accepts one of four messages: empty?, which returns #t if the stack is
-    empty; push!, which adds an object to the top of the stack; top, which returns the object on the top of the stack;
-    and pop!, which removes the object on top of the stack. The procedure make-stack given below creates a new stack each
-    time it is called in a manner similar to make-counter.
+    Чтобы дополнительно проиллюстрировать использование ~set!~, давайте рассмотрим реализацию объектов стека, внутренняя
+    работа которых не видна снаружи. Объект стека принимает одно из четырех сообщений: ~empty?~, которое возвращает
+    ~#t~, если стек пуст; ~push!~, который добавляет объект на вершину стека; ~top~, который возвращает объект с
+    вершины стека; и ~pop!~, который удаляет объект сверху стека. Приведенная ниже процедура ~make-stack~ создает новый
+    стек каждый раз, когда она вызывается, аналогично ~make-counter~.
 
 #+begin_src scheme
     (define make-stack
@@ -2390,11 +2397,11 @@
               [else "oops"])))))
 #+end_src
 
-    Each stack is stored as a list bound to the variable ls; set! is used to change this binding for push! and
-    pop!. Notice that the argument list of the inner lambda expression uses the improper list syntax to bind args to a
-    list of all arguments but the first. This is useful here because in the case of empty?, top, and pop! there is only
-    one argument (the message), but in the case of push! there are two (the message and the object to push onto the
-    stack).
+    Каждый стек хранится в виде списка, привязанного к переменной ~ls~; ~set!~ используется для изменения этой привязки
+    в ~push!~ и ~pop!~. Обратите внимание, что список аргументов внутреннего лямбда-выражения использует синтаксис
+    неправильного списка для связывания всех аргументов, кроме первого, со списком. Это полезно здесь, потому что в
+    случае ~empty?~, ~top~ и ~pop!~ есть только один аргумент (сообщение), но в случае ~push!~ их два (сообщение и
+    объект, который нужно поместить в стек).
 
 #+begin_src scheme
     (define stack1 (make-stack))
@@ -2417,15 +2424,15 @@
     (list (stack1 'empty?) (stack2 'empty?)) ⇒ (#t #f)
 #+end_src
 
-    As with the counters created by make-counter, the state maintained by each stack object is directly accessible only
-    within the object. Each reference or change to this state is made explicitly by the object itself. One important
-    benefit is that we can change the internal structure of the stack, perhaps to use a vector (see Section 6.9) instead
-    of a list to hold the elements, without changing its external behavior. Because the behavior of the object is known
-    abstractly (not operationally), it is known as an abstract object. See Section 12.8 for more about creating abstract
-    objects.
+    Как и в случае счетчиков, созданных ~make-counter~, состояние, используемое каждым объектом стека, напрямую доступно
+    только внутри объекта. Каждый доступ или изменение этого состояния выполняется явно самим объектом. Одним из важных
+    преимуществ является то, что мы можем изменить внутреннюю структуру стека, например, использовав вектор (см. Раздел
+    6.9) вместо списка для хранения элементов без изменения его внешнего поведения. Поскольку поведение объекта известно
+    абстрактно (не операционно), он считается абстрактным объектом. Смотри раздел 12.8 для получения дополнительной
+    информации о создании абстрактных объектов.
 
-    In addition to changing the values of variables, we can also change the values of the car and cdr fields of a pair,
-    using the procedures set-car! and set-cdr!.
+    Помимо изменения значений переменных, мы также можем изменять значения полей пар ~car~ и ~cdr~, используя процедуры
+    ~set-car!~ и ~set-cdr!~ .
 
 #+begin_src scheme
     (define p (list 1 2 3))
@@ -2435,19 +2442,19 @@
     p ⇒ (1)
 #+end_src
 
-    We can use these operators to define a queue data type, which is like a stack except that new elements are added at
-    one end and extracted from the other. The following queue implementation uses a tconc structure. A tconc consists of
-    a nonempty list and a header. The header is a pair whose car points to the first pair (head) of the list and whose
-    cdr points to the last pair (end) of the list.
+    Мы можем использовать эти операторы для определения типа данных 'очередь', который похож на стек, за исключением
+    того, что новые элементы добавляются на одном конце и извлекаются из другого. Следующая реализация очереди
+    использует структуру ~tconc~. ~tconc~ состоит из непустого списка и заголовка. Заголовок - это пара, ~car~ которой
+    указывает на первую пару (заголовок) списка, а ~cdr~ указывает на последнюю пару (конец) списка.
 
 #+ATTR_LATEX: :width 200px
 [[./images/6.png]]
 
-    The last element of the list is a placeholder and not considered part of the queue.
+    Последний элемент списка является заполнителем и не считается частью очереди.
 
-    Four operations on queues are defined below: make-queue, which constructs a queue; putq!, which adds an element to
-    the end of a queue; getq, which retrieves the element at the front of a queue; and delq!, which removes the element
-    at the front of a queue.
+    Ниже приведены четыре операции с очередями: ~make-queue~, которая создает очередь; ~putq!~ , которая добавляет
+    элемент в конец очереди; ~getq~, которая извлекает элемент в начале очереди; и ~delq!~, который удаляет элемент из
+    начала очереди.
 
 #+begin_src scheme
     (define make-queue
@@ -2471,8 +2478,8 @@
         (set-car! q (cdr (car q)))))
 #+end_src
 
-    All are simple operations except for putq!, which modifies the end pair to contain the new value and adds a new end
-    pair.
+    Все это простые операции, кроме ~putq!~, которая изменяет конечную пару, чтобы она содержала новое значение, и
+    добавляет новую конечную пару.
 
 #+begin_src scheme
     (define myq (make-queue))
@@ -2492,19 +2499,19 @@
 
 **** Упражнение 2.9.1
 
-     Modify make-counter to take two arguments: an initial value for the counter to use in place of 0 and an amount to
-     increment the counter by each time.
+     Измените ~make-counter~ так, чтобы он принимал два аргумента: начальное значение для счетчика, которое будет
+     использоваться вместо 0, и значение, на которое счетчик увеличивается каждый раз.
 
 **** Упражнение 2.9.2
 
-     Look up the description of case in Section 5.3. Replace the cond expression in make-stack with an equivalent case
-     expression. Add mt? as a second name for the empty? message.
+     Посмотрите описание случая в разделе 5.3. Замените выражение ~cond~ в ~make-stack~ на эквивалентное выражение
+     ~case~. Добавить ~mt?~ как второе имя для сообщения ~empty?~.
 
 **** Упражнение 2.9.3
 
-     Modify the stack object to allow the two messages ref and set!. (stack 'ref i) should return the ith element from the
-     top of the stack; (stack 'ref 0) should be equivalent to (stack 'top). (stack 'set! i v) should change the ith
-     element from the top of the stack to v.
+     Измените объект стека, чтобы разрешить два сообщения ~ref~ и ~set!~. ~(stack 'ref i)~ должен возвращать i-й элемент
+     от верхушки стека; ~(stack 'ref 0)~ должен быть эквивалентен ~(stack 'top)~. ~(stack 'set! i v)~ должен изменить
+     i-й элемент с вершины стека на v.
 
 #+begin_src scheme
      (define stack (make-stack))
@@ -2522,39 +2529,41 @@
      (stack 'top) ⇒ d
 #+end_src
 
-     [Hint: Use list-ref to implement ref and list-tail with set-car! to implement set!.]
+     [Подсказка: используйте ~list-ref~ для реализации ~ref~ и ~list-tail~ с ~set-car!~ чтобы реализовать ~set!~.]
 
 **** Упражнение 2.9.4
 
-     Scheme supports vectors as well as lists. Like lists, vectors are aggregate objects that contain other
-     objects. Unlike lists, vectors have a fixed size and are laid out in one flat block of memory, typically with a
-     header containing the length of the vector, as in the ten-element vector below.
+     Scheme поддерживает также векторы, как и списки. Как и списки, векторы являются собирательными объектами, которые
+     содержат другие объекты. В отличие от списков, векторы имеют фиксированный размер и располагаются в одном плоском
+     блоке памяти, обычно с заголовком, содержащим длину вектора, как в векторе из десяти элементов ниже.
 
 #+ATTR_LATEX: :width 200px
 [[./images/7.png]]
 
-     This makes vectors more suitable for applications needing fast access to any element of the aggregate but less
-     suitable for applications needing data structures that grow and shrink as needed.
+     Это делает векторы более подходящими для приложений, нуждающихся в быстром доступе к любому элементу
+     последовательности, но менее подходящими для приложений, которым требуются структуры данных, которые растут и
+     сжимаются по мере необходимости.
 
-     Look up the basic vector operations in Section 6.9 and reimplement the stack object to use a vector instead of a list
-     to hold the stack contents. Include the ref and set! messages of Exercise 2.9.3. Have the new make-stack accept a
-     size argument n and make the vector length n, but do not otherwise change the external (abstract) interface.
+     Посмотрите основные векторные операции в Разделе 6.9 и переопределите объект стека, чтобы использовать вектор
+     вместо списка для хранения содержимого стека. Добавьте ~ref~ и ~set!~ сообщения из упражнения 2.9.3. Пусть новый
+     ~make-stack~ принимает аргумент размера ~n~ и задает длину вектора ~n~, но никак иначе не изменяет внешний
+     (абстрактный) интерфейс.
 
 **** Упражнение 2.9.5
 
-     Define a predicate, emptyq?, for determining if a queue is empty. Modify getq and delq! to raise an exception when an
-     empty queue is found, using assertion-violation.
+     Определите предикат ~emptyq?~, определяющий, пуста ли очередь. Измените ~getq~ и ~delq!~ так, чтобы вызвать
+     исключение при обнаружении пустой очереди, используя ~assertion-violation~.
 
 **** Упражнение 2.9.6
 
-     In the queue implementation, the last pair in the encapsulated list is a placeholder, i.e., it never holds anything
-     useful. Recode the queue operators to avoid this wasted pair. Make sure that the series of queue operations given
-     earlier works with the new implementation. Which implementation do you prefer?
+     В реализации очереди последняя пара в инкапсулированном списке является заполнителем, то есть никогда не содержит
+     ничего полезного. Перепишите операторы очереди, чтобы избежать этой потраченной впустую пары. Убедитесь, что серия
+     операций с очередями, приведенная ранее, работает с новой реализацией. Какую реализацию вы бы предпочли?
 
 **** Упражнение 2.9.7
 
-     Using set-cdr!, it is possible to create cyclic lists. For example, the following expression evaluates to a list
-     whose car is the symbol a and whose cdr is the list itself.
+     Используя ~set-cdr!~, можно создавать циклические списки. Например, следующее выражение возвращает список, ~car~
+     которого является символ ~a~, а ~cdr~ является самим списком.
 
 #+begin_src scheme
      (let ([ls (cons 'a '())])
@@ -2562,13 +2571,15 @@
        ls)
 #+end_src
 
-     What happens when you enter the above expression during an interactive Scheme session? What will the implementation
-     of length on page 42 do when given a cyclic list? What does the built-in length primitive do?
+     Что произойдёт, если вы введёте вышеприведенное выражение во время интерактивного сеанса Scheme? Что будет делать
+     реализация ~length~ из раздела 2.8, если ей передать циклический список? Как поведёт себя встроенный примитив
+     ~length~?
 
 **** Упражнение 2.9.8
 
-     Define the predicate list?, which returns #t if its argument is a proper list and #f otherwise (see Section 6.3). It
-     should return #f for cyclic lists as well as for lists terminated by objects other than ().
+     Определите предикат ~list?~, который возвращает ~#t~, если его аргумент является правильным списком, и ~#f~ в
+     противном случае (см. Раздел 6.3). Он должен возвращать ~#f~ для циклических списков, а также для списков,
+     оканчивающихся объектами, отличными от ~()~.
 
 #+begin_src scheme
      (list? '()) ⇒ #t
@@ -2579,12 +2590,12 @@
               ls)) ⇒ #f
 #+end_src
 
-     First write a simplified version of list? that does not handle cyclic lists, then extend this to handle cyclic lists
-     correctly. Revise your definition until you are satisfied that it is as clear and concise as possible. [Hint: Use the
-     following "hare and tortoise" algorithm to detect cycles. Define a recursive help procedure of two arguments, the
-     hare and the tortoise. Start both the hare and the tortoise at the beginning of the list. Have the hare advance by
-     two cdrs each time the tortoise advances by one cdr. If the hare catches the tortoise, there must be a cycle.]
-
+     Сначала напишите упрощенную версию ~list?~ которая не обрабатывает случай с циклическими списки, а затем расширьте
+     её для правильной обработки циклических списков. Пересматривайте свое определение, пока не убедитесь, что оно
+     максимально четкое и краткое. [Подсказка: используйте следующий алгоритм "заяц и черепаха" для определения
+     цикличных списков. Определите рекурсивную вспомогательную процедуру с двумя аргументами: заяц и черепаха. Запустите
+     зайца и черепаху в начале списка. Сделайте так, чтобы заяц продвигался на два ~cdr~ каждый раз,
+     когда черепаха продвигается на один ~cdr~. Если заяц ловит черепаху, значит это цикл.]
 
 #+LATEX: \newpage
 [[./images/ch3.png]]
