@@ -449,8 +449,8 @@
     позволяет сконцентрироваться на написании программы.
 
     Примеры в этой и остальных главах книги средуют определённым соглашениям в форматировании. Выражения, которые вы
-    можете набрать с клавиатуры, идут в первую очередь, возможно, в нескольких строках. После ⇒ следует значение
-    выражения, что следует читать как "имеет следующее значение". Знак ⇒ применим для определений и в тех случаях, когда
+    можете набрать с клавиатуры, идут в первую очередь, возможно, в нескольких строках. После → следует значение
+    выражения, что следует читать как "имеет следующее значение". Знак → применим для определений и в тех случаях, когда
     значение выражения неопределено.
 
     Примеры в книге отформатированы в стиле "смотрится хорошо" и передают структуру программы. Код должен читаться легко,
@@ -465,21 +465,21 @@
     значение вычисления любой константы - сама константа.
 
 #+begin_src scheme
-    "Hi Mom!" ⇒ "Hi Mom!"
+    "Hi Mom!" → "Hi Mom!"
 #+end_src
 
     Ниже приведёны несколько выражений с ответами Scheme на них. Они разъясняются в последующих секциях этой главы,
     однако вы можете использовать их уже сейчас, чтобы попрактиковаться в использовании интерактивной оболочки.
 
 #+begin_src scheme
-    "hello" ⇒ "hello"
-    42 ⇒ 42
-    22/7 ⇒ 22/7
-    3.141592653 ⇒ 3.141592653
-    + ⇒ #<procedure>
-    (+ 76 31) ⇒ 107
-    (* -12 10) ⇒ -120
-    '(a b c d) ⇒ (a b c d)
+    "hello" → "hello"
+    42 → 42
+    22/7 → 22/7
+    3.141592653 → 3.141592653
+    + → #<procedure>
+    (+ 76 31) → 107
+    (* -12 10) → -120
+    '(a b c d) → (a b c d)
 #+end_src
 
     Будьте внимательны и не пропустите не одной одинарной кавычки ( ~'~ ), двойной кавычки, или скобки. Если вы пропустите
@@ -491,11 +491,11 @@
     дождаться пояснений, найдя их далее в главе.
 
 #+begin_src scheme
-    (car '(a b c)) ⇒ a
-    (cdr '(a b c)) ⇒ (b c)
-    (cons 'a '(b c)) ⇒ (a b c)
+    (car '(a b c)) → a
+    (cdr '(a b c)) → (b c)
+    (cons 'a '(b c)) → (a b c)
     (cons (car '(a b c))
-          (cdr '(d e f))) ⇒ (a e f)
+          (cdr '(d e f))) → (a e f)
 #+end_src
 
     Как вы могли заметить, выражения Scheme могут занимать несколько строк. Scheme система понимает, что это одно
@@ -519,10 +519,10 @@
     Опробуем наш ~square~ в деле:
 
 #+begin_src scheme
-    (square 5) ⇒ 25
-    (square -200) ⇒ 40000
-    (square 0.5) ⇒ 0.25
-    (square -1/2) ⇒ 1/4
+    (square 5) → 25
+    (square -200) → 40000
+    (square 0.5) → 0.25
+    (square -1/2) → 1/4
 #+end_src
 
     Несмотря на то, что определение ниже довольно короткое, давайте поместим его в файл. Предположим, вы назвали ваш файл
@@ -546,10 +546,10 @@
     Наконец, попробовав использовать эту процедуру, вы увидите именно то, что заключено в её определении:
 
 #+begin_src scheme
-    (reciprocal 10) ⇒ 1/10
-    (reciprocal 1/10) ⇒ 10
-    (reciprocal 0) ⇒ "oops!"
-    (reciprocal (reciprocal 1/10)) ⇒ 1/10
+    (reciprocal 10) → 1/10
+    (reciprocal 1/10) → 10
+    (reciprocal 0) → "oops!"
+    (reciprocal (reciprocal 1/10)) → 1/10
 #+end_src
 
 *** Простейшие выражения
@@ -562,10 +562,10 @@
     ответ. В примерах ниже показано, что Scheme поддерживает различные типы чисел:
 
 #+begin_src scheme
-    123456789987654321 ⇒ 123456789987654321
-    3/4 ⇒ 3/4
-    2.718281828 ⇒ 2.718281828
-    2.2+1.1i ⇒ 2.2+1.1i
+    123456789987654321 → 123456789987654321
+    3/4 → 3/4
+    2.718281828 → 2.718281828
+    2.2+1.1i → 2.2+1.1i
 #+end_src
 
     Числа в Scheme включают точные и неточные целочисленные, рациональные, вещественные и комплексные числа. Точные
@@ -577,11 +577,11 @@
     обозначают применение процедуры к набору аргументов.
 
 #+begin_src scheme
-    (+ 1/2 1/2) ⇒ 1
-    (- 1.5 1/2) ⇒ 1.0
+    (+ 1/2 1/2) → 1
+    (- 1.5 1/2) → 1.0
 
-    (* 3 1/2) ⇒ 3/2
-    (/ 1.5 3/4) ⇒ 2.0
+    (* 3 1/2) → 3/2
+    (/ 1.5 3/4) → 2.0
 #+end_src
 
     Scheme требует префиксной нотации даже для обычных арифметических операций. Любое применение процедуры, будь то
@@ -594,10 +594,10 @@
     формул.
 
 #+begin_src scheme
-    (+ (+ 2 2) (+ 2 2)) ⇒ 8
-    (- 2 (* 4 1/3)) ⇒ 2/3
-    (* 2 (* 2 (* 2 (* 2 2)))) ⇒ 32
-    (/ (* 6/7 7/2) (- 4.5 1.5)) ⇒ 1.0
+    (+ (+ 2 2) (+ 2 2)) → 8
+    (- 2 (* 4 1/3)) → 2/3
+    (* 2 (* 2 (* 2 (* 2 2)))) → 32
+    (/ (* 6/7 7/2) (- 4.5 1.5)) → 1.0
 #+end_src
 
     Эти примеры демонстрируют всё, что вам нужно знать, чтобы использовать Scheme как четырёхфункциевый калькулятор. Хотя
@@ -624,9 +624,9 @@
     применение процедуры. Это делается с помощью ~quote~ (пер. цитата, кавычка).
 
 #+begin_src scheme
-    (quote (1 2 3 4 5)) ⇒ (1 2 3 4 5)
-    (quote ("да" "это" "всё" "ещё" "список")) ⇒ ("да" "это" "всё" "ещё" "список")
-    (quote (+ 3 4)) ⇒ (+ 3 4)
+    (quote (1 2 3 4 5)) → (1 2 3 4 5)
+    (quote ("да" "это" "всё" "ещё" "список")) → ("да" "это" "всё" "ещё" "список")
+    (quote (+ 3 4)) → (+ 3 4)
 #+end_src
 
     С помощью ~quote~ мы явно даём указание интерпретировать список как данные. Попробуйте ввести выражение выше без
@@ -638,9 +638,9 @@
     аббривеатурой для ~quote~.
 
 #+begin_src scheme
-    '(1 2 3 4) ⇒ (1 2 3 4)
-    '((1 2) (3 4)) ⇒ ((1 2) (3 4))
-    '(/ (* 2 -1) 3) ⇒ (/ (* 2 -1) 3)
+    '(1 2 3 4) → (1 2 3 4)
+    '((1 2) (3 4)) → ((1 2) (3 4))
+    '(/ (* 2 -1) 3) → (/ (* 2 -1) 3)
 #+end_src
 
     Обе эти формы называются выражениями цитирования. Мы обычно будет говорить об объекте, что он цитируется, когда он
@@ -654,7 +654,7 @@
     Не все выражения цитаты содержат списки. Попробуйте выполнить следующее выражение /с/ и /без/ оператора ~quote~.
 
 #+begin_src scheme
-    (quote hello) ⇒ hello
+    (quote hello) → hello
 #+end_src
 
     Символ ~hello~ должен быть цитирован, чтобы предостеречь Scheme от попыток интерпретировать ~hello~ как
@@ -676,9 +676,9 @@
     Числа и строки также могут цитироваться:
 
 #+begin_src scheme
-    '2 ⇒ 2
-    '2/3 ⇒ 2/3
-    (quote "Hi Mom!") ⇒ "Hi Mom!"
+    '2 → 2
+    '2/3 → 2/3
+    (quote "Hi Mom!") → "Hi Mom!"
 #+end_src
 
     Числа и строки интерпретируются как константы в любом случае, так что цитировать их не обязательно.
@@ -689,15 +689,15 @@
     на котором впервые был реализован Lisp, IBM 704. Обе эти операции принимают не пустой список в качестве аргумента:
 
 #+begin_src scheme
-    (car '(a b c)) ⇒ a
-    (cdr '(a b c)) ⇒ (b c)
-    (cdr '(a)) ⇒ ()
+    (car '(a b c)) → a
+    (cdr '(a b c)) → (b c)
+    (cdr '(a)) → ()
 
-    (car (cdr '(a b c))) ⇒ b
-    (cdr (cdr '(a b c))) ⇒ (c)
+    (car (cdr '(a b c))) → b
+    (cdr (cdr '(a b c))) → (c)
 
-    (car '((a b) (c d))) ⇒ (a b)
-    (cdr '((a b) (c d))) ⇒ ((c d))
+    (car '((a b) (c d))) → (a b)
+    (cdr '((a b) (c d))) → ((c d))
 #+end_src
 
     Первый элемент списка, часто называют /car/ или /головой/ списка, остальную часть списка часто называют /cdr/ или
@@ -707,17 +707,17 @@
     ~cons~ вернёт список.
 
 #+begin_src scheme
-    (cons 'a '()) ⇒ (a)
-    (cons 'a '(b c)) ⇒ (a b c)
-    (cons 'a (cons 'b (cons 'c '()))) ⇒ (a b c)
-    (cons '(a b) '(c d)) ⇒ ((a b) c d)
+    (cons 'a '()) → (a)
+    (cons 'a '(b c)) → (a b c)
+    (cons 'a (cons 'b (cons 'c '()))) → (a b c)
+    (cons '(a b) '(c d)) → ((a b) c d)
 
-    (car (cons 'a '(b c))) ⇒ a
-    (cdr (cons 'a '(b c))) ⇒ (b c)
+    (car (cons 'a '(b c))) → a
+    (cdr (cons 'a '(b c))) → (b c)
     (cons (car '(a b c))
-          (cdr '(d e f))) ⇒ (a e f)
+          (cdr '(d e f))) → (a e f)
     (cons (car '(a b c))
-          (cdr '(a b c))) ⇒ (a b c)
+          (cdr '(a b c))) → (a b c)
 #+end_src
 
     "car" и "cdr" обычно употребляются в качестве существительных, "cons" в качестве глагола. Создание нового списка
@@ -740,9 +740,9 @@
     списка.
 
 #+begin_src scheme
-    (cons 'a 'b) ⇒ (a . b)
-    (cdr '(a . b)) ⇒ b
-    (cons 'a '(b . c)) ⇒ (a b . c)
+    (cons 'a 'b) → (a . b)
+    (cdr '(a . b)) → b
+    (cons 'a '(b . c)) → (a b . c)
 #+end_src
 
     Из за этих соглашений о печати, пары, чей /cdr/ не является списком, часто называют /точечными парами/. Так же пары,
@@ -750,16 +750,16 @@
     /правильные/ списки без точек.
 
 #+begin_src scheme
-    '(a . (b . (c . ()))) ⇒ (a b c)
+    '(a . (b . (c . ()))) → (a b c)
 #+end_src
 
     Процедура ~list~ похожа на ~cons~, с той разницей, что она принимает произвольное количество аргументов и всегда
     строит /правильные/ списки.
 
 #+begin_src scheme
-    (list 'a 'b 'c) ⇒ (a b c)
-    (list 'a) ⇒ (a)
-    (list) ⇒ ()
+    (list 'a 'b 'c) → (a b c)
+    (list 'a) → (a)
+    (list) → ()
 #+end_src
 
     Глава 6.3 содержит больше информации о списках и процедурах Scheme для работы с ними. Возможно, сейчас самое время,
@@ -889,13 +889,13 @@
 
 #+begin_src scheme
     (let ((x 2))
-      (+ x 3)) ⇒ 5
+      (+ x 3)) → 5
 
     (let ((y 3))
-      (+ 2 y)) ⇒ 5
+      (+ 2 y)) → 5
 
     (let ((x 2) (y 3))
-      (+ x y)) ⇒ 5
+      (+ x y)) → 5
 #+end_src
 
     Синтаксическая форма ~let~ включает в себя список пар /переменная->выражение/, а так же список выражений,
@@ -913,9 +913,9 @@
     будет вычислено лишь единожды.
 
 #+begin_src scheme
-    (+ (* 4 4) (* 4 4)) ⇒ 32
+    (+ (* 4 4) (* 4 4)) → 32
 
-    (let ((a (* 4 4))) (+ a a)) ⇒ 32
+    (let ((a (* 4 4))) (+ a a)) → 32
 #+end_src
 
     В секции связывания переменных часто вместо круглых скобок применяют квадратные, чтобы визуально отделить эту
@@ -926,7 +926,7 @@
       (cons (cons (car list1)
                   (car list2))
             (cons (car (cdr list1))
-                  (car (cdr list2))))) ⇒ ((a . d) b . e)
+                  (car (cdr list2))))) → ((a . d) b . e)
 #+end_src
 
     Scheme интерпретирует формы, заключённые в квадратные скобки так, как будто они заключены в круглые скобки, но
@@ -940,22 +940,22 @@
 
 #+begin_src scheme
     (let ([f +])
-      (f 2 3)) ⇒ 5
+      (f 2 3)) → 5
 
     (let ([f +] [x 2])
-      (f x 3)) ⇒ 5
+      (f x 3)) → 5
 
     (let ([f +] [x 2] [y 3])
-      (f x y)) ⇒ 5
+      (f x y)) → 5
 #+end_src
 
     Переменные, связанные с помощью ~let~ видны только в пределах /тела/:
 
 #+begin_src scheme
     (let ([+ *])
-      (+ 2 3)) ⇒ 6
+      (+ 2 3)) → 6
 
-    (+ 2 3) ⇒ 5
+    (+ 2 3) → 5
 #+end_src
 
     И это очень хорошо, что оно работает именно так, потому что мы не хотели бы, чтобы значение + было методом умножения
@@ -967,7 +967,7 @@
     (let ([a 4] [b -3])
       (let ([a-squared (* a a)]
             [b-squared (* b b)])
-        (+ a-squared b-squared))) ⇒ 25
+        (+ a-squared b-squared))) → 25
 #+end_src
 
     Когда во вложенном ~let~ выражении производят связывание той же переменной, что и во внешнем, только связывание,
@@ -976,7 +976,7 @@
 #+begin_src scheme
     (let ([x 1])
       (let ([x (+ x 1)])
-        (+ x x))) ⇒ 4
+        (+ x x))) → 4
 #+end_src
 
     Здесь внешнее ~let~ выражение связывает ~x~ и 1 в пределах своего тела, место которого занимает второе ~let~
@@ -999,7 +999,7 @@
 #+begin_src scheme
     (let ([x 1])
       (let ([new-x (+ x 1)])
-        (+ new-x new-x))) ⇒ 4
+        (+ new-x new-x))) → 4
 #+end_src
 
     Хотя выбор разных имен иногда может предотвратить путаницу, затенение может помочь предотвратить случайное
@@ -1062,7 +1062,7 @@
     качестве входного параметра и имеет такое же тело, как у ~let~-выражения.
 
 #+begin_src scheme
-    (lambda (x) (+ x x)) ⇒ #<procedure>
+    (lambda (x) (+ x x)) → #<procedure>
 #+end_src
 
     Общая форма лямбда-выражения:
@@ -1081,7 +1081,7 @@
     Простейшая операция, которую можно совершить над процедурой - это применить её к одному или более значений:
 
 #+begin_src scheme
-    ((lambda (x) (+ x x)) (* 3 4)) ⇒ 24
+    ((lambda (x) (+ x x)) (* 3 4)) → 24
 #+end_src
 
     Здесь нет никакого отличия от какого-то другого способа применения процедуры. Процедура это результат вычисления
@@ -1097,7 +1097,7 @@
     (let ([double (lambda (x) (+ x x))])
       (list (double (* 3 4))
             (double (/ 99 11))
-            (double (- 2 7)))) ⇒ (24 18 -10)
+            (double (- 2 7)))) → (24 18 -10)
 #+end_src
 
     Здесь мы установили связывание между ~double~ и процедурой, а затем использовали эту процедуру, чтобы удвоить три
@@ -1109,7 +1109,7 @@
 
 #+begin_src scheme
     (let ([double-cons (lambda (x) (cons x x))])
-      (double-cons 'a)) ⇒ (a . a)
+      (double-cons 'a)) → (a . a)
 #+end_src
 
     Отмечая сходство между ~double~ и ~double-cons~, вы не должны удивляться, узнав, что они могут быть объединены в
@@ -1118,7 +1118,7 @@
 #+begin_src scheme
     (let ([double-any (lambda (f x) (f x x))])
       (list (double-any + 13)
-            (double-any cons 'a))) ⇒ (26 (a . a))
+            (double-any cons 'a))) → (26 (a . a))
 #+end_src
 
     Здесь демонстрируется, что процедуры могут принимать более одного аргумента и эти аргументы, передаваемые в
@@ -1130,7 +1130,7 @@
 #+begin_src scheme
     (let ([x 'a])
       (let ([f (lambda (y) (list x y))])
-        (f 'b))) ⇒ (a b)
+        (f 'b))) → (a b)
 #+end_src
 
     Вхождение ~x~ в лямбда-выражение ссылается на ~x~ за пределами лямбды, который был связан внешним
@@ -1146,7 +1146,7 @@
 #+begin_src scheme
     (let ([f (let ([x 'sam])
                (lambda (y z) (list x y z)))])
-      (f 'i 'am)) ⇒ (sam i am)
+      (f 'i 'am)) → (sam i am)
 #+end_src
 
     Ответ заключается в том, что те же привязки, которые действовали при создании процедуры, снова применяются при
@@ -1156,7 +1156,7 @@
     (let ([f (let ([x 'sam])
                (lambda (y z) (list x y z)))])
       (let ([x 'not-sam])
-        (f 'i 'am))) ⇒ (sam i am)
+        (f 'i 'am))) → (sam i am)
 #+end_src
 
     В обоих случаях, значение ~x~ за пределами процедуры названой ~f~ это ~sam~.
@@ -1204,16 +1204,16 @@
 
 #+begin_src scheme
     (let ([f (lambda x x)])
-      (f 1 2 3 4)) ⇒ (1 2 3 4)
+      (f 1 2 3 4)) → (1 2 3 4)
 
     (let ([f (lambda x x)])
-      (f)) ⇒ ()
+      (f)) → ()
 
     (let ([g (lambda (x . y) (list x y))])
-      (g 1 2 3 4)) ⇒ (1 (2 3 4))
+      (g 1 2 3 4)) → (1 (2 3 4))
 
     (let ([h (lambda (x y . z) (list x y z))])
-      (h 'a 'b 'c 'd)) ⇒ (a b (c d))
+      (h 'a 'b 'c 'd)) → (a b (c d))
 #+end_src
 
     В первых двух примерах, процедура, названная ~f~ принимает любое количество аргументов. Эти аргументы автоматически
@@ -1316,8 +1316,8 @@
     использовать ~double-any~ так, как если бы это была примитивная процедура.
 
 #+begin_src scheme
-    (double-any + 10) ⇒ 20
-    (double-any cons 'a) ⇒ (a . a)
+    (double-any + 10) → 20
+    (double-any cons 'a) → (a . a)
 #+end_src
 
     Определение верхнего уровня может быть установлено для любого объекта, не только процедур.
@@ -1325,7 +1325,7 @@
 #+begin_src scheme
     (define sandwich "peanut-butter-and-jelly")
 
-    sandwich ⇒ "peanut-butter-and-jelly"
+    sandwich → "peanut-butter-and-jelly"
 #+end_src
 
     Однако чаще всего определения верхнего уровня используются для процедур.
@@ -1335,7 +1335,7 @@
 #+begin_src scheme
     (define xyz '(x y z))
     (let ([xyz '(z y x)])
-      xyz) ⇒ (z y x)
+      xyz) → (z y x)
 #+end_src
 
     Переменные, объявленные на верхнем уровне действуют почти так-же, как если бы они были связаны при помощи
@@ -1362,8 +1362,8 @@
       (lambda (x)
         (cdr (cdr x))))
 
-    (cadr '(a b c)) ⇒ b
-    (cddr '(a b c)) ⇒ (c)
+    (cadr '(a b c)) → b
+    (cddr '(a b c)) → (c)
 #+end_src
 
     Любое определение ~(define var expr)~, где ~expr~ это лямбда, может быть записано в сокращённой форме, которая
@@ -1447,10 +1447,10 @@
 
 #+begin_src scheme
     (define double (doubler +))
-    (double 13/2) ⇒ 13
+    (double 13/2) → 13
 
     (define double-cons (doubler cons))
-    (double-cons 'a) ⇒ (a . a)
+    (double-cons 'a) → (a . a)
 #+end_src
 
     Также мы можем определить ~double-any~ с помощью ~doubler~.
@@ -1489,7 +1489,7 @@
 
 #+begin_src scheme
     (define proc2 cons)
-    (proc1 'a 'b) ⇒ (b . a)
+    (proc1 'a 'b) → (b . a)
 #+end_src
 
     Когда вы определяете ~proc1~ система принимает ваше обещание определить ~proc2~ и не жалуется до тех пор, пока вы не
@@ -1537,8 +1537,8 @@
             (- 0 n)
             n)))
 
-    (abs 77) ⇒ 77
-    (abs -77) ⇒ 77
+    (abs 77) → 77
+    (abs -77) → 77
 #+end_src
 
     Выражение ~if~ имеет форму ~(if тест следствие альтернатива)~, где ~следствие~ это выражение, которое будет
@@ -1616,28 +1616,28 @@
     тестового выражения является один из двух объектов ~#t~ для обозначения истины или ~#f~ для лжи.
 
 #+begin_src scheme
-    (< -1 0) ⇒ #t
-    (> -1 0) ⇒ #f
+    (< -1 0) → #t
+    (> -1 0) → #f
 #+end_src
 
     Каждый объект Scheme, любой, является либо истиной либо ложью, для условных выражений, но не для процедур. Только
     ~#f~ считается ложью, любой другой объект считается истиной.
 
 #+begin_src scheme
-    (if #t 'true 'false) ⇒ true
-    (if #f 'true 'false) ⇒ false
-    (if '() 'true 'false) ⇒ true
-    (if 1 'true 'false) ⇒ true
-    (if '(a b c) 'true 'false) ⇒ true
+    (if #t 'true 'false) → true
+    (if #f 'true 'false) → false
+    (if '() 'true 'false) → true
+    (if 1 'true 'false) → true
+    (if '(a b c) 'true 'false) → true
 
-    (not #t) ⇒ #f
-    (not "false") ⇒ #f
-    (not #f) ⇒ #t
+    (not #t) → #f
+    (not "false") → #f
+    (not #f) → #t
 
-    (or) ⇒ #f
-    (or #f) ⇒ #f
-    (or #f #t) ⇒ #t
-    (or #f 'a #f) ⇒ a
+    (or) → #f
+    (or #f) → #f
+    (or #f #t) → #t
+    (or #f 'a #f) → a
 #+end_src
 
     Синтаксическая форма ~and~ похожа на ~or~ или, но выражение ~and~ является истинным, если все его подвыражения
@@ -1654,9 +1654,9 @@
         (and (not (= n 0))
              (/ 1 n))))
 
-    (reciprocal 3) ⇒ 1/3
-    (reciprocal 0.5) ⇒ 2.0
-    (reciprocal 0) ⇒ #f
+    (reciprocal 3) → 1/3
+    (reciprocal 0.5) → 2.0
+    (reciprocal 0) → #f
 #+end_src
 
     В этой версии значение равно ~#f~, если ~n~ равно нулю, и ~1/n~ в противном случае.
@@ -1668,10 +1668,10 @@
     пустой список ~()~, иначе ложь.
 
 #+begin_src scheme
-    (null? '()) ⇒ #t
-    (null? 'abc) ⇒ #f
-    (null? '(x y z)) ⇒ #f
-    (null? (cdddr '(x y z))) ⇒ #t
+    (null? '()) → #t
+    (null? 'abc) → #f
+    (null? '(x y z)) → #f
+    (null? (cdddr '(x y z))) → #t
 #+end_src
 
     Процедуре ~cdr~ нельзя передавать ничего, кроме пары, иначе это приведёт к исключению. В Common Lisp, однако,
@@ -1685,27 +1685,27 @@
             '()
             (cdr x))))
 
-    (lisp-cdr '(a b c)) ⇒ (b c)
-    (lisp-cdr '(c)) ⇒ ()
-    (lisp-cdr '()) ⇒ ()
+    (lisp-cdr '(a b c)) → (b c)
+    (lisp-cdr '(c)) → ()
+    (lisp-cdr '()) → ()
 #+end_src
 
     Еще один полезный предикат - ~eqv?~, который ожидает два аргумента. Если два аргумента эквивалентны, ~eqv?~
     возвращает истину. Иначе ~eqv?~ возвращает ложь.
 
 #+begin_src scheme
-    (eqv? 'a 'a) ⇒ #t
-    (eqv? 'a 'b) ⇒ #f
-    (eqv? #f #f) ⇒ #t
-    (eqv? #t #t) ⇒ #t
-    (eqv? #f #t) ⇒ #f
-    (eqv? 3 3) ⇒ #t
-    (eqv? 3 2) ⇒ #f
+    (eqv? 'a 'a) → #t
+    (eqv? 'a 'b) → #f
+    (eqv? #f #f) → #t
+    (eqv? #t #t) → #t
+    (eqv? #f #t) → #f
+    (eqv? 3 3) → #t
+    (eqv? 3 2) → #f
     (let ([x "Hi Mom!"])
-      (eqv? x x)) ⇒ #t
+      (eqv? x x)) → #t
     (let ([x (cons 'a 'b)])
-      (eqv? x x)) ⇒ #t
-    (eqv? (cons 'a 'b) (cons 'a 'b)) ⇒ #f
+      (eqv? x x)) → #t
+    (eqv? (cons 'a 'b) (cons 'a 'b)) → #f
 #+end_src
 
     Как видите, ~eqv?~ возвращает истину, если аргументы - это один и тот же символ, логическое значение, число, пара
@@ -1717,12 +1717,12 @@
     если его аргумент - пара.
 
 #+begin_src scheme
-    (pair? '(a . c)) ⇒ #t
-    (pair? '(a b c)) ⇒ #t
-    (pair? '()) ⇒ #f
-    (pair? 'abc) ⇒ #f
-    (pair? "Hi Mom!") ⇒ #f
-    (pair? 1234567890) ⇒ #f
+    (pair? '(a . c)) → #t
+    (pair? '(a b c)) → #t
+    (pair? '()) → #f
+    (pair? 'abc) → #f
+    (pair? "Hi Mom!") → #f
+    (pair? 1234567890) → #f
 #+end_src
 
     Type predicates are useful for deciding if the argument passed to a procedure is of the appropriate type. For
@@ -1736,8 +1736,8 @@
             (/ 1 n)
             "oops!")))
 
-    (reciprocal 2/3) ⇒ 3/2
-    (reciprocal 'a) ⇒ "oops!"
+    (reciprocal 2/3) → 3/2
+    (reciprocal 'a) → "oops!"
 #+end_src
 
     Между прочим, код, использующий ~reciprocal~ должен проверять, что было возвращено процедурой - число или
@@ -1753,9 +1753,9 @@
               "improper argument"
               n))))
 
-    (reciprocal .25) ⇒ 4.0
-    (reciprocal 0) ⇒ exception in reciprocal: improper argument 0
-    (reciprocal 'a) ⇒ exception in reciprocal: improper argument a
+    (reciprocal .25) → 4.0
+    (reciprocal 0) → exception in reciprocal: improper argument 0
+    (reciprocal 'a) → exception in reciprocal: improper argument a
 #+end_src
 
     Первый аргумент ~assertion-violation~ это символом, показывающий, откуда исходит сообщение, второй является строкой,
@@ -1776,10 +1776,10 @@
                 +1
                 0))))
 
-    (sign -88.3) ⇒ -1
-    (sign 0) ⇒ 0
-    (sign 333333333333) ⇒ 1
-    (* (sign -88.3) (abs -88.3)) ⇒ -88.3
+    (sign -88.3) → -1
+    (sign 0) → 0
+    (sign 333333333333) → 1
+    (* (sign -88.3) (abs -88.3)) → -88.3
 #+end_src
 
     Эти два ~if~ выражения могут быть заменены одним ~cond~ следующим образом:
@@ -1824,10 +1824,10 @@
           [(<= income 30000) (+ (* (- income 20000) .13) 1300.00)]
           [else (+ (* (- income 30000) .21) 2600.00)])))
 
-    (income-tax 5000) ⇒ 250.0
-    (income-tax 15000) ⇒ 900.0
-    (income-tax 25000) ⇒ 1950.0
-    (income-tax 50000) ⇒ 6800.0
+    (income-tax 5000) → 250.0
+    (income-tax 15000) → 900.0
+    (income-tax 25000) → 1950.0
+    (income-tax 50000) → 6800.0
 #+end_src
 
     В этом примере важен порядок выполнения тестов - слева направо (сверху вниз).
@@ -1843,9 +1843,9 @@
      аргументах. Пусть она возвращает первый список, если длины равны.
 
 #+begin_src scheme
-     (shorter '(a b) '(c d e)) ⇒ (a b)
-     (shorter '(a b) '(c d)) ⇒ (a b)
-     (shorter '(a b) '(c)) ⇒ (c)
+     (shorter '(a b) '(c d e)) → (a b)
+     (shorter '(a b) '(c d)) → (a b)
+     (shorter '(a b) '(c)) → (c)
 #+end_src
 
 *** Простая рекурсия
@@ -1865,10 +1865,10 @@
       (lambda ()
         (goodbye)))
 
-    (goodbye) ⇒
+    (goodbye) →
 #+end_src
 
-    Эта процедура не принимает аргументов и просто немедленно вызывает саму себя. Здесь нет значения после ⇒ потому что
+    Эта процедура не принимает аргументов и просто немедленно вызывает саму себя. Здесь нет значения после → потому что
     ~goodbye~ никогда не вернёт управление (и результат).
 
     Обычно, чтобы получить практическую пользу от рекурсивной процедуры мы должны предусмотреть некое условие остановки
@@ -1891,9 +1891,9 @@
             0
             (+ (length (cdr ls)) 1))))
 
-    (length '()) ⇒ 0
-    (length '(a)) ⇒ 1
-    (length '(a b)) ⇒ 2
+    (length '()) → 0
+    (length '(a)) → 1
+    (length '(a b)) → 2
 #+end_src
 
     Выражение ~if~ проверяет не пуст ли список. Если это так, результат - ноль. Это базовый случай. Если нет, результат
@@ -1927,8 +1927,8 @@
     позже.
 
 #+begin_src scheme
-    (list-copy '()) ⇒ ()
-    (list-copy '(a b c)) ⇒ (a b c)
+    (list-copy '()) → ()
+    (list-copy '(a b c)) → (a b c)
 #+end_src
 
     Посмотрите, можете ли вы определить ~list-copy~, прежде чем изучать определение ниже.
@@ -1958,13 +1958,13 @@
           [(eqv? (car ls) x) ls]
           [else (memv x (cdr ls))])))
 
-    (memv 'a '(a b b d)) ⇒ (a b b d)
-    (memv 'b '(a b b d)) ⇒ (b b d)
-    (memv 'c '(a b b d)) ⇒ #f
-    (memv 'd '(a b b d)) ⇒ (d)
+    (memv 'a '(a b b d)) → (a b b d)
+    (memv 'b '(a b b d)) → (b b d)
+    (memv 'c '(a b b d)) → #f
+    (memv 'd '(a b b d)) → (d)
     (if (memv 'b '(a b b d))
         "yes"
-        "no") ⇒ "yes"
+        "no") → "yes"
 #+end_src
 
     Здесь есть два условия для проверки, так что используем ~cond~. Первое условие ~cond~ проверяет базовое
@@ -1983,10 +1983,10 @@
           [(eqv? (car ls) x) (remv x (cdr ls))]
           [else (cons (car ls) (remv x (cdr ls)))])))
 
-    (remv 'a '(a b b d)) ⇒ (b b d)
-    (remv 'b '(a b b d)) ⇒ (a d)
-    (remv 'c '(a b b d)) ⇒ (a b b d)
-    (remv 'd '(a b b d)) ⇒ (a b b)
+    (remv 'a '(a b b d)) → (b b d)
+    (remv 'b '(a b b d)) → (a d)
+    (remv 'c '(a b b d)) → (a b b d)
+    (remv 'd '(a b b d)) → (a b b)
 #+end_src
 
     Это определение аналогично определению ~memv~ выше, за исключением того, что ~remv~ не завершает работу, когда находит
@@ -2006,7 +2006,7 @@
             (cons (tree-copy (car tr))
                   (tree-copy (cdr tr))))))
 
-    (tree-copy '((a . b) . c)) ⇒ ((a . b) . c)
+    (tree-copy '((a . b) . c)) → ((a . b) . c)
 #+end_src
 
     Естественным базовым аргументом для древовидной структуры является все, что не является парой, поскольку рекурсия
@@ -2033,7 +2033,7 @@
             (cons (abs (car ls))
                   (abs-all (cdr ls))))))
 
-    (abs-all '(1 -2 3 -4 5 -6)) ⇒ (1 2 3 4 5 6)
+    (abs-all '(1 -2 3 -4 5 -6)) → (1 2 3 4 5 6)
 #+end_src
 
     Эта процедура формирует новый список из входного списка, применяя процедуру ~abs~ к каждому элементу. Мы говорим,
@@ -2051,7 +2051,7 @@
     короткое и, возможно, более понятное.
 
 #+begin_src scheme
-    (map abs '(1 -2 3 -4 5 -6)) ⇒ (1 2 3 4 5 6)
+    (map abs '(1 -2 3 -4 5 -6)) → (1 2 3 4 5 6)
 #+end_src
 
     Конечно, мы можем использовать ~lambda~ чтобы создать аргумент-процедуру для ~map~, например, чтобы возводить в
@@ -2059,13 +2059,13 @@
 
 #+begin_src scheme
     (map (lambda (x) (* x x))
-         '(1 -3 -5 7)) ⇒ (1 9 25 49)
+         '(1 -3 -5 7)) → (1 9 25 49)
 #+end_src
 
     Мы можем отображать сразу несколько списков с помощью процедуры, имеющей столько же аргументов, например:
 
 #+begin_src scheme
-    (map cons '(a b c) '(1 2 3)) ⇒ ((a . 1) (b . 2) (c . 3))
+    (map cons '(a b c) '(1 2 3)) → ((a . 1) (b . 2) (c . 3))
 #+end_src
 
     Списки должны иметь одинаковую длину, и процедура должна принимать столько аргументов, сколько списков
@@ -2084,7 +2084,7 @@
             (cons (p (car ls))
                   (map1 p (cdr ls))))))
 
-    (map1 abs '(1 -2 3 -4 5 -6)) ⇒ (1 2 3 4 5 6)
+    (map1 abs '(1 -2 3 -4 5 -6)) → (1 2 3 4 5 6)
 #+end_src
 
     Все, что мы сделали, это заменили вызов ~abs~ в ~abs-all~ вызовом нового параметра ~p~. Определение более общего
@@ -2105,7 +2105,7 @@
      список длиной ~n~, каждый элемент которого является этим объектом.
 
 #+begin_src scheme
-     (make-list 7 '()) ⇒ (() () () () () () ())
+     (make-list 7 '()) → (() () () () () () ())
 #+end_src
 
      [Подсказка: базовый тест должен быть ~(= n 0)~, а шаг рекурсии должен включать ~(- n 1)~. Тогда как ~()~ -
@@ -2118,10 +2118,10 @@
      Процедуры ~list-ref~ и ~list-tail~ возвращают N-ный элемент и N-ный хвост списка соответственно.
 
 #+begin_src scheme
-     (list-ref '(1 2 3 4) 0) ⇒ 1
-     (list-tail '(1 2 3 4) 0) ⇒ (1 2 3 4)
-     (list-ref '(a short (nested) list) 2) ⇒ (nested)
-     (list-tail '(a short (nested) list) 2) ⇒ ((nested) list)
+     (list-ref '(1 2 3 4) 0) → 1
+     (list-tail '(1 2 3 4) 0) → (1 2 3 4)
+     (list-ref '(a short (nested) list) 2) → (nested)
+     (list-tail '(a short (nested) list) 2) → ((nested) list)
 #+end_src
 
      Определите обе процедуры.
@@ -2140,8 +2140,8 @@
      терминах другой. [Подсказка: что каждый должен возвращать, когда его аргумент равен 0?]
 
 #+begin_src scheme
-     (even? 17) ⇒ #f
-     (odd? 17) ⇒ #t
+     (even? 17) → #f
+     (odd? 17) → #t
 #+end_src
 
 **** Упражнение 2.8.7
@@ -2150,7 +2150,7 @@
      следующим образом.
 
 #+begin_src scheme
-     (transpose '((a . 1) (b . 2) (c . 3))) ⇒ ((a b c) 1 2 3)
+     (transpose '((a . 1) (b . 2) (c . 3))) → ((a b c) 1 2 3)
 #+end_src
 
      [Подсказка: ~((a b c) 1 2 3)~ это то же, что и ~((a b c) . (1 2 3))~.]
@@ -2163,12 +2163,12 @@
 
 #+begin_src scheme
     (define abcde '(a b c d e))
-    abcde ⇒ (a b c d e)
+    abcde → (a b c d e)
     (set! abcde (cdr abcde))
-    abcde ⇒ (b c d e)
+    abcde → (b c d e)
     (let ([abcde '(a b c d e)])
       (set! abcde (reverse abcde))
-      abcde) ⇒ (e d c b a)
+      abcde) → (e d c b a)
 #+end_src
 
     Многие языки требуют использования присваиваний для инициализации локальных переменных, отдельно от объявления или
@@ -2210,7 +2210,7 @@
     квадратичной формулы. Например, два корня /2x^2 - 4x - 6/ - это x = 3 и x = -1.
 
 #+begin_src scheme
-    (quadratic-formula 2 -4 -6) ⇒ (3 . -1)
+    (quadratic-formula 2 -4 -6) → (3 . -1)
 #+end_src
 
     Вышеприведенное определение работает, но оно может быть написано более четко без присвоений, как показано ниже.
@@ -2245,10 +2245,10 @@
 #+end_src
 
 #+begin_src scheme
-    (kons 'a '(b c)) ⇒ (a b c)
-    kons-count ⇒ 1
-    (kons 'a (kons 'b (kons 'c '()))) ⇒ (a b c)
-    kons-count ⇒ 4
+    (kons 'a '(b c)) → (a b c)
+    kons-count → 1
+    (kons 'a (kons 'b (kons 'c '()))) → (a b c)
+    kons-count → 4
 #+end_src
 
     Присвоения обычно используются для реализации процедур, которые должны поддерживать некоторое внутреннее
@@ -2264,8 +2264,8 @@
           (set! next (+ next 1))
           v)))
 
-    (count) ⇒ 0
-    (count) ⇒ 1
+    (count) → 0
+    (count) → 1
 #+end_src
 
     Это решение несколько нежелательно в том смысле, что переменная ~next~ видна на верхнем уровне, даже если это не
@@ -2303,11 +2303,11 @@
     (define count1 (make-counter))
     (define count2 (make-counter))
 
-    (count1) ⇒ 0
-    (count2) ⇒ 0
-    (count1) ⇒ 1
-    (count1) ⇒ 2
-    (count2) ⇒ 1
+    (count1) → 0
+    (count2) → 0
+    (count1) → 1
+    (count1) → 2
+    (count2) → 1
 #+end_src
 
    Если переменная состояния должна совместно использоваться более чем одной процедурой, определенной на верхнем уровне,
@@ -2326,8 +2326,8 @@
           secret)))
 
     (shhh "sally likes harry")
-    (tell) ⇒ "sally likes harry"
-    secret ⇒ exception: variable secret is not bound
+    (tell) → "sally likes harry"
+    secret → exception: variable secret is not bound
 #+end_src
 
     Переменные должны быть определены до того, как им будет присвоено значение, поэтому мы вначале определяем ~shhh~ и
@@ -2406,22 +2406,22 @@
 #+begin_src scheme
     (define stack1 (make-stack))
     (define stack2 (make-stack))
-    (list (stack1 'empty?) (stack2 'empty?)) ⇒ (#t #t)
+    (list (stack1 'empty?) (stack2 'empty?)) → (#t #t)
 
     (stack1 'push! 'a)
-    (list (stack1 'empty?) (stack2 'empty?)) ⇒ (#f #t)
+    (list (stack1 'empty?) (stack2 'empty?)) → (#f #t)
 
     (stack1 'push! 'b)
     (stack2 'push! 'c)
-    (stack1 'top) ⇒ b
-    (stack2 'top) ⇒ c
+    (stack1 'top) → b
+    (stack2 'top) → c
 
     (stack1 'pop!)
-    (stack1 'top) ⇒ a
-    (list (stack1 'empty?) (stack2 'empty?)) ⇒ (#f #f)
+    (stack1 'top) → a
+    (list (stack1 'empty?) (stack2 'empty?)) → (#f #f)
 
     (stack1 'pop!)
-    (list (stack1 'empty?) (stack2 'empty?)) ⇒ (#t #f)
+    (list (stack1 'empty?) (stack2 'empty?)) → (#t #f)
 #+end_src
 
     Как и в случае счетчиков, созданных ~make-counter~, состояние, используемое каждым объектом стека, напрямую доступно
@@ -2437,9 +2437,9 @@
 #+begin_src scheme
     (define p (list 1 2 3))
     (set-car! (cdr p) 'two)
-    p ⇒ (1 two 3)
+    p → (1 two 3)
     (set-cdr! p '())
-    p ⇒ (1)
+    p → (1)
 #+end_src
 
     Мы можем использовать эти операторы для определения типа данных 'очередь', который похож на стек, за исключением
@@ -2486,15 +2486,15 @@
 
     (putq! myq 'a)
     (putq! myq 'b)
-    (getq myq) ⇒ a
+    (getq myq) → a
     (delq! myq)
-    (getq myq) ⇒ b
+    (getq myq) → b
     (delq! myq)
     (putq! myq 'c)
     (putq! myq 'd)
-    (getq myq) ⇒ c
+    (getq myq) → c
     (delq! myq)
-    (getq myq) ⇒ d
+    (getq myq) → d
 #+end_src
 
 **** Упражнение 2.9.1
@@ -2520,13 +2520,13 @@
      (stack 'push! 'b)
      (stack 'push! 'c)
 
-     (stack 'ref 0) ⇒ c
-     (stack 'ref 2) ⇒ a
+     (stack 'ref 0) → c
+     (stack 'ref 2) → a
      (stack 'set! 1 'd)
-     (stack 'ref 1) ⇒ d
-     (stack 'top) ⇒ c
+     (stack 'ref 1) → d
+     (stack 'top) → c
      (stack 'pop!)
-     (stack 'top) ⇒ d
+     (stack 'top) → d
 #+end_src
 
      [Подсказка: используйте ~list-ref~ для реализации ~ref~ и ~list-tail~ с ~set-car!~ чтобы реализовать ~set!~.]
@@ -2582,12 +2582,12 @@
      оканчивающихся объектами, отличными от ~()~.
 
 #+begin_src scheme
-     (list? '()) ⇒ #t
-     (list? '(1 2 3)) ⇒ #t
-     (list? '(a . b)) ⇒ #f
+     (list? '()) → #t
+     (list? '(1 2 3)) → #t
+     (list? '(a . b)) → #f
      (list? (let ([ls (cons 'a '())])
               (set-cdr! ls ls)
-              ls)) ⇒ #f
+              ls)) → #f
 #+end_src
 
      Сначала напишите упрощенную версию ~list?~ которая не обрабатывает случай с циклическими списки, а затем расширьте
@@ -2600,40 +2600,43 @@
 #+LATEX: \newpage
 [[./images/ch3.png]]
 
-** Going Further
-   The preceding chapter prepared you to write Scheme programs using a small set of the most useful primitive syntactic
-   forms and procedures. This chapter introduces a number of additional features and programming techniques that will
-   allow you to write more sophisticated and efficient programs.
+** Двигаемся дальше
+
+   Предыдущая глава подготовила вас к написанию программ Scheme с использованием небольшого набора наиболее полезных
+   примитивных синтаксических форм и процедур. В этой главе представлен ряд дополнительных функций и методов
+   программирования, которые позволят вам писать более сложные и эффективные программы.
 
 *** Syntactic Extension
-    As we saw in Section 2.5, the let syntactic form is merely a syntactic extension defined in terms of a lambda
-    expression and a procedure application, both core syntactic forms. At this point, you might be wondering which
-    syntactic forms are core forms and which are syntactic extensions, and how new syntactic extensions may be
-    defined. This section provides some answers to these questions.
 
-    In truth, it is not necessary for us to draw a distinction between core forms and syntactic extensions, since once
-    defined, a syntactic extension has exactly the same status as a core form. Drawing a distinction, however, makes
-    understanding the language easier, since it allows us to focus attention on the core forms and to understand all
-    others in terms of them.
+    Как мы видели в Разделе 2.5, синтаксическая форма ~let~ - это просто синтаксическое расширение, определяемое в
+    терминах лямбда-выражения и применения процедуры, которые являются основными синтаксическими формами. В этот момент
+    вам может быть интересно, какие синтаксические формы являются основными, а какие - синтаксическими расширениями, и
+    как могут быть определены новые синтаксические расширения. В этом разделе приведены некоторые ответы на эти
+    вопросы.
 
-    It is necessary for a Scheme implementation to distinguish between core forms and syntactic extensions. A Scheme
-    implementation expands syntactic extensions into core forms as the first step of compilation or interpretation,
-    allowing the rest of the compiler or interpreter to focus only on the core forms. The set of core forms remaining
-    after expansion to be handled directly by the compiler or interpreter is implementation-dependent, however, and may
-    be different from the set of forms described as core here.
+    По правде говоря, нам не нужно проводить различие между основными формами и синтаксическими расширениями, поскольку
+    после определения синтаксическое расширение имеет точно такой же статус, что и основная форма. Проведение различия,
+    однако, облегчает понимание языка, поскольку позволяет нам сосредоточить внимание на основных формах и понять все
+    остальные с точки зрения этих форм.
 
-    The exact set of syntactic forms making up the core of the language is thus subject to debate, although it must be
-    possible to derive all other forms from any set of forms declared to be core forms. The set described here is among
-    the simplest for which this constraint is satisfied.
+    Для реализации Scheme необходимо различать основные формы и синтаксические расширения. Реализация Scheme
+    разворачивает синтаксические расширения в основные формы на первом этапе компиляции или интерпретации, позволяя
+    остальной части компилятора или интерпретатора сосредоточиться только на основных формах. Однако набор основных
+    форм, остающихся после раскрытия, которые будут обрабатываться непосредственно компилятором или интерпретатором,
+    зависит от реализации и может отличаться от набора форм, описанных здесь как основные.
 
-    The core syntactic forms include top-level define forms, constants, variables, procedure applications, quote
-    expressions, lambda expressions, if expressions, and set! expressions. The grammar below describes the core syntax of
-    Scheme in terms of these definitions and expressions. In the grammar, vertical bars ( | ) separate alternatives, and a
-    form followed by an asterisk ( * ) represents zero or more occurrences of the form. <variable> is any Scheme
-    identifier. <datum> is any Scheme object, such as a number, list, symbol, or vector. <boolean> is either #t or #f,
-    <number> is any number, <character> is any character, and <string> is any string. We have already seen examples of
-    numbers, strings, lists, symbols, and booleans. See Chapter 6 or the formal syntax description starting on page 455 for
-    more on the object-level syntax of these and other objects.
+    Таким образом, точный набор синтаксических форм, составляющих ядро ​​языка, является предметом споров, хотя должна
+    быть возможность вывести все другие формы из любого набора форм, объявленных основными. Описанный здесь набор
+    является одним из самых простых, для которых это ограничение выполняется.
+
+    Основные синтаксические формы включают в себя формы определения верхнего уровня (~define~), константы, переменные,
+    применение процедур, ~quote~, ~lambda~, ~if~ и ~set!~ выражения. Грамматика ниже описывает основной синтаксис Scheme
+    в терминах этих определений и выражений. В грамматике вертикальные черты (~|~) разделяют альтернативы, а форма, за
+    которой следует звездочка (~*~), представляет ноль или более вхождений формы. ~<variable>~ - это любой идентификатор
+    Scheme. ~<datum>~ - это любой объект Scheme, например число, список, символ или вектор. ~<boolean>~ это либо ~#t~,
+    либо ~#f~, ~<number>~ - это любое число, ~<character>~ - это любой символ, а ~<string>~ - это любая строка. Мы уже
+    видели примеры чисел, строк, списков, символов и логических значений. См. главу 6 или описание формального
+    синтаксиса, для получения дополнительной информации о синтаксисе этих и других объектов.
 
 #+BEGIN_EXAMPLE
     <program>             → <form>*
@@ -2654,42 +2657,44 @@
     <application>         → (<expression> <expression>*)
 #+END_EXAMPLE
 
-    The grammar is ambiguous in that the syntax for procedure applications conflicts with the syntaxes for quote, lambda,
-    if, and set! expressions. In order to qualify as a procedure application, the first <expression> must not be one of
-    these keywords, unless the keyword has been redefined or locally bound.
+    Грамматика неоднозначна в том смысле, что синтаксис применения процедур конфликтует с синтаксисами ~quote~,
+    ~lambda~, ~if~ и ~set!~ выражения. Чтобы трактоваться как применение процедуры, первое ~<expression>~ не должно быть
+    одним из этих ключевых слов, если только ключевое слово не было переопределено или связано локально.
 
-    The "defun" syntax for define given in Section 2.6 is not included in the core, since definitions in that form are
-    straightforwardly translated into the simpler define syntax. Similarly, the core syntax for if does not permit the
-    alternative to be omitted, as did one example in Section 2.9. An if expression lacking an alternative can be
-    translated into the core syntax for if merely by replacing the missing subexpression with an arbitrary constant, such
-    as #f.
+    Синтаксис ~"defun"~ для определения, приведенный в разделе 2.6, не включен в ядро, так как определения в этой форме
+    прямо переводятся в более простой синтаксис определения. Точно так же основной синтаксис для ~if~ не позволяет
+    опустить альтернативу, как это было сделано в примере в Разделе 2.9. Выражение ~if~, в котором отсутствует
+    альтернатива, может быть переведено в основной синтаксис ~if~, просто заменив отсутствующее подвыражение
+    произвольной константой, такой как ~#f~.
 
-    A begin that contains only definitions is considered to be a definition in the grammar; this is permitted in order to
-    allow syntactic extensions to expand into more than one definition. begin expressions, i.e., begin forms containing
-    expressions, are not considered core forms. A begin expression of the form
+    Форма ~begin~, содержащая только определения, считается определением в грамматике; это разрешено, чтобы позволить
+    синтаксическим расширениям разворачиваться в более чем одно определение. Выражение ~begin~ т.е. форма ~beging~,
+    содержащая выражения, не считается основной формой. Выражение ~begin~ в виде
 
 #+begin_src scheme
     (begin e1 e2 ...)
 #+end_src
 
-    is equivalent to the lambda application
+    это эквивалент применения ~lambda~-выражения
 
 #+begin_src scheme
     ((lambda () e1 e2 ...))
 #+end_src
 
-    and hence need not be considered core.
+    следовательно, нет нужды содержать его в ядре.
 
-    Now that we have established a set of core syntactic forms, let's turn to a discussion of syntactic
-    extensions. Syntactic extensions are so called because they extend the syntax of Scheme beyond the core syntax. All
-    syntactic extensions in a Scheme program must ultimately be derived from the core forms. One syntactic extension,
-    however, may be defined in terms of another syntactic extension, as long as the latter is in some sense "closer" to
-    the core syntax. Syntactic forms may appear anywhere an expression or definition is expected, as long as the extended
-    form expands into a definition or expression as appropriate.
+    Теперь, когда мы создали набор основных синтаксических форм, давайте обратимся к обсуждению синтаксических
+    расширений. Синтаксические расширения называются так потому, что они расширяют ядро синтаксиса Scheme. Все
+    синтаксические расширения в программе на Scheme должны быть в конечном итоге сводимы к основным формам. Однако одно
+    синтаксическое расширение может быть определено в терминах другого синтаксического расширения, если последнее в
+    некотором смысле «ближе» к основному синтаксису. Синтаксические формы могут применяться везде, где ожидается
+    выражение или определение, при условии, что расширенная форма раскрывается в определение или выражение по мере
+    необходимости.
 
-    Syntactic extensions are defined with define-syntax. define-syntax is similar to define, except that define-syntax
-    associates a syntactic transformation procedure, or transformer, with a keyword (such as let), rather than
-    associating a value with a variable. Here is how we might define let with define-syntax.
+    Синтаксические расширения определяются с помощью ~define-syntax~. ~define-syntax~ аналогично ~define~, за
+    исключением того, что ~define-syntax~ связывает процедуру синтаксического преобразования или преобразователь с
+    ключевым словом (например, ~let~), а не связывает значение с переменной. Вот как мы можем определить ~let~ с помощью
+    ~define-syntax~.
 
 #+begin_src scheme
     (define-syntax let
@@ -2698,38 +2703,40 @@
          ((lambda (x ...) b1 b2 ...) e ...)]))
 #+end_src
 
-    The identifier appearing after define-syntax is the name, or keyword, of the syntactic extension being defined, in
-    this case let. The syntax-rules form is an expression that evaluates to a transformer. The item following
-    syntax-rules is a list of auxiliary keywords and is nearly always (). An example of an auxiliary keyword is the else
-    of cond. (Other examples requiring the use of auxiliary keywords are given in Chapter 8.) Following the list of
-    auxiliary keywords is a sequence of one or more rules, or pattern/template pairs. Only one rule appears in our
-    definition of let. The pattern part of a rule specifies the form that the input must take, and the template specifies
-    to what the input should be transformed.
+    Идентификатор, появляющийся после ~define-syntax~, является именем или ключевым словом определяемого синтаксического
+    расширения, в данном случае ~let~. Форма ~syntax-rule~ - это выражение, которое выполняет преобразователь. Элемент,
+    следующий за ~syntax-rule~ - это списком вспомогательных ключевых слов и это почти всегда ~()~. Примером
+    вспомогательного ключевого слова является ~else~ в ~cond~ (другие примеры, требующие использования вспомогательных
+    ключевых слов, приведены в главе 8). После списка вспомогательных ключевых слов приведена последовательность из
+    одного или нескольких правил или пар образец/шаблон. Только одно правило появляется в нашем определении
+    ~let~. Часть правила "образец" определяет форму, которую должен принимать вход, а "шаблон" указывает, во что вход
+    должен быть преобразован.
 
-    The pattern should always be a structured expression whose first element is an underscore ( _ ). (As we will see in
-    Chapter 8, the use of _ is only a convention, but it is a good one to follow.) If more than one rule is present, the
-    appropriate one is chosen by matching the patterns, in order, against the input during expansion. It is a syntax
-    violation if none of the patterns match the input.
+    Образец всегда должен быть структурированным выражением, первым элементом которого является подчеркивание (~_~). (Как
+    мы увидим в главе 8, использование ~_~ - это всего лишь соглашение, но оно хорошо подходит в нашем случае). Если
+    присутствует более одного правила, подходящее выбирается путем сопоставления образцов по порядку с формой, поданой
+    на вход, во время раскрытия. Если ни один из образцов не соответствует входным данным, это синтаксическое
+    нарушение.
 
-    Identifiers other than an underscore or ellipsis appearing within a pattern are pattern variables, unless they are
-    listed as auxiliary keywords. Pattern variables match any substructure and are bound to that substructure within the
-    corresponding template. The notation pat ... in the pattern allows for zero or more expressions matching the ellipsis
-    prototype pat in the input. Similarly, the notation expr ... in the template produces zero or more expressions from
-    the ellipsis prototype expr in the output. The number of pats in the input determines the number of exprs in the
-    output; in order for this to work, any ellipsis prototype in the template must contain at least one pattern variable
-    from an ellipsis prototype in the pattern.
+    Идентификаторы, отличные от подчеркивания или многоточия, встречающиеся в образце, являются переменными образца,
+    если только они не указаны в качестве вспомогательных ключевых слов. Переменные образца соответствуют любой
+    подструктуре и привязываются к этой подструктуре в соответствующем образце. Нотация ~pat ...~ в образце
+    позволяет сопоставить ноль или более выражений в многоточии с прототипом ~pat~ во входных данных. Точно так же
+    запись ~expr ...~ в шаблоне выдает ноль или более выражений, сопоставленных многоточием в прототипе ~expr~ в
+    вывод. Количество ~pat~ на входе определяет количество ~expr~ на выходе; чтобы это работало, любой прототип
+    многоточия в шаблоне должен содержать хотя бы одну переменную шаблона из прототипа многоточия в шиблоне.
 
-    The single rule in our definition of let should be fairly self-explanatory, but a few points are worth
-    mentioning. First, the syntax of let requires that the body contain at least one form; hence, we have specified b1 b2
-    ... instead of b ..., which might seem more natural. On the other hand, let does not require that there be at least
-    one variable/value pair, so we were able to use, simply, (x e) .... Second, the pattern variables x and e, though
-    together within the same prototype in the pattern, are separated in the template; any sort of rearrangement or
-    recombination is possible. Finally, the three pattern variables x, e, and b2 that appear in ellipsis prototypes in
-    the pattern also appear in ellipsis prototypes in the template. This is not a coincidence; it is a requirement. In
-    general, if a pattern variable appears within an ellipsis prototype in the pattern, it cannot appear outside an
-    ellipsis prototype in the template.
+    Единственное правило в нашем определении ~let~ должно быть достаточно самоочевидным, но стоит упомянуть несколько
+    моментов. Во-первых, синтаксис ~let~ требует, чтобы тело содержало хотя бы одну форму; следовательно, мы указали ~b1
+    b2 ...~ вместо ~b ...~, что может показаться более естественным. С другой стороны, ~let~ не требует, чтобы была хотя
+    бы одна пара переменная/значение, поэтому мы могли просто использовать ~(x e) ...~. Во-вторых, переменные-образцы
+    ~x~ и ~e~, хотя и вместе в одном прототипе в образце, разделены в шаблоне; возможна любая перестановка или
+    рекомбинация. Наконец, три переменные образца ~x~, ~e~ и ~b2~, которые появляются в прототипах многоточия в образце,
+    также появляются в прототипах многоточия в шаблоне. Это не совпадение; это требование. В общем случае, если
+    переменная-образец появляется в прототипе многоточия в образце, она не может появляться вне прототипа многоточия в
+    шаблоне.
 
-    The definition of and below is somewhat more complex than the one for ~let~.
+    Определение ~and~ ниже несколько сложнее, чем определение для ~let~.
 
 #+begin_src scheme
     (define-syntax and
@@ -2740,30 +2747,31 @@
          (if e1 (and e2 e3 ...) #f)]))
 #+end_src
 
-    This definition is recursive and involves more than one rule. Recall that (and) evaluates to #t; the first rule takes
-    care of this case. The second and third rules specify the base case and recursion steps of the recursion and together
-    translate and expressions with two or more subexpressions into nested if expressions. For example, (and a b c)
-    expands first into
+    Это определение является рекурсивным и включает более одного правила. Напомним, что ~(and)~ возвращает ~#t~; первое
+    правило заботится об этом случае. Второе и третье правила определяют базовый случай и шаг рекурсии и вместе
+    переводят ~and~ выражение с двумя или более подвыражениями во вложенные выражения ~if~. Например, ~(and a b c)~
+    разворачивается сначала в
 
 #+begin_src scheme
     (if a (and b c) #f)
 #+end_src
 
-    then
+    а потом в
 
 #+begin_src scheme
     (if a (if b (and c) #f) #f)
 #+end_src
 
-    and finally
+    и наконец в
 
 #+begin_src scheme
     (if a (if b c #f) #f)
 #+end_src
 
-    With this expansion, if a and b evaluate to a true value, then the value is the value of c, otherwise #f, as desired.
+    При таком раскрытии, если ~a~ и ~b~ возвращают истинну, тогда результатом является значение ~c~, в противном случае
+    ~#f~, что и требовалось.
 
-    The version of and below is simpler but, unfortunately, incorrect.
+    Версия ~and~ ниже проще, но, к сожалению, неверна.
 
 #+begin_src scheme
     (define-syntax and ; incorrect!
@@ -2773,14 +2781,14 @@
          (if e1 (and e2 ...) #f)]))
 #+end_src
 
-    The expression
+    Выражение
 
 #+begin_src scheme
     (and (not (= x 0)) (/ 1 x))
 #+end_src
 
-    should return the value of (/ 1 x) when x is not zero. With the incorrect version of and, the expression expands as
-    follows.
+    должно вернуть значение ~(/ 1 х)~, когда ~х~ не ноль. При неверной версии ~and~ выражение раскрывается следующим
+    образом.
 
 #+begin_src scheme
     (if (not (= x 0)) (and (/ 1 x)) #f) →
@@ -2788,11 +2796,12 @@
     (if (not (= x 0)) (if (/ 1 x) #t #f) #f)
 #+end_src
 
-    The final answer if x is not zero is #t, not the value of (/ 1 x).
+    Окончательный ответ, если ~x~ не ноль, это ~#t~, а не значение ~(/ 1 х)~.
 
-    The definition of or below is similar to the one for and except that a temporary variable must be introduced for each
-    intermediate value so that we can both test the value and return it if it is a true value. (A temporary variable is not
-    needed for and since there is only one false value, #f.)
+    Определение ~or~ ниже аналогично определению ~and~, за исключением того, что для каждого промежуточного значения
+    должна быть введена временная переменная, чтобы мы могли одновременно проверить значение и вернуть его, если оно
+    является истинной. (Временная переменная не нужна для ~and~, поскольку существует только одно ложное значение,
+    ~#f~).
 
 #+begin_src scheme
     (define-syntax or
@@ -2804,12 +2813,13 @@
            (if t t (or e2 e3 ...)))]))
 #+end_src
 
-    Like variables bound by lambda or let, identifiers introduced by a template are lexically scoped, i.e., visible only
-    within expressions introduced by the template. Thus, even if one of the expressions e2 e3 ... contains a reference to
-    t, the introduced binding for t does not "capture" those references. This is typically accomplished via automatic
-    renaming of introduced identifiers.
+    Как и переменные, связанные лямбда-выражением или ~let~, идентификаторы, введенные шаблоном, имеют лексическую
+    область видимости, то есть видимы только в выражениях, введенных шаблоном. Таким образом, даже если одно из
+    выражений ~e2 e3 ...~ содержит ссылку на ~t~, введенная привязка для ~t~ не "захватывает" эти ссылки. Обычно это
+    достигается путем автоматического переименования введенных идентификаторов.
 
-    As with the simpler version of and given above, the simpler version of or below is incorrect.
+    Как и в случае с более простой версией ~and~ приведенной выше, более простая версия ~or~ ниже является
+    неправильной.
 
 #+begin_src scheme
     (define-syntax or ; incorrect!
@@ -2820,41 +2830,41 @@
            (if t t (or e2 ...)))]))
 #+end_src
 
-    The reason is more subtle, however, and is the subject of Exercise 3.2.6.
+    Однако причина более тонкая и является предметом упражнения 3.2.6.
 
 **** Упражнение 3.1.1
 
-     Write out the expansion steps necessary to expand
+     Запишите шаги, необходимые для раскрытия расширения
 
 #+begin_src scheme
      (let ([x (memv 'a ls)])
        (and x (memv 'b x)))
 #+end_src
 
-    into core forms.
+    в базовые формы.
 
 **** Упражнение 3.1.2
 
-     Write out the expansion steps necessary to expand
+     Запишите шаги, необходимые для раскрытия расширения
 
 #+begin_src scheme
      (or (memv x '(a b c)) (list x))
 #+end_src
 
-     into core forms.
+     в базовые формы.
 
 **** Упражнение 3.1.3
 
-     ~let*~ is similar to let but evaluates its bindings in sequence. Each of the right-hand-side expressions is within
-     the scope of the earlier bindings.
+     ~let*~ аналогичен ~let~, но выполняет связывания по порядку. Каждое из выражений в правой части находится в рамках
+     области действия предыдущих привязок.
 
 #+begin_src scheme
      (let* ([a 5] [b (+ a a)] [c (+ a b)])
        (list a b c)) → (5 10 15)
 #+end_src
 
-     ~let*~ can be implemented as nested let expressions. For example, the ~let*~ expression above is equivalent to the
-     nested let expressions below.
+     ~let*~ может быть реализован как вложенные выражения ~let~. Например, вышеприведенное выражение ~let*~ эквивалентно
+     вложенным выражениям ~let~ ниже.
 
 #+begin_src scheme
      (let ([a 5])
@@ -2863,23 +2873,23 @@
            (list a b c)))) → (5 10 15)
 #+end_src
 
-     Define ~let*~ with define-syntax.
+     Определите ~let*~ с помощью ~define-syntax~.
 
 **** Упражнение 3.1.4
 
-     As we saw in Section 2.9, it is legal to omit the third, or alternative, subexpression of an if expression. Doing
-     so, however, often leads to confusion. Scheme provides two syntactic forms, when and unless, that may be used in
-     place of such "one-armed" if expressions.
+     Как мы видели в разделе 2.9, допустимо опускать третье или альтернативное подвыражение выражения ~if~. Однако это
+     часто приводит к путанице. Scheme предоставляет две синтаксические формы, ~when~ и ~unless~, которые могут
+     использоваться вместо таких «одноруких» ~if~.
 
 #+begin_src scheme
      (when test expr1 expr2 ...)
      (unless test expr1 expr2 ...)
 #+end_src
 
-     With both forms, test is evaluated first. For when, if test evaluates to true, the remaining forms are evaluated in
-     sequence as if enclosed in an implicit begin expression. If test evaluates to false, the remaining forms are not
-     evaluated, and the result is unspecified. unless is similar except that the remaining forms are evaluated only if
-     test evaluates to false.
+     В обеих формах тест вычисляется первым. Для ~when~, если ~test~ возвращает истину, остальные формы выполняются
+     последовательно, как если бы они были заключены в неявное выражение ~begin~. Если ~test~ возвращает ложь, остальные
+     формы не выполняются, а результат неопределён. ~unless~ ведёт себя аналогично, за исключением того, что остальные
+     формы выполняются только если тест оценивается как ложный.
 
 #+begin_src scheme
      (let ([x 3])
@@ -2888,7 +2898,8 @@
        x) → 8
 #+end_src
 
-     Define when as a syntactic extension in terms of if and begin, and define unless in terms of when.
+     Определите ~when~ как синтаксическое расширение в терминах ~if~ и ~begin~, и определите ~unless~, только в терминах
+     ~when~.
 
 *** More Recursion
     In Section 2.8, we saw how to define recursive procedures using top-level definitions. Before that, we saw how to
