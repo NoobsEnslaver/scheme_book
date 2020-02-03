@@ -2901,10 +2901,12 @@
      Определите ~when~ как синтаксическое расширение в терминах ~if~ и ~begin~, и определите ~unless~, только в терминах
      ~when~.
 
-*** More Recursion
-    In Section 2.8, we saw how to define recursive procedures using top-level definitions. Before that, we saw how to
-    create local bindings for procedures using let. It is natural to wonder whether a let-bound procedure can be
-    recursive. The answer is no, at least not in a straightforward way. If you try to evaluate the expression
+*** Больше о рекурсии
+
+    В разделе 2.8 мы увидели, как определять рекурсивные процедуры, используя определения верхнего уровня. До этого мы
+    видели, как создавать локальные связывания для процедур с использованием ~let~. Естественно задаться вопросом, может
+    ли ~let~-процедура быть рекурсивной. Ответ - нет, по крайней мере, не прямым способом. Если вы попытаетесь выполнить
+    выражение
 
 #+begin_src scheme
     (let ([sum (lambda (ls)
@@ -2914,9 +2916,9 @@
       (sum '(1 2 3 4 5)))
 #+end_src
 
-    it will probably raise an exception with a message to the effect that sum is undefined. This is because the variable
-    sum is visible only within the body of the let expression and not within the lambda expression whose value is bound
-    to sum. We can get around this problem by passing the procedure sum to itself as follows.
+    это, вероятно, вызовет исключение с сообщением о том, что ~sum~ не определена. Это связано с тем, что переменная
+    ~sum~ видна только в теле выражения ~let~, а не в лямбда-выражении, значение которого связано с ~sum~. Мы можем
+    обойти эту проблему, передав процедуру ~sum~ себе самой следующим образом.
 
 #+begin_src scheme
     (let ([sum (lambda (sum ls)
@@ -2926,15 +2928,16 @@
       (sum sum '(1 2 3 4 5))) → 15
 #+end_src
 
-    This works and is a clever solution, but there is an easier way, using letrec. Like let, the letrec syntactic form
-    includes a set of variable-value pairs, along with a sequence of expressions referred to as the body of the letrec.
+    Это работает и является разумным решением, но есть более простой способ, используя ~letrec~. Как и ~let~,
+    синтаксическая форма ~letrec~ включает в себя набор пар переменная-значение и последовательность выражений,
+    называемых телом ~letrec~.
 
 #+begin_src scheme
     (letrec ((var expr) ...) body1 body2 ...)
 #+end_src
 
-    Unlike let, the variables var ... are visible not only within the body of the letrec but also within expr .... Thus,
-    we can rewrite the expression above as follows.
+    В отличие от ~let~, переменные ~var ...~ видны не только внутри тела ~letrec~, но и внутри выражения ~expr
+    ...~. Таким образом, мы можем переписать приведенное выше выражение следующим образом.
 
 #+begin_src scheme
     (letrec ([sum (lambda (ls)
@@ -2944,8 +2947,8 @@
       (sum '(1 2 3 4 5))) → 15
 #+end_src
 
-    Using ~letrec~, we can also define mutually recursive procedures, such as the procedures ~even?~ and ~odd?~ that were
-    the subject of Exercise 2.8.6.
+    Используя ~letrec~, мы также можем определить взаимно рекурсивные процедуры, такие как процедуры ~even?~ и ~odd?~,
+    которые были предметом упражнения 2.8.6.
 
 #+begin_src scheme
     (letrec ([even?
@@ -2959,11 +2962,12 @@
       (list (even? 20) (odd? 20))) → (#t #f)
 #+end_src
 
-    In a letrec expression, expr ... are most often lambda expressions, though this need not be the case. One restriction
-    on the expressions must be obeyed, however. It must be possible to evaluate each expr without evaluating any of the
-    variables var .... This restriction is always satisfied if the expressions are all lambda expressions, since even
-    though the variables may appear within the lambda expressions, they cannot be evaluated until the resulting
-    procedures are invoked in the body of the letrec. The following letrec expression obeys this restriction.
+    В выражении ~letrec~ ~expr ...~ чаще всего является лямбда-выражением, хотя это не обязательно. Однако необходимо
+    соблюдать одно ограничение для выражений. Должна быть возможность вычислять каждое выражение без вычисления
+    какой-либо из переменных ~var ...~. Это ограничение всегда выполняется, если все выражения являются
+    лямбда-выражениями, поскольку, хотя переменные могут появляться в лямбда-выражениях, они не могут быть вычислены до
+    тех пор, пока результирующие процедуры не будут вызваны в теле ~letrec~. Следующее выражение ~letrec~ подчиняется
+    этому ограничению.
 
 #+begin_src scheme
     (letrec ([f (lambda () (+ x 2))]
@@ -2971,7 +2975,7 @@
       (f)) → 3
 #+end_src
 
-    while the following does not.
+    А это нет.
 
 #+begin_src scheme
     (letrec ([y (+ x 2)]
@@ -2979,11 +2983,11 @@
       y)
 #+end_src
 
-    In this case, an exception is raised indicating that x is not defined where it is referenced.
+    В этом случае возникает исключение, указывающее, что ~x~ не определено там, где на него ссылаются.
 
-    We can use letrec to hide the definitions of "help" procedures so that they do not clutter the top-level
-    namespace. This is demonstrated by the definition of list? below, which follows the "hare and tortoise" algorithm
-    outlined in Exercise 2.9.8.
+    Мы можем использовать ~letrec~, чтобы скрыть определения «вспомогательных» процедур, чтобы они не загромождали
+    пространство имен верхнего уровня. Это демонстрирует определение ~list?~ ниже, который следует алгоритму «заяц и
+    черепаха», описанному в упражнении 2.9.8.
 
 #+begin_src scheme
     (define list?
@@ -3000,20 +3004,20 @@
           (race x x))))
 #+end_src
 
-    When a recursive procedure is called in only one place outside the procedure, as in the example above, it is often
-    clearer to use a named let expression. Named let expressions take the following form.
+    Когда рекурсивная процедура вызывается только в одном месте вне процедуры, как в примере выше, часто проще
+    использовать именованное выражение ~let~. Именованные ~let~ выражения принимают следующую форму.
 
 #+begin_src scheme
     (let name ((var expr) ...)
       body1 body2 ...)
 #+end_src
 
-    Named let is similar to unnamed let in that it binds the variables var ... to the values of expr ... within the body
-    body1 body2 .... As with unnamed let, the variables are visible only within the body and not within expr .... In
-    addition, the variable name is bound within the body to a procedure that may be called to recur; the arguments to the
-    procedure become the new values for the variables var ....
+    Именованный ~let~ похож на безымянный ~let~ в том, что он связывает переменные ~var ...~ со значениями ~expr ...~ в
+    теле ~body1 body2 ...~. Как и в случае безымянного ~let~, переменные видны только внутри тела, а не внутри ~expr
+    ...~. В дополнение, переменная ~name~ внутри тела связана с процедурой, которая может быть вызвана для рекурсии;
+    аргументы процедуры становятся новыми значениями переменных ~var ...~.
 
-    The definition of ~list?~ has been rewritten below to use named ~let~.
+    Определение ~list?~ было переписано ниже для использования именнованного ~let~.
 
 #+begin_src scheme
     (define list?
@@ -3028,15 +3032,15 @@
               (null? h)))))
 #+end_src
 
-    Just as let can be expressed as a simple direct application of a lambda expression to arguments, named let can be
-    expressed as the application of a recursive procedure to arguments. A named let of the form
+    Так же, как обычный ~let~ может быть представлен в виде простого применения лямбда-выражения к аргументам, так и
+    именованный ~let~ может быть представлен как применение рекурсивной процедуры к аргументам. Форма именованного ~let~
 
 #+begin_src scheme
     (let name ((var expr) ...)
       body1 body2 ...)
 #+end_src
 
-    can be rewritten in terms of letrec as follows.
+    может быть переписана в терминах ~letrec~ следующим образом.
 
 #+begin_src scheme
     ((letrec ((name (lambda (var ...) body1 body2 ...)))
@@ -3044,28 +3048,29 @@
      expr ...)
 #+end_src
 
-    Alternatively, it can be rewritten as
+    Или иначе это может быть переписано как
 
 #+begin_src scheme
     (letrec ((name (lambda (var ...) body1 body2 ...)))
       (name expr ...))
 #+end_src
 
-    provided that the variable name does not appear free within expr ....
+    при условии, что переменная ~name~ не появляется свободно в ~expr ...~.
 
-    As we discussed in Section 2.8, some recursion is essentially iteration and executes as such. When a procedure call
-    is in tail position (see below) with respect to a lambda expression, it is considered to be a tail call, and Scheme
-    systems must treat it properly, as a "goto" or jump. When a procedure tail-calls itself or calls itself indirectly
-    through a series of tail calls, the result is tail recursion. Because tail calls are treated as jumps, tail recursion
-    can be used for indefinite iteration in place of the more restrictive iteration constructs provided by other
-    programming languages, without fear of overflowing any sort of recursion stack.
+    Как мы обсуждали в разделе 2.8, некоторая рекурсия по сути является итерацией и выполняется как таковая. Когда вызов
+    процедуры находится в хвостовой позиции (см. ниже) по отношению к лямбда-выражению, он считается хвостовым вызовом,
+    и системы Scheme должны правильно обрабатывать его как ~"goto"~ или прыжок. Когда процедура вызывает себя хвостовым
+    вызовом или вызывает себя косвенно через серию хвостовых вызовов, результатом является хвостовая рекурсия. Поскольку
+    хвостовые вызовы обрабатываются как переходы, хвостовая рекурсия может использоваться для неограниченной итерации
+    вместо более ограниченных итерационных конструкций, предоставляемых другими языками программирования, не опасаясь
+    переполнения любого вида стека рекурсии.
 
-    A call is in tail position with respect to a lambda expression if its value is returned directly from the lambda
-    expression, i.e., if nothing is left to do after the call but to return from the lambda expression. For example, a
-    call is in tail position if it is the last expression in the body of a lambda expression, the consequent or
-    alternative part of an if expression in tail position, the last subexpression of an and or or expression in tail
-    position, the last expression in the body of a let or letrec in tail position, etc. Each of the calls to f in the
-    expressions below are tail calls, but the calls to g are not.
+    Вызов находится в хвостовой позиции по отношению к лямбда-выражению, если его результат возвращается непосредственно
+    из лямбда-выражения, т.е. если после вызова ничего не остается делать, кроме как возвращаться из
+    лямбда-выражения. Например, вызов находится в хвостовой позиции, если это последнее выражение в теле
+    лямбда-выражения, последующая или альтернативная часть выражения ~if~ в хвостовой позиции, последнее подвыражение
+    ~and~ или ~or~ в хвостовой позиции, последнее выражение в теле ~let~ или ~letrec~ в хвостовой позиции и т. д. Каждый
+    из вызовов ~f~ в приведенных ниже выражениях является хвостовым вызовом, а вызовы ~g~ - нет.
 
 #+begin_src scheme
     (lambda () (f (g)))
@@ -3074,14 +3079,15 @@
     (lambda () (or (g) (f)))
 #+end_src
 
-    In each case, the values of the calls to f are returned directly, whereas the calls to g are not.
+    В каждом случае результат вызовов ~f~ возвращаются напрямую, тогда как вызовы ~g~ - нет.
 
-    Recursion in general and named let in particular provide a natural way to implement many algorithms, whether
-    iterative, recursive, or partly iterative and partly recursive; the programmer is not burdened with two distinct
-    mechanisms.
+    Рекурсия в общем и именованный ~let~ позволяет, в частности, обеспечить естественный способ реализации многих
+    алгоритмов, будь то итеративный, рекурсивный или частично итеративный, или частично рекурсивный; программист не
+    принуждён выбирать между двумя различными механизмами.
 
-    The following two definitions of factorial use named let expressions to compute the factorial, n!, of a nonnegative
-    integer n. The first employs the recursive definition n! = n × (n - 1)!, where 0! is defined to be 1.
+    Следующие два определения факториала используют именованные выражения ~let~ для вычисления факториала ~n!~ целого
+    неотрицательного числа ~n~. Первый использует рекурсивное определение ~n! = n × (n - 1)!~, где ~0!~ определяется
+    как 1.
 
 #+begin_src scheme
     (define factorial
@@ -3098,8 +3104,8 @@
     (factorial 10) → 3628800
 #+end_src
 
-    The second is an iterative version that employs the iterative definition ~n! = n × (n - 1) × (n - 2) × ... × 1~,
-    using an accumulator, a, to hold the intermediate products.
+    Вторая - это итерационная версия, в которой используется итеративное определение ~n! = n × (n - 1) × (n - 2) × ... ×
+    1~, использующая аккумулятор ~a~ для хранения промежуточных результатов.
 
 #+begin_src scheme
     (define factorial
@@ -3110,9 +3116,10 @@
               (fact (- i 1) (* a i))))))
 #+end_src
 
-    A similar problem is to compute the nth Fibonacci number for a given n. The Fibonacci numbers are an infinite
-    sequence of integers, 0, 1, 1, 2, 3, 5, 8, etc., in which each number is the sum of the two preceding numbers in the
-    sequence. A procedure to compute the nth Fibonacci number is most naturally defined recursively as follows.
+    Аналогичная проблема заключается в вычислении n-го числа Фибоначчи для данного ~n~. Числа Фибоначчи представляют
+    собой бесконечную последовательность целых чисел 0, 1, 1, 2, 3, 5, 8 и т. д., в которой каждое число является суммой
+    двух предыдущих чисел в последовательности. Процедура вычисления n-го числа Фибоначчи наиболее естественно
+    определяется рекурсивно следующим образом.
 
 #+begin_src scheme
     (define fibonacci
@@ -3134,12 +3141,12 @@
     (fibonacci 30) → 832040
 #+end_src
 
-    This solution requires the computation of the two preceding Fibonacci numbers at each step and hence is doubly
-    recursive. For example, to compute (fibonacci 4) requires the computation of both (fib 3) and (fib 2), to compute
-    (fib 3) requires computing both (fib 2) and (fib 1), and to compute (fib 2) requires computing both (fib 1) and (fib
-    0). This is very inefficient, and it becomes more inefficient as n grows. A more efficient solution is to adapt the
-    accumulator solution of the factorial example above to use two accumulators, a1 for the current Fibonacci number and
-    a2 for the preceding one.
+    Это решение требует вычисления двух предыдущих чисел Фибоначчи на каждом шаге и, следовательно, является дважды
+    рекурсивным. Например, для вычисления ~(fibonacci 4)~ требуется вычисление обоих ~(fib 3)~ и ~(fib 2)~, для
+    вычисления ~(fib 3)~ требуется вычисление как ~(fib 2)~ и ~(fib 1)~, так и для вычисления ~(fib 2)~ требуется
+    вычисление как ~(fib 1)~, так и ~(fib 0)~. Это очень неэффективно и становится все более неэффективным с ростом
+    ~n~. Более эффективное решение состоит в том, чтобы адаптировать решение с аккумулятором из приведенного выше
+    примера факториала, чтобы использовать два аккумулятора, ~a1~ для текущего числа Фибоначчи и ~a2~ для предыдущего.
 
 #+begin_src scheme
     (define fibonacci
@@ -3152,13 +3159,14 @@
                   (fib (- i 1) (+ a1 a2) a1))))))
 #+end_src
 
-    Here, zero is treated as a special case, since there is no preceding value. This allows us to use the single base
-    case (= i 1). The time it takes to compute the nth Fibonacci number using this iterative solution grows linearly with
-    n, which makes a significant difference when compared to the doubly recursive version. To get a feel for the
-    difference, try computing (fibonacci 35) and (fibonacci 40) using both definitions to see how long each takes.
+    Здесь ноль рассматривается как особый случай, так как предшествующего значения нет. Это позволяет нам использовать
+    один базовый случай ~(= i 1)~. Время, необходимое для вычисления n-го числа Фибоначчи с использованием этого
+    итеративного решения, растет линейно с ростом ~n~, что существенно лучше по сравнению с дважды рекурсивной
+    версией. Чтобы почувствовать разницу, попробуйте вычислить ~(fibonacci 35)~ и ~(fibonacci 40)~, используя оба
+    определения, чтобы увидеть, сколько времени занимает каждое из них.
 
-    We can also get a feel for the difference by looking at a trace for each on small inputs. The first trace below shows
-    the calls to fib in the non-tail-recursive version of fibonacci, with input 5.
+    Мы также можем почувствовать разницу, взглянув на трассировку для каждого на небольших входных данных. Первая
+    трассировка ниже показывает вызовы ~fib~ в версии ~fibonacci~ без хвостовой рекурсии, со входом 5.
 
 #+BEGIN_EXAMPLE
     |(fib 5)
@@ -3193,8 +3201,8 @@
     |5
 #+END_EXAMPLE
 
-    Notice how there are several calls to fib with arguments 2, 1, and 0. The second trace shows the calls to fib in the
-    tail-recursive version, again with input 5.
+    Обратите внимание, что есть несколько вызовов ~fib~ с аргументами 2, 1 и 0. Вторая трассировка показывает вызовы
+    ~fib~ в хвостовой рекурсивной версии, опять же с 5 на входе.
 
 #+BEGIN_EXAMPLE
     |(fib 5 1 0)
@@ -3205,12 +3213,12 @@
     |5
 #+END_EXAMPLE
 
-    Clearly, there is quite a difference.
+    Очевидно, что есть большая разница.
 
-    The named let examples shown so far are either tail-recursive or not tail-recursive. It often happens that one
-    recursive call within the same expression is tail-recursive while another is not. The definition of factor below
-    computes the prime factors of its nonnegative integer argument. The first call to f is not tail-recursive, but the
-    second one is.
+    Примеры с именованным ~let~, показанные до сих пор, были либо хвост-рекурсивными, либо не хвост-рекурсивными. Часто
+    случается, что один рекурсивный вызов в одном и том же выражении является хвостово-рекурсивным, а другом -
+    нет. Определение ~factor~ ниже вычисляет простые множители его неотрицательного целочисленного аргумента. Первый
+    вызов ~f~ не хвост-рекурсивный, но второй - да.
 
 #+begin_src scheme
     (define factor
@@ -3231,8 +3239,8 @@
     (factor 9239) → (9239)
 #+end_src
 
-    A trace of the calls to f, produced in Chez Scheme by replacing let with trace-let, in the evaluation of (factor 120)
-    below highlights the difference between the nontail calls and the tail calls.
+    Трассировка вызовов ~f~, произведенная в Chez Scheme путем замены ~let~ на ~trace-let~, при выполнении ~(factor
+    120)~ ниже подчеркивает разницу между нехвостыми и хвостовыми вызовами.
 
 #+BEGIN_EXAMPLE
     |(f 120 2)
@@ -3250,20 +3258,21 @@
     |(2 2 2 3 5)
 #+END_EXAMPLE
 
-    A nontail call to f is shown indented relative to its caller, since the caller is still active, whereas tail calls
-    appear at the same level of indentation.
+    Нехвостовой вызов ~f~ отображается с отступом относительно уровня, на котором его вызвали, поскольку вызывающий все
+    еще активен, тогда как хвостовые вызовы отображаются на том же уровне отступа.
 
 **** Упражнение 3.2.1
 
-     Which of the recursive procedures defined in Section 3.2 are tail-recursive, and which are not?
+     Какие из рекурсивных процедур, определенных в разделе 3.2, являются хвостово-рекурсивными, а какие нет?
 
 **** Упражнение 3.2.2
 
-     Rewrite factor using letrec to bind f in place of named let. Which version do you prefer?
+     Перепишите ~factor~, используя ~letrec~, чтобы связать ~f~ вместо именованного ~let~. Какую версию вы предпочитаете?
 
 **** Упражнение 3.2.3
 
-     Can the letrec expression below be rewritten using named let? If not, why not? If so, do it.
+     Можно ли переписать приведенное ниже выражение ~letrec~, используя именованный ~let~? Если нет, то почему? Если да,
+     то сделайте это.
 
 #+begin_src scheme
      (letrec ([even?
@@ -3279,17 +3288,19 @@
 
 **** Упражнение 3.2.4
 
-     Rewrite both definitions of fibonacci given in this section to count the number of recursive calls to fib, using a
-     counter similar to the one used in the cons-count example of Section 2.9. Count the number of recursive calls made in
-     each case for several input values. What do you notice?
+     Перепишите оба определения ~fibonacci~, приведенные в этом разделе, чтобы подсчитать количество рекурсивных вызовов
+     ~fib~, используя счетчик, аналогичный тому, который использовался в примере с ~cons-count~ в разделе
+     2.9. Подсчитайте количество рекурсивных вызовов, сделанных в каждом случае для различных входных значений. Что вы
+     заметили?
 
 **** Упражнение 3.2.5
 
-     Augment the definition of let given in Section 3.1 to handle named let as well as unnamed let, using two rules.
+     Дополните определение ~let~, данное в Разделе 3.1, для обработки именованных ~let~ и ~let~ без имен, используя два
+     правила.
 
 **** Упражнение 3.2.6
 
-     The following definition of or is simpler than the one given in Section 3.1.
+     Следующее определение ~or~ проще, чем приведенное в разделе 3.1.
 
 #+begin_src scheme
      (define-syntax or ; incorrect!
@@ -3300,15 +3311,16 @@
             (if t t (or e2 ...)))]))
 #+end_src
 
-     Say why it is not correct. [Hint: Think about what would happen if this version of or were used in the even? and
-     odd? example given on page 66 for very large inputs.]
+     Поясните, почему это не правильно. [Подсказка: подумайте, что бы произошло, если бы эта версия или использовалась в
+     ~even?~ и ~odd?~ для особенно больших значений на входе?]
 
 **** Упражнение 3.2.7
 
-     The definition of factor is not the most efficient possible. First, no factors of n besides n itself can possibly be
-     found beyond →. Second, the division (/ n i) is performed twice when a factor is found. Third, after 2, no even
-     factors can possibly be found. Recode factor to correct all three problems. Which is the most important problem to
-     solve? Are there any additional improvements you can make?
+     Определение ~factor~ не является наиболее эффективным из возможных. Во-первых, никакие множители ~n~, кроме самого
+     ~n~, невозможно найти за пределами значения корня из ~n~. Во-вторых, деление ~(/ n i)~ выполняется дважды, когда
+     множитель найден. В-третьих, после 2, никаких чётных множителей найдено быть не может. Перепишите ~factor~, чтобы
+     исправить все три проблемы. Какая из этих проблем самая важная? Есть ли дополнительные улучшения, которые вы можете
+     сделать?
 
 *** Continuations
 
