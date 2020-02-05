@@ -3322,42 +3322,42 @@
      исправить все три проблемы. Какая из этих проблем самая важная? Есть ли дополнительные улучшения, которые вы можете
      сделать?
 
-*** Continuations
+*** Продолжения
 
-    During the evaluation of a Scheme expression, the implementation must keep track of two things: (1) what to evaluate
-    and (2) what to do with the value. Consider the evaluation of (null? x) within the expression below.
+    Во время выполнения выражения Scheme, реализация должна отслеживать две вещи: (1) что выполнять и (2) что делать со
+    значением. Рассмотрим выполнение ~(null? x)~ в выражении ниже.
 
 #+begin_src scheme
     (if (null? x) (quote ()) (cdr x))
 #+end_src
 
-    The implementation must first evaluate (null? x) and, based on its value, evaluate either (quote ()) or (cdr
-    x). "What to evaluate" is (null? x), and "what to do with the value" is to make the decision which of (quote ()) and
-    (cdr x) to evaluate and to do so. We call "what to do with the value" the continuation of a computation.
+    Реализация должна сначала выполнить ~(null? x)~ и, основываясь на его значении, выполнить либо ~(quote ())~, либо
+    ~(cdr x)~. "Что выполнять" - это ~(null? x)~, а "что делать со значением" - это принимать решение, какое из
+    выражений, ~(quote ())~ или ~(cdr x)~ выполнить. Мы называем "что делать со значением" /продолжением/ вычисления.
 
-    Thus, at any point during the evaluation of any expression, there is a continuation ready to complete, or at least
-    continue, the computation from that point. Let's assume that x has the value (a b c). We can isolate six
-    continuations during the evaluation of (if (null? x) (quote ()) (cdr x)), the continuations waiting for
+    Таким образом, в любой точке во время вычисления любого выражения есть продолжение, готовое завершить или, по
+    крайней мере, продолжить вычисление с этой точки. Предположим, что ~x~ имеет значение ~(a b c)~. Мы можем выделить
+    шесть продолжений во время выполнения ~(если (null? X) (quote ()) (cdr x))~, продолжения ожидают
 
-    1. the value of (if (null? x) (quote ()) (cdr x)),
-    2. the value of (null? x),
-    3. the value of null?,
-    4. the value of x,
-    5. the value of cdr, and
-    6. the value of x (again).
+    1. значение ~(if (null? x) (quote ()) (cdr x))~,
+    2. значение ~(null? х)~,
+    3. значение ~null?~,
+    4. значение ~х~,
+    5. значение ~cdr~, и
+    6. значение ~х~ (снова).
 
-    The continuation of ~(cdr x)~ is not listed because it is the same as the one waiting for ~(if (null? x) (quote ())
-    (cdr x))~.
+    Продолжение ~(cdr x)~ не указано в списке, поскольку оно совпадает с продолжением ~(if (null? X) (quote ()) (cdr
+    x))~.
 
-    Scheme allows the continuation of any expression to be captured with the procedure call/cc. call/cc must be passed a
-    procedure p of one argument. call/cc constructs a concrete representation of the current continuation and passes it
-    to p. The continuation itself is represented by a procedure k. Each time k is applied to a value, it returns the
-    value to the continuation of the call/cc application. This value becomes, in essence, the value of the application of
-    call/cc.
+    Scheme позволяет фиксировать продолжение любого выражения с помощью процедуры ~call/cc~. ~call/cc~ должна быть
+    передана процедура ~p~ с одним аргументом. ~call/cc~ создает конкретное представление текущего продолжения и
+    передает его в ~p~. Само продолжение представлено процедурой ~k~. Каждый раз, когда ~k~ применяется к значению, оно
+    возвращает значение в продолжение от вызова ~call/cc~. Это значение становится, по сути, значением вызова ~call/cc~
+    (результатом).
 
-    If p returns without invoking k, the value returned by the procedure becomes the value of the application of call/cc.
+    Если ~p~ возвращается без вызова ~k~, значение, возвращаемое процедурой, становится значением приложения ~call/cc~.
 
-    Consider the simple examples below.
+    Рассмотрим простые примеры ниже.
 
 #+begin_src scheme
     (call/cc
@@ -3374,12 +3374,12 @@
            (* 5 (k 4))))) → 6
 #+end_src
 
-    In the first example, the continuation is captured and bound to k, but k is never used, so the value is simply the
-    product of 5 and 4. In the second, the continuation is invoked before the multiplication, so the value is the value
-    passed to the continuation, 4. In the third, the continuation includes the addition by 2; thus, the value is the
-    value passed to the continuation, 4, plus 2.
+    В первом примере продолжение захватывается и связывается с ~k~, но ~k~ никогда не используется, поэтому результатом
+    является просто произведением 5 и 4. Во втором, продолжение вызывается перед умножением, поэтому результатом
+    является значение, переданное в продолжение, 4. В третьем продолжение дополнено сложением с 2; таким образом,
+    результат - это значение, переданное продолжению 4 плюс 2.
 
-    Here is a less trivial example, showing the use of call/cc to provide a nonlocal exit from a recursion.
+    Вот менее тривиальный пример, показывающий использование ~call/cc~ для обеспечения нелокального выхода из рекурсии.
 
 #+begin_src scheme
     (define product
@@ -3396,36 +3396,39 @@
     (product '(7 3 8 0 1 9 5)) → 0
 #+end_src
 
-    The nonlocal exit allows product to return immediately, without performing the pending multiplications, when a zero
-    value is detected.
+    Нелокальный выход позволяет ~product~ возвращать результат немедленно, без выполнения остальных умножений, при
+    обнаружении нулевого значения.
 
-    Each of the continuation invocations above returns to the continuation while control remains within the procedure
-    passed to call/cc. The following example uses the continuation after this procedure has already returned.
+    Каждый из приведенных выше вызовов продолжения возвращается к продолжению, в то время как управление остается в
+    пределах процедуры, переданной в ~call/cc~. В следующем примере используется продолжение после того, как эта
+    процедура уже вернула значение.
 
 #+begin_src scheme
     (let ([x (call/cc (lambda (k) k))])
       (x (lambda (ignore) "hi"))) → "hi"
 #+end_src
 
-    The continuation captured by this invocation of call/cc may be described as "Take the value, bind it to x, and apply
-    the value of x to the value of (lambda (ignore) "hi")." Since (lambda (k) k) returns its argument, x is bound to the
-    continuation itself; this continuation is applied to the procedure resulting from the evaluation of (lambda (ignore)
-    "hi"). This has the effect of binding x (again!) to this procedure and applying the procedure to itself. The
-    procedure ignores its argument and returns "hi".
+    Продолжение, захваченное этим вызовом ~call/cc~, может быть описано как "возьмите значение, свяжите его с ~x~ и
+    примени значение ~x~ к значению ~(lambda (ignore) "hi")~". Поскольку ~(lambda (k) k)~ возвращает свой аргумент, ~x~
+    связан с самим продолжением; это продолжение применяется к процедуре, полученной в результате выполнения ~(lambda
+    (ignore) "hi")~ . Это имеет эффект привязки ~x~ (снова!) к этой процедуре и применения процедуры к себе. Процедура
+    игнорирует свой аргумент и возвращает "hi".
 
-    The following variation of the example above is probably the most confusing Scheme program of its size; it might be
-    easy to guess what it returns, but it takes some thought to figure out why.
+    Следующий вариант приведенного выше примера, вероятно, является самой запутанной программой Scheme своего размера;
+    может быть легко догадаться, что он возвращает, но нужно подумать, почему.
 
 #+begin_src scheme
     (((call/cc (lambda (k) k)) (lambda (x) x)) "HEY!") → "HEY!"
 #+end_src
 
-    The value of the call/cc is its own continuation, as in the preceding example. This is applied to the identity
-    procedure (lambda (x) x), so the call/cc returns a second time with this value. Then, the identity procedure is
-    applied to itself, yielding the identity procedure. This is finally applied to "HEY!", yielding "HEY!".
+    Значение ~call/cc~ является его собственным продолжением, как в предыдущем примере. Это применяется к процедуре
+    возвращающей свой аргумент ~(lambda (x) x)~, поэтому ~call/cc~ возвращается второй раз с этим значением. Затем
+    процедура, возвращающая свой аргумент, применяется к себе, возвращая процедуру, возвращающую свой аргумент. Наконец,
+    это применяется к "HEY!", В результате получается "HEY!".
 
-    Continuations used in this manner are not always so puzzling. Consider the following definition of factorial that
-    saves the continuation at the base of the recursion before returning 1, by assigning the top-level variable retry.
+    Продолжения, используемые таким образом, не всегда так озадачивают. Рассмотрим следующее определение факториала,
+    которое сохраняет продолжение в основе рекурсии перед возвратом 1, присваивая его переменной верхнего уровня
+    ~retry~.
 
 #+begin_src scheme
     (define retry #f)
@@ -3437,8 +3440,8 @@
             (* x (factorial (- x 1))))))
 #+end_src
 
-    With this definition, factorial works as we expect factorial to work, except it has the side effect of assigning
-    retry.
+    С этим определением ~factorial~ работает так, как мы ожидаем от факториала, за исключением того, что он имеет
+    побочный эффект назначения повторных попыток.
 
 #+begin_src scheme
     (factorial 4) → 24
@@ -3446,22 +3449,22 @@
     (retry 2) → 48
 #+end_src
 
-    The continuation bound to retry might be described as "Multiply the value by 1, then multiply this result by 2, then
-    multiply this result by 3, then multiply this result by 4." If we pass the continuation a different value, i.e., not
-    1, we will cause the base value to be something other than 1 and hence change the end result.
+    Продолжение, связанное с ~retry~, может быть описано как «Умножьте значение на 1, затем умножьте этот результат на
+    2, затем умножьте этот результат на 3, а затем умножьте этот результат на 4». Если мы передадим продолжению другое
+    значение, т. е. не 1, мы заставим базовое значение отличаться от 1 и, следовательно, изменим конечный результат.
 
 #+begin_src scheme
     (retry 2) → 48
     (retry 5) → 120
 #+end_src
 
-    This mechanism could be the basis for a breakpoint package implemented with call/cc; each time a breakpoint is
-    encountered, the continuation of the breakpoint is saved so that the computation may be restarted from the breakpoint
-    (more than once, if desired).
+    Этот механизм может быть основой для пакета точек останова, реализованного с помощью ~call/cc~; каждый раз, когда
+    встречается точка останова, продолжение точки останова сохраняется, так что вычисление может быть перезапущено с
+    точки останова (более одного раза, если это необходимо).
 
-    Continuations may be used to implement various forms of multitasking. The simple "light-weight process" mechanism
-    defined below allows multiple computations to be interleaved. Since it is nonpreemptive, it requires that each
-    process voluntarily "pause" from time to time in order to allow the others to run.
+    Продолжения могут быть использованы для реализации различных форм многозадачности. Простой механизм «облегченного
+    процесса», определенный ниже, позволяет чередовать несколько вычислений. Поскольку он не является вытесняющим, он
+    требует, чтобы каждый процесс время от времени добровольно «приостанавливался», чтобы другие могли работать.
 
 #+begin_src scheme
     (define lwp-list '())
@@ -3483,7 +3486,7 @@
             (start)))))
 #+end_src
 
-    The following light-weight processes cooperate to print an infinite sequence of lines containing "hey!".
+    Следующие легкие процессы взаимодействуют, чтобы напечатать бесконечную последовательность строк, содержащих "hey!".
 
 #+begin_src scheme
     (lwp (lambda () (let f () (pause) (display "h") (f))))
@@ -3498,35 +3501,35 @@
               ...
 #+end_src
 
-    See Section 12.11 for an implementation of engines, which support preemptive multitasking, with call/cc.
+    См. Раздел 12.11 для реализации механизмов, которые поддерживают вытесняющую многозадачность, с ~call/cc~.
 
 **** Упражнение 3.3.1
 
-     Use call/cc to write a program that loops indefinitely, printing a sequence of numbers beginning at zero. Do not use
-     any recursive procedures, and do not use any assignments.
+     Используйте ~call/cc~, чтобы написать программу, которая зацикливается бесконечно, печатая последовательность
+     чисел, начинающуюся с нуля. Не используйте никаких рекурсивных процедур и не используйте никаких присвоений.
 
 **** Упражнение 3.3.2
 
-     Rewrite product without call/cc, retaining the feature that no multiplications are performed if any of the list
-     elements are zero.
+     Перепишите ~product~ без ~call/cc~, сохранив функцию, при которой лишнее умножения не выполняются, если любой из
+     элементов списка равен нулю.
 
 **** Упражнение 3.3.3
 
-     What would happen if a process created by lwp as defined above were to terminate, i.e., simply return without
-     calling pause? Define a quit procedure that allows a process to terminate without otherwise affecting the lwp
-     system. Be sure to handle the case in which the only remaining process terminates.
+     Что произойдет, если процесс, созданный ~lwp~, как определено выше, завершится, то есть просто вернет значение без
+     вызова ~pause~? Определите процедуру выхода, которая позволяет завершать процесс, не влияя иначе на систему ~lwp~.
+     Обязательно разберитесь со случаем, когда единственный оставшийся процесс завершается.
 
 **** Упражнение 3.3.4
 
-     Each time lwp is called, the list of processes is copied because lwp uses append to add its argument to the end of
-     the process list. Modify the original lwp code to use the queue data type developed in Section 2.9 to avoid this
-     problem.
+     Каждый раз, когда вызывается ~lwp~, список процессов копируется, потому что ~lwp~ использует ~append~ для
+     добавления своего аргумента в конец списка процессов. Измените исходный код ~lwp~, чтобы использовать тип данных
+     очереди, разработанный в разделе 2.9, чтобы избежать этой проблемы.
 
 **** Упражнение 3.3.5
 
-     The light-weight process mechanism allows new processes to be created dynamically, although the example given in
-     this section does not do so. Design an application that requires new processes to be created dynamically and
-     implement it using the light-weight process mechanism.
+     Механизм облегченных процессов позволяет создавать новые процессы динамически, хотя пример, приведенный в этом
+     разделе, этого не делает. Придумайте приложение, которое требует динамического создания новых процессов, и
+     реализцйте его, используя механизм облегченных процессов.
 
 *** Continuation Passing Style
 
