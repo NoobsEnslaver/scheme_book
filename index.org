@@ -3531,16 +3531,16 @@
      разделе, этого не делает. Придумайте приложение, которое требует динамического создания новых процессов, и
      реализцйте его, используя механизм облегченных процессов.
 
-*** Continuation Passing Style
+*** Стиль передачи продолжений
 
-    As we discussed in the preceding section, a continuation waits for the value of each expression. In particular, a
-    continuation is associated with each procedure call. When one procedure invokes another via a nontail call, the
-    called procedure receives an implicit continuation that is responsible for completing what is left of the calling
-    procedure's body plus returning to the calling procedure's continuation. If the call is a tail call, the called
-    procedure simply receives the continuation of the calling procedure.
+    Как мы уже говорили в предыдущем разделе, продолжение ожидает значения каждого выражения. В частности, продолжения
+    связанные с каждым вызовом процедуры. Когда одна процедура вызывает другую посредством нехвостого вызова, вызываемая
+    процедура получает неявное продолжение, которое отвечает за завершение того, что осталось от тела вызывающей
+    процедуры, плюс возврат к продолжению вызывающей процедуры. Если вызов является хвостовым, вызываемая процедура
+    просто получает продолжение вызывающей процедуры.
 
-    We can make the continuations explicit by encapsulating "what to do" in an explicit procedural argument passed along
-    on each call. For example, the continuation of the call to f in
+    Мы можем сделать продолжения явными, заключив "что делать" в явный процедурный аргумент, передаваемый при каждом
+    вызове. Например, продолжение вызова ~f~ в
 
 #+begin_src scheme
     (letrec ([f (lambda (x) (cons 'a x))]
@@ -3549,10 +3549,10 @@
       (cons 'd (h '()))) → (d b a c)
 #+end_src
 
-    conses the symbol b onto the value returned to it, then returns the result of this cons to the continuation of the
-    call to g. This continuation is the same as the continuation of the call to h, which conses the symbol d onto the
-    value returned to it. We can rewrite this in continuation-passing style, or CPS, by replacing these implicit
-    continuations with explicit procedures.
+    помещает символ ~b~ в возвращаемое ему значение, а затем возвращает результат этих объединений в продолжение вызова
+    ~g~. Это продолжение аналогично продолжению вызова ~h~, который помещает символ ~d~ в возвращаемое ему значение. Мы
+    можем переписать это в стиле передачи продолжения, или /CPS/ (англ. continuation-passing style, стиль передачи
+    продолжений), заменив эти неявные продолжения явными процедурами.
 
 #+begin_src scheme
     (letrec ([f (lambda (x k) (k (cons 'a x)))]
@@ -3562,24 +3562,23 @@
       (h '() (lambda (v) (cons 'd v))))
 #+end_src
 
-    Like the implicit continuation of h and g in the preceding example, the explicit continuation passed to h and on to
-    g,
+    Как и неявное продолжение ~h~ и ~g~ в предыдущем примере, явное продолжение передается в ~h~ и ~g~,
 
 #+begin_src scheme
     (lambda (v) (cons 'd v))
 #+end_src
 
-    conses the symbol d onto the value passed to it. Similarly, the continuation passed to f,
+    добавляет символ ~d~ в значение, переданное ему. Аналогично, продолжение переданное ~f~,
 
 #+begin_src scheme
     (lambda (v) (k (cons 'b v)))
 #+end_src
 
-    conses b onto the value passed to it, then passes this on to the continuation of g.
+    добавляет ~b~ в переданное ему значение, а затем передает это в продолжение ~g~.
 
-    Expressions written in CPS are more complicated, of course, but this style of programming has some useful
-    applications. CPS allows a procedure to pass more than one result to its continuation, because the procedure that
-    implements the continuation can take any number of arguments.
+    Выражения, написанные на CPS, конечно, сложнее, но у этого стиля программирования есть несколько полезных
+    приложений. CPS позволяет процедуре передать более одного результата своему продолжению, поскольку процедура,
+    реализующая продолжение, может принимать любое количество аргументов.
 
 #+begin_src scheme
     (define car&cdr
@@ -3593,10 +3592,11 @@
     (car&cdr '(a b c a d) memv) → (a d)
 #+end_src
 
-    (This can be done with multiple values as well; see Section 5.8.) CPS also allows a procedure to take separate
-    "success" and "failure" continuations, which may accept different numbers of arguments. An example is integer-divide
-    below, which passes the quotient and remainder of its first two arguments to its third, unless the second argument
-    (the divisor) is zero, in which case it passes an error message to its fourth argument.
+    (Это также может быть сделано с несколькими значениями; см. Раздел 5.8.) CPS также позволяет процедуре принимать
+    отдельные продолжения "успех" и "неудача", которые могут принимать различное количество аргументов. Примером
+    является целочисленное деление ниже, которое передает частное и остаток первых двух аргументов своему третьему, если
+    только второй аргумент (делитель) не равен нулю, и в этом случае он передает сообщение об ошибке своему четвертому
+    аргументу.
 
 #+begin_src scheme
     (define integer-divide
@@ -3610,18 +3610,17 @@
     (integer-divide 10 0 list (lambda (x) x)) → "divide by zero"
 #+end_src
 
-    The procedure quotient, employed by integer-divide, returns the quotient of its two arguments, truncated toward
-    zero.
+    Процедура ~quotient~, используемая в ~integer-divide~, возвращает частное от двух его аргументов, усеченных до нуля.
 
-    Explicit success and failure continuations can sometimes help to avoid the extra communication necessary to separate
-    successful execution of a procedure from unsuccessful execution. Furthermore, it is possible to have multiple success
-    or failure continuations for different flavors of success or failure, each possibly taking different numbers and
-    types of arguments. See Sections 12.10 and 12.11 for extended examples that employ continuation-passing style.
+    Явные продолжения для успеха и неудачи иногда могут помочь избежать дополнительной коммуникации, необходимой для
+    отделения успешного выполнения процедуры от неудачного выполнения. Кроме того, возможно иметь несколько успешных или
+    неудачных продолжений для разных разновидностей успеха или неудачи, каждый из которых может принимать разное число и
+    тип аргументов. См. разделы 12.10 и 12.11 для расширенных примеров, которые используют стиль передачи продолжения.
 
-    At this point you might be wondering about the relationship between CPS and the continuations captured via
-    call/cc. It turns out that any program that uses call/cc can be rewritten in CPS without call/cc, but a total rewrite
-    of the program (sometimes including even system-defined primitives) might be necessary. Try to convert the product
-    example on page 75 into CPS before looking at the version below.
+    В этот момент вы можете задаться вопросом о связи между CPS и продолжениями, записанными через
+    ~call/cc~. Оказывается, что любая программа, использующая ~call/cc~, может быть переписана в CPS без ~call/cc~, но
+    может потребоваться полное переписывание программы (иногда даже с учетом системных примитивов). Попробуйте
+    преобразовать пример ~product~ из главы 3.3 в CPS, прежде чем смотреть на версию ниже.
 
 #+begin_src scheme
     (define product
@@ -3641,16 +3640,16 @@
 
 **** Упражнение 3.4.1
 
-     Rewrite the reciprocal example first given in Section 2.1 to accept both success and failure continuations, like
-     integer-divide above.
+     Перепишите пример ~reciprocal~, впервые приведенный в Разделе 2.1, чтобы принимать как успешные, так и неудачные
+     продолжения, как это сделано в ~integer-divide~ выше.
 
 **** Упражнение 3.4.2
 
-     Rewrite the retry example from page 75 to use CPS.
+     Перепишите пример с ~retry~ используя CPS.
 
 **** Упражнение 3.4.3
 
-     Rewrite the following expression in CPS to avoid using call/cc.
+     Перепишите следующее выражение в CPS, чтобы избежать использования ~call/cc~.
 
 #+begin_src scheme
      (define reciprocals
