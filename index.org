@@ -3666,10 +3666,10 @@
      (reciprocals '(2 1/3 0 5 1/4)) → "zero found"
 #+end_src
 
-*** Internal Definitions
+*** Внутренние объявления
 
-    In Section 2.6, we discussed top-level definitions. Definitions may also appear at the front of a lambda, let, or
-    letrec body, in which case the bindings they create are local to the body.
+    В разделе 2.6 мы обсудили определения верхнего уровня. Определения могут также появляться в начале тела
+    лямбда-выражения, ~let~ или ~letrec~, и в этом случае создаваемые ими привязки являются локальными для тела.
 
 #+begin_src scheme
     (define f (lambda (x) (* x x)))
@@ -3679,8 +3679,8 @@
     (f 4) → 16
 #+end_src
 
-    Procedures bound by internal definitions can be mutually recursive, as with letrec. For example, we can rewrite the
-    even? and odd? example from Section 3.2 using internal definitions as follows.
+    Процедуры, связанные внутренними определениями, могут быть взаимно рекурсивными, как с ~letrec~. Например, мы можем
+    переписать ~even?~ и ~odd?~ из примера из раздела 3.2 с использованием внутренних определений следующим образом.
 
 #+begin_src scheme
     (let ()
@@ -3695,8 +3695,8 @@
       (even? 20)) → #t
 #+end_src
 
-    Similarly, we can replace the use of letrec to bind race with an internal definition of race in our first definition
-    of list?.
+    Точно так же мы можем заменить использование ~letrec~ для связывания ~race~ внутренним определением ~race~ в нашем
+    первом определении ~list?~.
 
 #+begin_src scheme
     (define list?
@@ -3713,11 +3713,11 @@
         (race x x)))
 #+end_src
 
-    In fact, internal variable definitions and letrec are practically interchangeable. The only difference, other than
-    the obvious difference in syntax, is that variable definitions are guaranteed to be evaluated from left to right,
-    while the bindings of a letrec may be evaluated in any order. So we cannot quite replace a lambda, let, or letrec
-    body containing internal definitions with a letrec expression. We can, however, use letrec*, which, like let*,
-    guarantees left-to-right evaluation order. A body of the form
+    Фактически, внутреннее определение переменных и ~letrec~ практически взаимозаменяемы. Единственная разница, кроме
+    очевидной разницы в синтаксисе, состоит в том, что определения переменных гарантированно будут выполняться слева
+    направо, а связывания ~letrec~ могут выполняться в любом порядке. Поэтому мы не можем полностью заменить тело
+    лямбда-выражения, ~let~ или ~letrec~, содержащие внутренние определения, выражением ~letrec~. Однако мы можем
+    использовать ~letrec*~, который, как и ~let*~, гарантирует порядок выполнения слева направо. Тело следующего вида
 
 #+begin_src scheme
     (define var expr0)
@@ -3727,20 +3727,20 @@
     ...
 #+end_src
 
-    is equivalent to a letrec* expression binding the defined variables to the associated values in a body comprising the
-    expressions.
+    эквивалентно выражению ~letrec*~, связывающему определенные переменные со ассоциативными значениями в теле,
+    содержащем выражения.
 
 #+begin_src scheme
     (letrec* ((var expr0) ...) expr1 expr2 ...)
 #+end_src
 
-    Conversely, a letrec* of the form
+    И наоборот, ~letrec*~ вида
 
 #+begin_src scheme
     (letrec* ((var expr0) ...) expr1 expr2 ...)
 #+end_src
 
-    can be replaced with a let expression containing internal definitions and the expressions from the body as follows.
+    может быть заменено выражением ~let~, содержащим внутренние определения и выражения из тела следующим образом.
 
 #+begin_src scheme
     (let ()
@@ -3752,12 +3752,14 @@
     )
 #+end_src
 
-    The seeming lack of symmetry between these transformations is due to the fact that letrec* expressions can appear
-    anywhere an expression is valid, whereas internal definitions can appear only at the front of a body. Thus, in
-    replacing a letrec* with internal definitions, we must generally introduce a let expression to hold the definitions.
+    Кажущееся отсутствие симметрии между этими преобразованиями связано с тем, что выражения ~letrec*~ могут появляться
+    везде, где выражение допустимо, тогда как внутренние определения могут появляться только в начале тела. Таким
+    образом, заменяя ~letrec*~ внутренними определениями, мы обычно должны вводить выражение ~let~ для хранения
+    определений.
 
-    Another difference between internal definitions and letrec or letrec* is that syntax definitions may appear among the
-    internal definitions, while letrec and letrec* bind only variables.
+    Другое различие между внутренними определениями и ~letrec~ или ~letrec*~ заключается в том, что синтаксические
+    определения могут появляться среди внутренних определений, тогда как ~letrec~ и ~letrec*~ связывают только
+    переменные.
 
 #+begin_src scheme
     (let ([x 3])
@@ -3768,13 +3770,14 @@
       x) → 6
 #+end_src
 
-    The scope of a syntactic extension established by an internal syntax definition, as with an internal variable
-    definition, is limited to the body in which the syntax definition appears.
+    Область действия синтаксического расширения, созданного внутренним определением синтаксиса, так же как и область
+    определения внутренней переменной, ограничены телом, в котором появляется определение.
 
-    Internal definitions may be used in conjunction with top-level definitions and assignments to help modularize
-    programs. Each module of a program should make visible only those bindings that are needed by other modules, while
-    hiding other bindings that would otherwise clutter the top-level namespace and possibly result in unintended use or
-    redefinition of those bindings. A common way of structuring a module is shown below.
+    Внутренние определения могут использоваться вместе с определениями и назначениями верхнего уровня, что помогает
+    разбивать программаму на модули. Каждый модуль программы должен делать видимыми только те привязки, которые нужны
+    другим модулям, в то же время скрывая другие привязки, которые в противном случае загромождают пространство имен
+    верхнего уровня и, возможно, приводят к непреднамеренному использованию или переопределению этих привязок. Общий
+    способ структурирования модуля показан ниже.
 
 #+begin_src scheme
     (define export-var #f)
@@ -3789,17 +3792,18 @@
     )
 #+end_src
 
-    The first set of definitions establish top-level bindings for the variables we desire to export (make visible
-    globally). The second set of definitions establish local bindings visible only within the module. The expressions
-    init-expr ... perform any initialization that must occur after the local bindings have been established. Finally, the
-    set! expressions assign the exported variables to the appropriate values.
+    Первый набор определений устанавливает привязки верхнего уровня для переменных, которые мы хотим экспортировать
+    (сделать видимыми глобально). Второй набор определений устанавливает локальные привязки, видимые только внутри
+    модуля. Выражения ~init-expr ...~ выполняют любую инициализацию, которая должна произойти после установления
+    локальных связываний. Наконец ~set!~ выражения присваивают экспортируемым переменным соответствующие значения.
 
-    An advantage of this form of modularization is that the bracketing let expression may be removed or "commented out"
-    during program development, making the internal definitions top-level to facilitate interactive testing. This form of
-    modularization also has several disadvantages, as we discuss in the next section.
+    Преимущество этой формы модульности заключается в том, что охватывающее выражение ~let~ может быть удалено или
+    закомментировано во время разработки программы, что делает внутренние определения определениями верхнего уровня, для
+    облегчения интерактивного тестирования. Эта форма модульности также имеет несколько недостатков, как мы обсудим в
+    следующем разделе.
 
-    The following module exports a single variable, calc, which is bound to a procedure that implements a simple
-    four-function calculator.
+    Следующий модуль экспортирует одну переменную ~calc~, которая связана с процедурой, реализующей простой
+    четырехфункциональный калькулятор.
 
 #+begin_src scheme
     (define calc #f)
@@ -3836,10 +3840,10 @@
     (calc '(mul (add 1 -2) (pow 2 7))) → ("invalid operator" pow)
 #+end_src
 
-    This example uses a case expression to determine which operator to apply. case is similar to cond except that the
-    test is always the same: (memv val (key ...)), where val is the value of the first case subform and (key ...) is the
-    list of items at the front of each case clause. The case expression in the example above could be rewritten using
-    cond as follows.
+    В этом примере используется выражение ~case~, чтобы определить, какой оператор применить. ~case~ аналогичен ~cond~,
+    за исключением того, что тест всегда одинаков: ~(memv val (key ...))~, где ~val~ - значение первой подформы ~case~,
+    а ~(key ...)~ - список элементов в начале каждого случая ~case~. Выражение ~case~ в приведенном выше примере можно
+    переписать с помощью ~cond~ следующим образом.
 
 #+begin_src scheme
     (let ([temp op])
@@ -3853,25 +3857,28 @@
 
 **** Упражнение 3.5.1
 
-     Redefine complain in the calc example as an equivalent syntactic extension.
+     Переопределите ~complain~ в примере ~calc~ как эквивалентное синтаксическое расширение.
 
 **** Упражнение 3.5.2
 
-     In the calc example, the error continuation ek is passed along on each call to apply-op, complain, and do-calc. Move
-     the definitions of apply-op, complain, and do-calc inward as far as necessary to eliminate the ek argument from the
-     definitions and applications of these procedures.
+     В примере ~calc~ продолжение ошибки ~ek~ передается при каждом вызове ~apply-op~, ~complain~ и
+     ~do-calc~. Переместите определения ~apply-op~, ~complain~ и ~do-calc~ внутрь, насколько это необходимо, чтобы
+     исключить аргумент ~ek~ из определений и применений этих процедур.
 
 **** Упражнение 3.5.3
 
-     Eliminate the call/cc from calc and rewrite complain to raise an exception using assertion-violation.
+     Исключите ~call/cc~ из ~calc~ и перепишите ~complain~, чтобы вызвать исключение с использованием
+     ~assertion-violation~.
 
 **** Упражнение 3.5.4
 
-     Extend calc to handle unary minus expressions, e.g.,
+     Расширьте ~calc~ для обработки унарных выражений ~minus~, например,
 
+#+begin_src scheme
      (calc '(minus (add 2 3))) → -5
+#+end_src
 
-     and other operators of your choice.
+     и другие операторы на ваш выбор.
 
 *** Libraries
 
