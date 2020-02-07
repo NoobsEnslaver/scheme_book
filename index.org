@@ -4021,29 +4021,2005 @@
 [[./images/ch4.png]]
 
 ** Procedures and Variable Bindings
+   Procedures and variable bindings are the fundamental building blocks of Scheme programs. This chapter describes the
+   small set of syntactic forms whose primary purpose is to create procedures and manipulate variable bindings. It
+   begins with the two most fundamental building blocks of Scheme programs: variable references and lambda expressions,
+   and continues with descriptions of the variable binding and assignment forms such as define, letrec, let-values, and
+   set!.
+
+   Various other forms that bind or assign variables for which the binding or assignment is not the primary purpose
+   (such as named let) are found in Chapter 5.
+
 *** Variable References
+
+    syntax: variable
+    returns: the value of variable
+
+    Any identifier appearing as an expression in a program is a variable if a visible variable binding for the
+    identifier exists, e.g., the identifier appears within the scope of a binding created by define, lambda, let, or
+    some other variable-binding construct.
+
+#+begin_src scheme
+list → #<procedure>
+(define x 'a)
+(list x x) → (a a)
+(let ([x 'b])
+  (list x x)) → (b b)
+(let ([let 'let]) let) → let
+#+end_src
+
+    It is a syntax violation for an identifier reference to appear within a library form or top-level program if it is
+    not bound as a variable, keyword, record name, or other entity. Since the scope of the definitions in a library,
+    top-level program, lambda, or other local body is the entire body, it is not necessary for the definition of a
+    variable to appear before its first reference appears, as long as the reference is not actually evaluated until the
+    definition has been completed. So, for example, the reference to g within the definition of f below
+
+#+begin_src scheme
+(define f
+  (lambda (x)
+    (g x)))
+(define g
+  (lambda (x)
+    (+ x x)))
+#+end_src
+
+    is okay, but the reference to g in the definition of q below is not.
+
+#+begin_src scheme
+(define q (g 3))
+(define g
+  (lambda (x)
+    (+ x x)))
+#+end_src
+
 *** Lambda
+
+    syntax: (lambda formals body1 body2 ...)
+    returns: a procedure
+    libraries: (rnrs base), (rnrs)
+
+    The lambda syntactic form is used to create procedures. Any operation that creates a procedure or establishes local
+    variable bindings is ultimately defined in terms of lambda or case-lambda.
+
+    The variables in formals are the formal parameters of the procedure, and the sequence of subforms body1 body2 ... is
+    its body.
+
+    The body may begin with a sequence of definitions, in which case the bindings created by the definitions are local
+    to the body. If definitions are present, the keyword bindings are used and discarded while expanding the body, and
+    the body is expanded into a letrec* expression formed from the variable definitions and the remaining expressions,
+    as described on page 292. The remainder of this description of lambda assumes that this transformation has taken
+    place, if necessary, so that the body is a sequence of expressions without definitions.
+
+    When the procedure is created, the bindings of all variables occurring free within the body, excluding the formal
+    parameters, are retained with the procedure. Subsequently, whenever the procedure is applied to a sequence of actual
+    parameters, the formal parameters are bound to the actual parameters, the retained bindings are restored, and the
+    body is evaluated.
+
+    Upon application, the formal parameters defined by formals are bound to the actual parameters as follows.
+
+    + If formals is a proper list of variables, e.g., (x y z), each variable is bound to the corresponding actual
+      parameter. An exception with condition type &assertion is raised if too few or too many actual parameters are
+      supplied.
+    + If formals is a single variable (not in a list), e.g., z, it is bound to a list of the actual parameters.
+    + If formals is an improper list of variables terminated by a variable, e.g., (x y . z), each variable but the last
+      is bound to the corresponding actual parameter. The last variable is bound to a list of the remaining actual
+      parameters. An exception with condition type &assertion is raised if too few actual parameters are supplied.
+
+    When the body is evaluated, the expressions in the body are evaluated in sequence, and the procedure returns the
+    values of the last expression.
+
+    Procedures do not have a printed representation in the usual sense. Scheme systems print procedures in different
+    ways; this book uses the notation #<procedure>.
+
+#+begin_src scheme
+(lambda (x) (+ x 3)) → #<procedure>
+((lambda (x) (+ x 3)) 7) → 10
+((lambda (x y) (* x (+ x y))) 7 13) → 140
+((lambda (f x) (f x x)) + 11) → 22
+((lambda () (+ 3 4))) → 7
+
+((lambda (x . y) (list x y))
+ 28 37) → (28 (37))
+((lambda (x . y) (list x y))
+ 28 37 47 28) → (28 (37 47 28))
+((lambda (x y . z) (list x y z))
+ 1 2 3 4) → (1 2 (3 4))
+((lambda x x) 7 13) → (7 13)
+#+end_src
+
 *** Case-Lambda
+
+    A Scheme lambda expression always produces a procedure with a fixed number of arguments or with an indefinite number
+    of arguments greater than or equal to a certain number. In particular,
+
+#+begin_src scheme
+(lambda (var1 ... varn) body1 body2 ...)
+#+end_src
+
+    accepts exactly n arguments,
+
+#+begin_src scheme
+(lambda r body1 body2 ...)
+#+end_src
+
+    accepts zero or more arguments, and
+
+#+begin_src scheme
+(lambda (var1 ... varn . r) body1 body2 ...)
+#+end_src
+
+    accepts n or more arguments.
+
+    lambda cannot directly produce, however, a procedure that accepts, say, either two or three arguments. In
+    particular, procedures that accept optional arguments are not supported directly by lambda. The latter form of
+    lambda shown above can be used, in conjunction with length checks and compositions of car and cdr, to implement
+    procedures with optional arguments, though at the cost of clarity and efficiency.
+
+    The case-lambda syntactic form directly supports procedures with optional arguments as well as procedures with fixed
+    or indefinite numbers of arguments. case-lambda is based on the lambda* syntactic form introduced in the article "A
+    New Approach to Procedures with Variable Arity" [11].
+
+    syntax: (case-lambda clause ...)
+    returns: a procedure
+    libraries: (rnrs control), (rnrs)
+
+    A case-lambda expression consists of a set of clauses, each resembling a lambda expression. Each clause has the form
+    below.
+
+#+BEGIN_EXAMPLE
+[formals body1 body2 ...]
+#+END_EXAMPLE
+
+    The formal parameters of a clause are defined by formals in the same manner as for a lambda expression. The number
+    of arguments accepted by the procedure value of a case-lambda expression is determined by the numbers of arguments
+    accepted by the individual clauses.
+
+    When a procedure created with case-lambda is invoked, the clauses are considered in order. The first clause that
+    accepts the given number of actual parameters is selected, the formal parameters defined by its formals are bound to
+    the corresponding actual parameters, and the body is evaluated as described for lambda above. If formals in a clause
+    is a proper list of identifiers, then the clause accepts exactly as many actual parameters as there are formal
+    parameters (identifiers) in formals. As with a lambda formals, a case-lambda clause formals may be a single
+    identifier, in which case the clause accepts any number of arguments, or an improper list of identifiers terminated
+    by an identifier, in which case the clause accepts any number of arguments greater than or equal to the number of
+    formal parameters excluding the terminating identifier. If no clause accepts the number of actual parameters
+    supplied, an exception with condition type &assertion is raised.
+
+    The following definition for make-list uses case-lambda to support an optional fill parameter.
+
+#+begin_src scheme
+(define make-list
+  (case-lambda
+    [(n) (make-list n #f)]
+    [(n x)
+     (do ([n n (- n 1)] [ls '() (cons x ls)])
+         ((zero? n) ls))]))
+#+end_src
+
+    The substring procedure may be extended with case-lambda to accept either no end index, in which case it defaults to
+    the end of the string, or no start and end indices, in which case substring is equivalent to string-copy:
+
+#+begin_src scheme
+(define substring1
+  (case-lambda
+    [(s) (substring1 s 0 (string-length s))]
+    [(s start) (substring1 s start (string-length s))]
+    [(s start end) (substring s start end)]))
+#+end_src
+
+    It is also possible to default the start index rather than the end index when only one index is supplied:
+
+#+begin_src scheme
+(define substring2
+  (case-lambda
+    [(s) (substring2 s 0 (string-length s))]
+    [(s end) (substring2 s 0 end)]
+    [(s start end) (substring s start end)]))
+#+end_src
+
+    It is even possible to require that both or neither of the start and end indices be supplied, simply by leaving out
+    the middle clause:
+
+#+begin_src scheme
+(define substring3
+  (case-lambda
+    [(s) (substring3 s 0 (string-length s))]
+    [(s start end) (substring s start end)]))
+#+end_src
+
 *** Local Binding
+
+    syntax: (let ((var expr) ...) body1 body2 ...)
+    returns: the values of the final body expression
+    libraries: (rnrs base), (rnrs)
+
+    let establishes local variable bindings. Each variable var is bound to the value of the corresponding expression
+    expr. The body of the let, in which the variables are bound, is the sequence of subforms body1 body2 ... and is
+    processed and evaluated like a lambda body.
+
+    The forms let, let*, letrec, and letrec* (the others are described after let) are similar but serve slightly
+    different purposes. With let, in contrast with let*, letrec, and letrec*, the expressions expr ... are all outside
+    the scope of the variables var .... Also, in contrast with let* and letrec*, no ordering is implied for the
+    evaluation of the expressions expr .... They may be evaluated from left to right, from right to left, or in any
+    other order at the discretion of the implementation. Use let whenever the values are independent of the variables
+    and the order of evaluation is unimportant.
+
+#+begin_src scheme
+(let ([x (* 3.0 3.0)] [y (* 4.0 4.0)])
+  (sqrt (+ x y))) → 5.0
+
+(let ([x 'a] [y '(b c)])
+  (cons x y)) → (a b c)
+
+(let ([x 0] [y 1])
+  (let ([x y] [y x])
+    (list x y))) → (1 0)
+#+end_src
+
+    The following definition of let shows the typical derivation of let from lambda.
+
+#+begin_src scheme
+(define-syntax let
+  (syntax-rules ()
+    [(_ ((x e) ...) b1 b2 ...)
+     ((lambda (x ...) b1 b2 ...) e ...)]))
+#+end_src
+
+    Another form of let, named let, is described in Section 5.4, and a definition of the full let can be found on
+    page 312.
+
+    syntax: (let* ((var expr) ...) body1 body2 ...)
+    returns: the values of the final body expression
+    libraries: (rnrs base), (rnrs)
+
+    let* is similar to let except that the expressions expr ... are evaluated in sequence from left to right, and each
+    of these expressions is within the scope of the variables to the left. Use let* when there is a linear dependency
+    among the values or when the order of evaluation is important.
+
+#+begin_src scheme
+(let* ([x (* 5.0 5.0)]
+       [y (- x (* 4.0 4.0))])
+  (sqrt y)) → 3.0
+
+(let ([x 0] [y 1])
+  (let* ([x y] [y x])
+    (list x y))) → (1 1)
+#+end_src
+
+    Any let* expression may be converted to a set of nested let expressions. The following definition of let*
+    demonstrates the typical transformation.
+
+#+begin_src scheme
+(define-syntax let*
+  (syntax-rules ()
+    [(_ () e1 e2 ...)
+     (let () e1 e2 ...)]
+    [(_ ((x1 v1) (x2 v2) ...) e1 e2 ...)
+     (let ((x1 v1))
+       (let* ((x2 v2) ...) e1 e2 ...))]))
+#+end_src
+
+    syntax: (letrec ((var expr) ...) body1 body2 ...)
+    returns: the values of the final body expression
+    libraries: (rnrs base), (rnrs)
+
+    letrec is similar to let and let*, except that all of the expressions expr ... are within the scope of all of the
+    variables var .... letrec allows the definition of mutually recursive procedures.
+
+#+begin_src scheme
+(letrec ([sum (lambda (x)
+                (if (zero? x)
+                    0
+                    (+ x (sum (- x 1)))))])
+  (sum 5)) → 15
+#+end_src
+
+    The order of evaluation of the expressions expr ... is unspecified, so a program must not evaluate a reference to
+    any of the variables bound by the letrec expression before all of the values have been computed. (Occurrence of a
+    variable within a lambda expression does not count as a reference, unless the resulting procedure is applied before
+    all of the values have been computed.) If this restriction is violated, an exception with condition type &assertion
+    is raised.
+
+    An expr should not return more than once. That is, it should not return both normally and via the invocation of a
+    continuation obtained during its evaluation, and it should not return twice via two invocations of such a
+    continuation. Implementations are not required to detect a violation of this restriction, but if they do, an
+    exception with condition type &assertion is raised.
+
+    Choose letrec over let or let* when there is a circular dependency among the variables and their values and when the
+    order of evaluation is unimportant. Choose letrec* over letrec when there is a circular dependency and the bindings
+    need to be evaluated from left to right.
+
+    A letrec expression of the form
+
+#+begin_src scheme
+(letrec ((var expr) ...) body1 body2 ...)
+#+end_src
+
+    may be expressed in terms of let and set! as
+
+#+begin_src scheme
+(let ((var #f) ...)
+  (let ((temp expr) ...)
+    (set! var temp) ...
+    (let () body1 body2 ...)))
+#+end_src
+
+    where temp ... are fresh variables, i.e., ones that do not already appear in the letrec expression, one for each
+    (var expr) pair. The outer let expression establishes the variable bindings. The initial value given each variable
+    is unimportant, so any value suffices in place of #f. The bindings are established first so that expr ... may
+    contain occurrences of the variables, i.e., so that the expressions are computed within the scope of the
+    variables. The middle let evaluates the values and binds them to the temporary variables, and the set! expressions
+    assign each variable to the corresponding value. The inner let is present in case the body contains internal
+    definitions.
+
+    A definition of letrec that uses this transformation is shown on page 310.
+
+    This transformation does not enforce the restriction that the expr expressions must not evaluate any references of
+    or assignments to the variables. More elaborate transformations that enforce this restriction and actually produce
+    more efficient code are possible [31].
+
+    syntax: (letrec* ((var expr) ...) body1 body2 ...)
+    returns: the values of the final body expression
+    libraries: (rnrs base), (rnrs)
+
+    letrec* is similar to letrec, except that letrec* evaluates expr ... in sequence from left to right. While programs
+    must still not evaluate a reference to any var before the corresponding expr has been evaluated, references to var
+    may be evaluated any time thereafter, including during the evaluation of the expr of any subsequent binding.
+
+    A letrec* expression of the form
+
+#+begin_src scheme
+(letrec* ((var expr) ...) body1 body2 ...)
+#+end_src
+
+    may be expressed in terms of let and set! as
+
+#+begin_src scheme
+(let ((var #f) ...)
+  (set! var expr) ...
+  (let () body1 body2 ...))
+#+end_src
+
+    The outer let expression creates the bindings, each assignment evaluates an expression and immediately sets the
+    corresponding variable to its value, in sequence, and the inner let evaluates the body. let is used in the latter
+    case rather than begin since the body may include internal definitions as well as expressions.
+
+#+begin_src scheme
+(letrec* ([sum (lambda (x)
+                 (if (zero? x)
+                     0
+                     (+ x (sum (- x 1)))))]
+          [f (lambda () (cons n n-sum))]
+          [n 15]
+          [n-sum (sum n)])
+  (f)) → (15 . 120)
+
+(letrec* ([f (lambda () (lambda () g))]
+          [g (f)])
+  (eq? (g) g)) → #t
+
+(letrec* ([g (f)]
+          [f (lambda () (lambda () g))])
+  (eq? (g) g)) → exception: attempt to reference undefined variable f
+#+end_src
+
 *** Multiple Values
+
+    syntax: (let-values ((formals expr) ...) body1 body2 ...)
+    syntax: (let*-values ((formals expr) ...) body1 body2 ...)
+    returns: the values of the final body expression
+    libraries: (rnrs base), (rnrs)
+
+    let-values is a convenient way to receive multiple values and bind them to variables. It is structured like let but
+    permits an arbitrary formals list (like lambda) on each left-hand side. let*-values is similar but performs the
+    bindings in left-to-right order, as with let*. An exception with condition type &assertion is raised if the number
+    of values returned by an expr is not appropriate for the corresponding formals, as described in the entry for lambda
+    above. A definition of let-values is given on page 310.
+
+#+begin_src scheme
+(let-values ([(a b) (values 1 2)] [c (values 1 2 3)])
+  (list a b c)) → (1 2 (1 2 3))
+
+(let*-values ([(a b) (values 1 2)] [(a b) (values b a)])
+  (list a b)) → (2 1)
+#+end_src
+
 *** Variable Definitions
+
+    syntax: (define var expr)
+    syntax: (define var)
+    syntax: (define (var0 var1 ...) body1 body2 ...)
+    syntax: (define (var0 . varr) body1 body2 ...)
+    syntax: (define (var0 var1 var2 ... . varr) body1 body2 ...)
+    libraries: (rnrs base), (rnrs)
+
+    In the first form, define creates a new binding of var to the value of expr. The expr should not return more than
+    once. That is, it should not return both normally and via the invocation of a continuation obtained during its
+    evaluation, and it should not return twice via two invocations of such a continuation. Implementations are not
+    required to detect a violation of this restriction, but if they do, an exception with condition type &assertion is
+    raised.
+
+    The second form is equivalent to (define var unspecified), where unspecified is some unspecified value. The
+    remaining are shorthand forms for binding variables to procedures; they are identical to the following definition in
+    terms of lambda.
+
+#+begin_src scheme
+(define var
+  (lambda formals
+    body1 body2 ...))
+#+end_src
+
+    where formals is (var1 ...), varr, or (var1 var2 ... . varr) for the third, fourth, and fifth define formats.
+
+    Definitions may appear at the front of a library body, anywhere among the forms of a top-level-program body, and at
+    the front of a lambda or case-lambda body or the body of any form derived from lambda, e.g., let, or letrec*. Any
+    body that begins with a sequence of definitions is transformed during macro expansion into a letrec* expression as
+    described on page 292.
+
+    Syntax definitions may appear along with variable definitions wherever variable definitions may appear; see Chapter 8.
+
+#+begin_src scheme
+(define x 3)
+x → 3
+
+(define f
+  (lambda (x y)
+    (* (+ x y) 2)))
+(f 5 4) → 18
+
+(define (sum-of-squares x y)
+  (+ (* x x) (* y y)))
+(sum-of-squares 3 4) → 25
+
+(define f
+  (lambda (x)
+    (+ x 1)))
+(let ([x 2])
+  (define f
+    (lambda (y)
+      (+ y x)))
+  (f 3)) → 5
+(f 3) → 4
+#+end_src
+
+    A set of definitions may be grouped by enclosing them in a begin form. Definitions grouped in this manner may appear
+    wherever ordinary variable and syntax definitions may appear. They are treated as if written separately, i.e.,
+    without the enclosing begin form. This feature allows syntactic extensions to expand into groups of definitions.
+
+#+begin_src scheme
+(define-syntax multi-define-syntax
+  (syntax-rules ()
+    [(_ (var expr) ...)
+     (begin
+       (define-syntax var expr)
+       ...)]))
+(let ()
+  (define plus
+    (lambda (x y)
+        (if (zero? x)
+            y
+            (plus (sub1 x) (add1 y)))))
+  (multi-define-syntax
+    (add1 (syntax-rules () [(_ e) (+ e 1)]))
+    (sub1 (syntax-rules () [(_ e) (- e 1)])))
+  (plus 7 8)) → 15
+#+end_src
+
+    Many implementations support an interactive "top level" in which variable and other definitions may be entered
+    interactively or loaded from files. The behavior of these top-level definitions is outside the scope of the Revised6
+    Report, but as long as top-level variables are defined before any references or assignments to them are evaluated,
+    the behavior is consistent across most implementations. So, for example, the reference to g in the top-level
+    definition of f below is okay if g is not already defined, and g is assumed to name a variable to be defined at some
+    later point.
+
+#+begin_src scheme
+(define f
+  (lambda (x)
+    (g x)))
+#+end_src
+
+    If this is then followed by a definition of g before f is evaluated, the assumption that g would be defined as a
+    variable is proven correct, and a call to f works as expected.
+
+#+begin_src scheme
+(define g
+  (lambda (x)
+    (+ x x)))
+(f 3) → 6
+#+end_src
+
+    If g were defined instead as the keyword for a syntactic extension, the assumption that g would be bound as a
+    variable is proven false, and if f is not redefined before it is invoked, the implementation is likely to raise an
+    exception.
+
 *** Assignment
 
+    syntax: (set! var expr)
+    returns: unspecified
+    libraries: (rnrs base), (rnrs)
 
+    set! does not establish a new binding for var but rather alters the value of an existing binding. It first evaluates
+    expr, then assigns var to the value of expr. Any subsequent reference to var within the scope of the altered binding
+    evaluates to the new value.
+
+    Assignments are not employed as frequently in Scheme as in most other languages, but they are useful for implementing state changes.
+
+#+begin_src scheme
+(define flip-flop
+  (let ([state #f])
+    (lambda ()
+      (set! state (not state))
+      state)))
+
+(flip-flop) → #t
+(flip-flop) → #f
+(flip-flop) → #t
+#+end_src
+
+    Assignments are also useful for caching values. The example below uses a technique called memoization, in which a
+    procedure records the values associated with old input values so it need not recompute them, to implement a fast
+    version of the otherwise exponential doubly recursive definition of the Fibonacci function (see page 69).
+
+#+begin_src scheme
+(define memoize
+  (lambda (proc)
+    (let ([cache '()])
+      (lambda (x)
+        (cond
+          [(assq x cache) => cdr]
+          [else
+           (let ([ans (proc x)])
+             (set! cache (cons (cons x ans) cache))
+             ans)])))))
+
+(define fibonacci
+  (memoize
+    (lambda (n)
+      (if (< n 2)
+          1
+          (+ (fibonacci (- n 1)) (fibonacci (- n 2)))))))
+
+(fibonacci 100) → 573147844013817084101
+#+end_src
 
 #+LATEX: \newpage
 [[./images/ch5.png]]
 
 ** Control Operations
+
+   This chapter introduces the syntactic forms and procedures that serve as control structures for Scheme programs, The
+   first section covers the most basic control structure, procedure application, and the remaining sections cover
+   sequencing, conditional evaluation, recursion, mapping, continuations, delayed evaluation, multiple values, and
+   evaluation of programs constructed at run time.
+
 *** Procedure Application
+
+    syntax: (expr0 expr1 ...)
+    returns: values of applying the value of expr0 to the values of expr1 ...
+
+    Procedure application is the most basic Scheme control structure. Any structured form without a syntax keyword in
+    the first position is a procedure application. The expressions expr0 and expr1 ... are evaluated; each should
+    evaluate to a single value. After each of these expressions has been evaluated, the value of expr0 is applied to the
+    values of expr1 .... If expr0 does not evaluate to a procedure, or if the procedure does not accept the number of
+    arguments provided, an exception with condition type &assertion is raised.
+
+    The order in which the procedure and argument expressions are evaluated is unspecified. It may be left to right,
+    right to left, or any other order. The evaluation is guaranteed to be sequential, however: whatever order is chosen,
+    each expression is fully evaluated before evaluation of the next is started.
+
+#+begin_src scheme
+(+ 3 4) → 7
+
+((if (odd? 3) + -) 6 2) → 8
+
+((lambda (x) x) 5) → 5
+
+(let ([f (lambda (x) (+ x x))])
+  (f 8)) → 16
+#+end_src
+
+    procedure: (apply procedure obj ... list)
+    returns: the values of applying procedure to obj ... and the elements of list
+    libraries: (rnrs base), (rnrs)
+
+    apply invokes procedure, passing the first obj as the first argument, the second obj as the second argument, and so
+    on for each object in obj ..., and passing the elements of list in order as the remaining arguments. Thus, procedure
+    is called with as many arguments as there are objs plus elements of list.
+
+    apply is useful when some or all of the arguments to be passed to a procedure are in a list, since it frees the
+    programmer from explicitly destructuring the list.
+
+#+begin_src scheme
+(apply + '(4 5)) → 9
+
+(apply min '(6 8 3 2 5)) → 2
+
+(apply min  5 1 3 '(6 8 3 2 5)) → 1
+
+(apply vector 'a 'b '(c d e)) → #(a b c d e)
+
+(define first
+  (lambda (ls)
+    (apply (lambda (x . y) x) ls)))
+(define rest
+  (lambda (ls)
+    (apply (lambda (x . y) y) ls)))
+(first '(a b c d)) → a
+(rest '(a b c d)) → (b c d)
+
+(apply append
+  '(1 2 3)
+  '((a b) (c d e) (f))) → (1 2 3 a b c d e f)
+#+end_src
+
 *** Sequencing
+
+    syntax: (begin expr1 expr2 ...)
+    returns: the values of the last subexpression
+    libraries: (rnrs base), (rnrs)
+
+    The expressions expr1 expr2 ... are evaluated in sequence from left to right. begin is used to sequence assignments,
+    input/output, or other operations that cause side effects.
+
+#+begin_src scheme
+(define x 3)
+(begin
+  (set! x (+ x 1))
+  (+ x x)) → 8
+#+end_src
+
+    A begin form may contain zero or more definitions in place of the expressions expr1 expr2 ..., in which case it is
+    considered to be a definition and may appear only where definitions are valid.
+
+#+begin_src scheme
+(let ()
+  (begin (define x 3) (define y 4))
+  (+ x y)) → 7
+#+end_src
+
+    This form of begin is primarily used by syntactic extensions that must expand into multiple definitions. (See page
+    101.)
+
+    The bodies of many syntactic forms, including lambda, case-lambda, let, let*, letrec, and letrec*, as well as the
+    result clauses of cond, case, and do, are treated as if they were inside an implicit begin; i.e., the expressions
+    making up the body or result clause are executed in sequence, with the values of the last expression being
+    returned.
+
+#+begin_src scheme
+(define swap-pair!
+  (lambda (x)
+    (let ([temp (car x)])
+      (set-car! x (cdr x))
+      (set-cdr! x temp)
+      x)))
+(swap-pair! (cons 'a 'b)) → (b . a)
+#+end_src
+
 *** Conditionals
+
+    syntax: (if test consequent alternative)
+    syntax: (if test consequent)
+    returns: the values of consequent or alternative depending on the value of test
+    libraries: (rnrs base), (rnrs)
+
+    The test, consequent, and alternative subforms must be expressions. If test evaluates to a true value (anything
+    other than #f), consequent is evaluated and its values are returned. Otherwise, alternative is evaluated and its
+    values are returned. With the second, "one-armed," form, which has no alternative, the result is unspecified if test
+    evaluates to false.
+
+#+begin_src scheme
+(let ([ls '(a b c)])
+  (if (null? ls)
+      '()
+      (cdr ls))) → (b c)
+
+(let ([ls '()])
+  (if (null? ls)
+      '()
+      (cdr ls))) → ()
+
+(let ([abs
+       (lambda (x)
+         (if (< x 0)
+             (- 0 x)
+             x))])
+  (abs -4)) → 4
+
+(let ([x -4])
+  (if (< x 0)
+      (list 'minus (- 0 x))
+      (list 'plus 4))) → (minus 4)
+#+end_src
+
+    procedure: (not obj)
+    returns: #t if obj is false, #f otherwise
+    libraries: (rnrs base), (rnrs)
+
+    not is equivalent to (lambda (x) (if x #f #t)).
+
+#+begin_src scheme
+(not #f) → #t
+(not #t) → #f
+(not '()) → #f
+(not (< 4 5)) → #f
+#+end_src
+
+    syntax: (and expr ...)
+    returns: see below
+    libraries: (rnrs base), (rnrs)
+
+    If no subexpressions are present, the and form evaluates to #t. Otherwise, and evaluates each subexpression in
+    sequence from left to right until only one subexpression remains or a subexpression returns #f. If one subexpression
+    remains, it is evaluated and its values are returned. If a subexpression returns #f, and returns #f without
+    evaluating the remaining subexpressions. A syntax definition of and appears on page 62.
+
+#+begin_src scheme
+(let ([x 3])
+  (and (> x 2) (< x 4))) → #t
+
+(let ([x 5])
+  (and (> x 2) (< x 4))) → #f
+
+(and #f '(a b) '(c d)) → #f
+(and '(a b) '(c d) '(e f)) → (e f)
+#+end_src
+
+    syntax: (or expr ...)
+    returns: see below
+    libraries: (rnrs base), (rnrs)
+
+    If no subexpressions are present, the or form evaluates to #f. Otherwise, or evaluates each subexpression in
+    sequence from left to right until only one subexpression remains or a subexpression returns a value other than
+    #f. If one subexpression remains, it is evaluated and its values are returned. If a subexpression returns a value
+    other than #f, or returns that value without evaluating the remaining subexpressions. A syntax definition of or
+    appears on page 63.
+
+#+begin_src scheme
+(let ([x 3])
+  (or (< x 2) (> x 4))) → #f
+
+(let ([x 5])
+  (or (< x 2) (> x 4))) → #t
+
+(or #f '(a b) '(c d)) → (a b)
+#+end_src
+
+    syntax: (cond clause1 clause2 ...)
+    returns: see below
+    libraries: (rnrs base), (rnrs)
+
+    Each clause but the last must take one of the forms below.
+
+#+begin_src scheme
+(test)
+(test expr1 expr2 ...)
+(test => expr)
+#+end_src
+
+    The last clause may be in any of the above forms, or it may be an "else clause" of the form
+
+#+begin_src scheme
+(else expr1 expr2 ...)
+#+end_src
+
+    Each test is evaluated in order until one evaluates to a true value or until all of the tests have been
+    evaluated. If the first clause whose test evaluates to a true value is in the first form given above, the value of
+    test is returned.
+
+    If the first clause whose test evaluates to a true value is in the second form given above, the expressions expr1
+    expr2... are evaluated in sequence and the values of the last expression are returned.
+
+    If the first clause whose test evaluates to a true value is in the third form given above, the expression expr is
+    evaluated. The value should be a procedure of one argument, which is applied to the value of test. The values of
+    this application are returned.
+
+    If none of the tests evaluates to a true value and an else clause is present, the expressions expr1 expr2 ... of the
+    else clause are evaluated in sequence and the values of the last expression are returned.
+
+    If none of the tests evaluates to a true value and no else clause is present, the value or values are unspecified.
+
+    See page 305 for a syntax definition of cond.
+
+#+begin_src scheme
+(let ([x 0])
+  (cond
+    [(< x 0) (list 'minus (abs x))]
+    [(> x 0) (list 'plus x)]
+    [else (list 'zero x)])) → (zero 0)
+
+(define select
+  (lambda (x)
+    (cond
+      [(not (symbol? x))]
+      [(assq x '((a . 1) (b . 2) (c . 3))) => cdr]
+      [else 0])))
+
+(select 3) → #t
+(select 'b) → 2
+(select 'e) → 0
+#+end_src
+
+    syntax: else
+    syntax: =>
+    libraries: (rnrs base), (rnrs exceptions), (rnrs)
+
+    These identifiers are auxiliary keywords for cond. Both also serve as auxiliary keywords for guard, and else also
+    serves as an auxiliary keyword for case. It is a syntax violation to reference these identifiers except in contexts
+    where they are recognized as auxiliary keywords.
+
+    syntax: (when test-expr expr1 expr2 ...)
+    syntax: (unless test-expr expr1 expr2 ...)
+    returns: see below
+    libraries: (rnrs control), (rnrs)
+
+    For when, if test-expr evaluates to a true value, the expressions expr1 expr2 ... are evaluated in sequence, and the
+    values of the last expression are returned. If test-expr evaluates to false, none of the other expressions are
+    evaluated, and the value or values of when are unspecified.
+
+    For unless, if test-expr evaluates to false, the expressions expr1 expr2 ... are evaluated in sequence, and the
+    values of the last expression are returned. If test-expr evaluates to a true value, none of the other expressions
+    are evaluated, and the value or values of unless are unspecified.
+
+    A when or unless expression is usually clearer than the corresponding "one-armed" if expression.
+
+#+begin_src scheme
+(let ([x -4] [sign 'plus])
+  (when (< x 0)
+    (set! x (- 0 x))
+    (set! sign 'minus))
+  (list sign x)) → (minus 4)
+
+(define check-pair
+  (lambda (x)
+    (unless (pair? x)
+      (syntax-violation 'check-pair "invalid argument" x))
+    x))
+
+(check-pair '(a b c)) → (a b c)
+#+end_src
+
+    when may be defined as follows:
+
+#+begin_src scheme
+(define-syntax when
+  (syntax-rules ()
+    [(_ e0 e1 e2 ...)
+     (if e0 (begin e1 e2 ...))]))
+#+end_src
+
+    unless may be defined as follows:
+
+#+begin_src scheme
+(define-syntax unless
+  (syntax-rules ()
+    [(_ e0 e1 e2 ...)
+     (if (not e0) (begin e1 e2 ...))]))
+#+end_src
+
+or in terms of when as follows:
+
+#+begin_src scheme
+(define-syntax unless
+  (syntax-rules ()
+    [(_ e0 e1 e2 ...)
+     (when (not e0) e1 e2 ...)]))
+#+end_src
+
+    syntax: (case expr0 clause1 clause2 ...)
+    returns: see below
+    libraries: (rnrs base), (rnrs)
+
+    Each clause but the last must take the form
+
+#+begin_src scheme
+((key ...) expr1 expr2 ...)
+#+end_src
+
+    where each key is a datum distinct from the other keys. The last clause may be in the above form or it may be an
+    else clause of the form
+
+#+begin_src scheme
+(else expr1 expr2 ...)
+#+end_src
+
+    expr0 is evaluated and the result is compared (using eqv?) against the keys of each clause in order. If a clause
+    containing a matching key is found, the expressions expr1 expr2 ... are evaluated in sequence and the values of the
+    last expression are returned.
+
+    If none of the clauses contains a matching key and an else clause is present, the expressions expr1 expr2 ... of the
+    else clause are evaluated in sequence and the values of the last expression are returned.
+
+    If none of the clauses contains a matching key and no else clause is present, the value or values are unspecified.
+
+    See page 306 for a syntax definition of case.
+
+#+begin_src scheme
+(let ([x 4] [y 5])
+  (case (+ x y)
+    [(1 3 5 7 9) 'odd]
+    [(0 2 4 6 8) 'even]
+    [else 'out-of-range])) → odd
+#+end_src
+
 *** Recursion and Iteration
+
+    syntax: (let name ((var expr) ...) body1 body2 ...)
+    returns: values of the final body expression
+    libraries: (rnrs base), (rnrs)
+
+    This form of let, called named let, is a general-purpose iteration and recursion construct. It is similar to the
+    more common form of let (see Section 4.4) in the binding of the variables var ... to the values of expr ... within
+    the body body1 body2 ..., which is processed and evaluated like a lambda body. In addition, the variable name is
+    bound within the body to a procedure that may be called to recur or iterate; the arguments to the procedure become
+    the new values of the variables var ....
+
+    A named let expression of the form
+
+#+begin_src scheme
+(let name ((var expr) ...)
+  body1 body2 ...)
+#+end_src
+
+    can be rewritten with letrec as follows.
+
+#+begin_src scheme
+((letrec ((name (lambda (var ...) body1 body2 ...)))
+   name)
+ expr ...)
+#+end_src
+
+    A syntax definition of let that implements this transformation and handles unnamed let as well can be found on
+    page 312.
+
+    The procedure divisors defined below uses named let to compute the nontrivial divisors of a nonnegative integer.
+
+#+begin_src scheme
+(define divisors
+  (lambda (n)
+    (let f ([i 2])
+      (cond
+        [(>= i n) '()]
+        [(integer? (/ n i)) (cons i (f (+ i 1)))]
+        [else (f (+ i 1))]))))
+
+(divisors 5) → ()
+(divisors 32) → (2 4 8 16)
+#+end_src
+
+    The version above is non-tail-recursive when a divisor is found and tail-recursive when a divisor is not found. The
+    version below is fully tail-recursive. It builds up the list in reverse order, but this is easy to remedy, if
+    desired, by reversing the list on exit.
+
+#+begin_src scheme
+(define divisors
+  (lambda (n)
+    (let f ([i 2] [ls '()])
+      (cond
+        [(>= i n) ls]
+        [(integer? (/ n i)) (f (+ i 1) (cons i ls))]
+        [else (f (+ i 1) ls)]))))
+#+end_src
+
+    syntax: (do ((var init update) ...) (test result ...) expr ...)
+    returns: the values of the last result expression
+    libraries: (rnrs control), (rnrs)
+
+    do allows a common restricted form of iteration to be expressed succinctly. The variables var ... are bound
+    initially to the values of init ... and are rebound on each subsequent iteration to the values of update .... The
+    expressions test, update ..., expr ..., and result ... are all within the scope of the bindings established for var
+    ....
+
+    On each step, the test expression test is evaluated. If the value of test is true, iteration ceases, the expressions
+    result ... are evaluated in sequence, and the values of the last expression are returned. If no result expressions
+    are present, the value or values of the do expression are unspecified.
+
+    If the value of test is false, the expressions expr ... are evaluated in sequence, the expressions update ... are
+    evaluated, new bindings for var ... to the values of update ... are created, and iteration continues.
+
+    The expressions expr ... are evaluated only for effect and are often omitted entirely. Any update expression may be
+    omitted, in which case the effect is the same as if the update were simply the corresponding var.
+
+    Although looping constructs in most languages require that the loop iterands be updated via assignment, do requires
+    the loop iterands var ... to be updated via rebinding. In fact, no side effects are involved in the evaluation of a
+    do expression unless they are performed explicitly by its subexpressions.
+
+    See page 313 for a syntax definition of do.
+
+    The definitions of factorial and fibonacci below are straightforward translations of the tail-recursive named-let
+    versions given in Section 3.2.
+
+#+begin_src scheme
+(define factorial
+  (lambda (n)
+    (do ([i n (- i 1)] [a 1 (* a i)])
+        ((zero? i) a))))
+
+(factorial 10) → 3628800
+
+(define fibonacci
+  (lambda (n)
+    (if (= n 0)
+        0
+        (do ([i n (- i 1)] [a1 1 (+ a1 a2)] [a2 0 a1])
+            ((= i 1) a1)))))
+
+(fibonacci 6) → 8
+#+end_src
+
+    The definition of divisors below is similar to the tail-recursive definition of divisors given with the description
+    of named let above.
+
+#+begin_src scheme
+(define divisors
+  (lambda (n)
+    (do ([i 2 (+ i 1)]
+         [ls '()
+             (if (integer? (/ n i))
+                 (cons i ls)
+                 ls)])
+        ((>= i n) ls))))
+#+end_src
+
+    The definition of scale-vector! below, which scales each element of a vector v by a constant k, demonstrates a
+    nonempty do body.
+
+#+begin_src scheme
+(define scale-vector!
+  (lambda (v k)
+    (let ([n (vector-length v)])
+      (do ([i 0 (+ i 1)])
+          ((= i n))
+        (vector-set! v i (* (vector-ref v i) k))))))
+
+(define vec (vector 1 2 3 4 5))
+(scale-vector! vec 2)
+vec → #(2 4 6 8 10)
+#+end_src
+
 *** Mapping and Folding
+
+    When a program must recur or iterate over the elements of a list, a mapping or folding operator is often more
+    convenient. These operators abstract away from null checks and explicit recursion by applying a procedure to the
+    elements of the list one by one. A few mapping operators are also available for vectors and strings.
+
+    procedure: (map procedure list1 list2 ...)
+    returns: list of results
+    libraries: (rnrs base), (rnrs)
+
+    map applies procedure to corresponding elements of the lists list1 list2 ... and returns a list of the resulting
+    values. The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are
+    lists, should return a single value, and should not mutate the list arguments.
+
+#+begin_src scheme
+(map abs '(1 -2 3 -4 5 -6)) → (1 2 3 4 5 6)
+
+(map (lambda (x y) (* x y))
+     '(1 2 3 4)
+     '(8 7 6 5)) → (8 14 18 20)
+#+end_src
+
+    While the order in which the applications themselves occur is not specified, the order of the values in the output
+    list is the same as that of the corresponding values in the input lists.
+
+    map might be defined as follows.
+
+#+begin_src scheme
+(define map
+  (lambda (f ls . more)
+    (if (null? more)
+        (let map1 ([ls ls])
+          (if (null? ls)
+              '()
+              (cons (f (car ls))
+                    (map1 (cdr ls)))))
+        (let map-more ([ls ls] [more more])
+          (if (null? ls)
+              '()
+              (cons
+                (apply f (car ls) (map car more))
+                (map-more (cdr ls) (map cdr more))))))))
+#+end_src
+
+    No error checking is done by this version of map; f is assumed to be a procedure and the other arguments are assumed
+    to be proper lists of the same length. An interesting feature of this definition is that map uses itself to pull out
+    the cars and cdrs of the list of input lists; this works because of the special treatment of the single-list case.
+
+    procedure: (for-each procedure list1 list2 ...)
+    returns: unspecified
+    libraries: (rnrs base), (rnrs)
+
+    for-each is similar to map except that for-each does not create and return a list of the resulting values, and
+    for-each guarantees to perform the applications in sequence over the elements from left to right. procedure should
+    accept as many arguments as there are lists and should not mutate the list arguments. for-each may be defined
+    without error checks as follows.
+
+#+begin_src scheme
+(define for-each
+  (lambda (f ls . more)
+    (do ([ls ls (cdr ls)] [more more (map cdr more)])
+        ((null? ls))
+      (apply f (car ls) (map car more)))))
+
+(let ([same-count 0])
+  (for-each
+    (lambda (x y)
+      (when (= x y)
+        (set! same-count (+ same-count 1))))
+    '(1 2 3 4 5 6)
+    '(2 3 3 4 7 6))
+  same-count) → 3
+#+end_src
+
+    procedure: (exists procedure list1 list2 ...)
+    returns: see below
+    libraries: (rnrs lists), (rnrs)
+
+    The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
+    and should not mutate the list arguments. If the lists are empty, exists returns #f. Otherwise, exists applies
+    procedure to corresponding elements of the lists list1 list2 ... in sequence until either the lists each have only
+    one element or procedure returns a true value t. In the former case, exists tail-calls procedure, applying it to the
+    remaining element of each list. In the latter case, exists returns t.
+
+#+begin_src scheme
+(exists symbol? '(1.0 #\a "hi" '())) → #f
+
+(exists member
+        '(a b c)
+        '((c b) (b a) (a c))) → (b a)
+
+(exists (lambda (x y z) (= (+ x y) z))
+        '(1 2 3 4)
+        '(1.2 2.3 3.4 4.5)
+        '(2.3 4.4 6.4 8.6)) → #t
+#+end_src
+
+    exists may be defined (somewhat inefficiently and without error checks) as follows:
+
+#+begin_src scheme
+(define exists
+  (lambda (f ls . more)
+    (and (not (null? ls))
+      (let exists ([x (car ls)] [ls (cdr ls)] [more more])
+        (if (null? ls)
+            (apply f x (map car more))
+            (or (apply f x (map car more))
+                (exists (car ls) (cdr ls) (map cdr more))))))))
+#+end_src
+
+    procedure: (for-all procedure list1 list2 ...)
+    returns: see below
+    libraries: (rnrs lists), (rnrs)
+
+    The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
+    and should not mutate the list arguments. If the lists are empty, for-all returns #t. Otherwise, for-all applies
+    procedure to corresponding elements of the lists list1 list2 ... in sequence until either the lists each have only
+    one element left or procedure returns #f. In the former case, for-all tail-calls procedure, applying it to the
+    remaining element of each list. In the latter case, for-all returns #f.
+
+#+begin_src scheme
+(for-all symbol? '(a b c d)) → #t
+
+(for-all =
+         '(1 2 3 4)
+         '(1.0 2.0 3.0 4.0)) → #t
+
+(for-all (lambda (x y z) (= (+ x y) z))
+         '(1 2 3 4)
+         '(1.2 2.3 3.4 4.5)
+         '(2.2 4.3 6.5 8.5)) → #f
+#+end_src
+
+    for-all may be defined (somewhat inefficiently and without error checks) as follows:
+
+#+begin_src scheme
+(define for-all
+  (lambda (f ls . more)
+    (or (null? ls)
+      (let for-all ([x (car ls)] [ls (cdr ls)] [more more])
+        (if (null? ls)
+            (apply f x (map car more))
+            (and (apply f x (map car more))
+                 (for-all (car ls) (cdr ls) (map cdr more))))))))
+#+end_src
+
+    procedure: (fold-left procedure obj list1 list2 ...)
+    returns: see below
+    libraries: (rnrs lists), (rnrs)
+
+    The list arguments should all have the same length. procedure should accept one more argument than the number of
+    list arguments and return a single value. It should not mutate the list arguments.
+
+    fold-left returns obj if the list arguments are empty. If they are not empty, fold-left applies procedure to obj and
+    the cars of list1 list2 ..., then recurs with the value returned by procedure in place of obj and the cdr of each
+    list in place of the list.
+
+#+begin_src scheme
+(fold-left cons '() '(1 2 3 4)) → ((((() . 1) . 2) . 3) . 4)
+
+(fold-left
+  (lambda (a x) (+ a (* x x)))
+  0 '(1 2 3 4 5)) → 55
+
+(fold-left
+  (lambda (a . args) (append args a))
+  '(question)
+  '(that not to)
+  '(is to be)
+  '(the be: or)) → (to be or not to be: that is the question)
+#+end_src
+
+    procedure: (fold-right procedure obj list1 list2 ...)
+    returns: see below
+    libraries: (rnrs lists), (rnrs)
+
+    The list arguments should all have the same length. procedure should accept one more argument than the number of
+    list arguments and return a single value. It should not mutate the list arguments.
+
+    fold-right returns obj if the list arguments are empty. If they are not empty, fold-right recurs with the cdr of
+    each list replacing the list, then applies procedure to the cars of list1 list2 ... and the result returned by the
+    recursion.
+
+#+begin_src scheme
+(fold-right cons '() '(1 2 3 4)) → (1 2 3 4)
+
+(fold-right
+  (lambda (x a) (+ a (* x x)))
+  0 '(1 2 3 4 5)) → 55
+
+(fold-right
+  (lambda (x y a) (cons* x y a))   → (parting is such sweet sorrow
+  '((with apologies))                gotta go see ya tomorrow
+  '(parting such sorrow go ya)       (with apologies))
+  '(is sweet gotta see tomorrow))
+#+end_src
+
+    procedure: (vector-map procedure vector1 vector1 ...)
+    returns: vector of results
+    libraries: (rnrs base), (rnrs)
+
+    vector-map applies procedure to corresponding elements of vector1 vector2 ... and returns a vector of the resulting
+    values. The vectors vector1 vector2 ... must be of the same length, and procedure should accept as many arguments as
+    there are vectors and return a single value.
+
+#+begin_src scheme
+(vector-map abs '#(1 -2 3 -4 5 -6)) → #(1 2 3 4 5 6)
+(vector-map (lambda (x y) (* x y))
+  '#(1 2 3 4)
+  '#(8 7 6 5)) → #(8 14 18 20)
+#+end_src
+
+    While the order in which the applications themselves occur is not specified, the order of the values in the output
+    vector is the same as that of the corresponding values in the input vectors.
+
+    procedure: (vector-for-each procedure vector1 vector2 ...)
+    returns: unspecified
+    libraries: (rnrs base), (rnrs)
+
+    vector-for-each is similar to vector-map except that vector-for-each does not create and return a vector of the
+    resulting values, and vector-for-each guarantees to perform the applications in sequence over the elements from left
+    to right.
+
+#+begin_src scheme
+(let ([same-count 0])
+  (vector-for-each
+    (lambda (x y)
+      (when (= x y)
+        (set! same-count (+ same-count 1))))
+    '#(1 2 3 4 5 6)
+    '#(2 3 3 4 7 6))
+  same-count) → 3
+#+end_src
+
+    procedure: (string-for-each procedure string1 string2 ...)
+    returns: unspecified
+    libraries: (rnrs base), (rnrs)
+
+    string-for-each is similar to for-each and vector-for-each except that the inputs are strings rather than lists or
+    vectors.
+
+#+begin_src scheme
+(let ([ls '()])
+  (string-for-each
+    (lambda r (set! ls (cons r ls)))
+    "abcd"
+    "===="
+    "1234")
+  (map list->string (reverse ls))) → ("a=1" "b=2" "c=3" "d=4")
+#+end_src
+
 *** Continuations
+
+    Continuations in Scheme are procedures that represent the remainder of a computation from a given point in the
+    computation. They may be obtained with call-with-current-continuation, which can be abbreviated to call/cc.
+
+    procedure: (call/cc procedure)
+    procedure: (call-with-current-continuation procedure)
+    returns: see below
+    libraries: (rnrs base), (rnrs)
+
+    These procedures are the same. The shorter name is often used for the obvious reason that it requires fewer
+    keystrokes to type.
+
+    call/cc obtains its continuation and passes it to procedure, which should accept one argument. The continuation
+    itself is represented by a procedure. Each time this procedure is applied to zero or more values, it returns the
+    values to the continuation of the call/cc application. That is, when the continuation procedure is called, it
+    returns its arguments as the values of the application of call/cc.
+
+    If procedure returns normally when passed the continuation procedure, the values returned by call/cc are the values
+    returned by procedure.
+
+    Continuations allow the implementation of nonlocal exits, backtracking [14,29], coroutines [16], and multitasking
+    [10,32].
+
+    The example below illustrates the use of a continuation to perform a nonlocal exit from a loop.
+
+#+begin_src scheme
+(define member
+  (lambda (x ls)
+    (call/cc
+      (lambda (break)
+        (do ([ls ls (cdr ls)])
+            ((null? ls) #f)
+          (when (equal? x (car ls))
+            (break ls)))))))
+
+(member 'd '(a b c)) → #f
+(member 'b '(a b c)) → (b c)
+#+end_src
+
+    Additional examples are given in Sections 3.3 and 12.11.
+
+    The current continuation is typically represented internally as a stack of procedure activation records, and
+    obtaining the continuation involves encapsulating the stack within a procedural object. Since an encapsulated stack
+    has indefinite extent, some mechanism must be used to preserve the stack contents indefinitely. This can be done
+    with surprising ease and efficiency and with no impact on programs that do not use continuations [17].
+
+    procedure: (dynamic-wind in body out)
+    returns: values resulting from the application of body
+    libraries: (rnrs base), (rnrs)
+
+    dynamic-wind offers "protection" from continuation invocation. It is useful for performing tasks that must be
+    performed whenever control enters or leaves body, either normally or by continuation application.
+
+    The three arguments in, body, and out must be procedures and should accept zero arguments, i.e., they should be
+    thunks. Before applying body, and each time body is entered subsequently by the application of a continuation
+    created within body, the in thunk is applied. Upon normal exit from body and each time body is exited by the
+    application of a continuation created outside body, the out thunk is applied.
+
+    Thus, it is guaranteed that in is invoked at least once. In addition, if body ever returns, out is invoked at least
+    once.
+
+    The following example demonstrates the use of dynamic-wind to be sure that an input port is closed after processing,
+    regardless of whether the processing completes normally.
+
+#+begin_src scheme
+(let ([p (open-input-file "input-file")])
+  (dynamic-wind
+    (lambda () #f)
+    (lambda () (process p))
+    (lambda () (close-port p))))
+#+end_src
+
+    Common Lisp provides a similar facility (unwind-protect) for protection from nonlocal exits. This is often
+    sufficient. unwind-protect provides only the equivalent to out, however, since Common Lisp does not support fully
+    general continuations. Here is how unwind-protect might be specified with dynamic-wind.
+
+#+begin_src scheme
+(define-syntax unwind-protect
+  (syntax-rules ()
+    [(_ body cleanup ...)
+     (dynamic-wind
+       (lambda () #f)
+       (lambda () body)
+       (lambda () cleanup ...))]))
+
+((call/cc
+   (let ([x 'a])
+     (lambda (k)
+       (unwind-protect
+         (k (lambda () x))
+         (set! x 'b)))))) → b
+#+end_src
+
+    Some Scheme implementations support a controlled form of assignment known as fluid binding, in which a variable
+    takes on a temporary value during a given computation and reverts to the old value after the computation has
+    completed. The syntactic form fluid-let defined below in terms of dynamic-wind permits the fluid binding of a single
+    variable x to the value of an expression e within a the body b1 b2 ....
+
+#+begin_src scheme
+(define-syntax fluid-let
+  (syntax-rules ()
+    [(_ ((x e)) b1 b2 ...)
+     (let ([y e])
+       (let ([swap (lambda () (let ([t x]) (set! x y) (set! y t)))])
+         (dynamic-wind swap (lambda () b1 b2 ...) swap)))]))
+#+end_src
+
+    Implementations that support fluid-let typically extend it to allow an indefinite number of (x e) pairs, as with
+    let.
+
+    If no continuations are invoked within the body of a fluid-let, the behavior is the same as if the variable were
+    simply assigned the new value on entry and assigned the old value on return.
+
+#+begin_src scheme
+(let ([x 3])
+  (+ (fluid-let ([x 5])
+       x)
+     x)) → 8
+#+end_src
+
+    A fluid-bound variable also reverts to the old value if a continuation created outside of the fluid-let is invoked.
+
+#+begin_src scheme
+(let ([x 'a])
+  (let ([f (lambda () x)])
+    (cons (call/cc
+            (lambda (k)
+              (fluid-let ([x 'b])
+                (k (f)))))
+          (f)))) → (b . a)
+#+end_src
+
+    If control has left a fluid-let body, either normally or by the invocation of a continuation, and control reenters
+    the body by the invocation of a continuation, the temporary value of the fluid-bound variable is
+    reinstated. Furthermore, any changes to the temporary value are maintained and reflected upon reentry.
+
+#+begin_src scheme
+(define reenter #f)
+(define x 0)
+(fluid-let ([x 1])
+  (call/cc (lambda (k) (set! reenter k)))
+  (set! x (+ x 1))
+  x) → 2
+x → 0
+(reenter '*) → 3
+(reenter '*) → 4
+x → 0
+#+end_src
+
+    A library showing how dynamic-wind might be implemented were it not already built in is given below. In addition to
+    defining dynamic-wind, the code defines a version of call/cc that does its part to support dynamic-wind.
+
+#+begin_src scheme
+(library (dynamic-wind)
+  (export dynamic-wind call/cc
+    (rename (call/cc call-with-current-continuation)))
+  (import (rename (except (rnrs) dynamic-wind) (call/cc rnrs:call/cc)))
+
+  (define winders '())
+
+  (define common-tail
+    (lambda (x y)
+      (let ([lx (length x)] [ly (length y)])
+        (do ([x (if (> lx ly) (list-tail x (- lx ly)) x) (cdr x)]
+             [y (if (> ly lx) (list-tail y (- ly lx)) y) (cdr y)])
+            ((eq? x y) x)))))
+
+  (define do-wind
+    (lambda (new)
+      (let ([tail (common-tail new winders)])
+        (let f ([ls winders])
+          (if (not (eq? ls tail))
+              (begin
+                (set! winders (cdr ls))
+                ((cdar ls))
+                (f (cdr ls)))))
+        (let f ([ls new])
+          (if (not (eq? ls tail))
+              (begin
+                (f (cdr ls))
+                ((caar ls))
+                (set! winders ls)))))))
+
+  (define call/cc
+    (lambda (f)
+      (rnrs:call/cc
+        (lambda (k)
+          (f (let ([save winders])
+               (lambda (x)
+                 (unless (eq? save winders) (do-wind save))
+                 (k x))))))))
+
+  (define dynamic-wind
+    (lambda (in body out)
+      (in)
+      (set! winders (cons (cons in out) winders))
+      (let-values ([ans* (body)])
+        (set! winders (cdr winders))
+        (out)
+        (apply values ans*)))))
+#+end_src
+
+    Together, dynamic-wind and call/cc manage a list of winders. A winder is a pair of in and out thunks established by
+    a call to dynamic-wind. Whenever dynamic-wind is invoked, the in thunk is invoked, a new winder containing the in
+    and out thunks is placed on the winders list, the body thunk is invoked, the winder is removed from the winders
+    list, and the out thunk is invoked. This ordering ensures that the winder is on the winders list only when control
+    has passed through in and not yet entered out. Whenever a continuation is obtained, the winders list is saved, and
+    whenever the continuation is invoked, the saved winders list is reinstated. During reinstatement, the out thunk of
+    each winder on the current winders list that is not also on the saved winders list is invoked, followed by the in
+    thunk of each winder on the saved winders list that is not also on the current winders list. The winders list is
+    updated incrementally, again to ensure that a winder is on the current winders list only if control has passed
+    through its in thunk and not entered its out thunk.
+
+    The test (not (eq? save winders)) performed in call/cc is not strictly necessary but makes invoking a continuation
+    less costly whenever the saved winders list is the same as the current winders list.
+
 *** Delayed Evaluation
+
+    The syntactic form delay and the procedure force may be used in combination to implement lazy evaluation. An
+    expression subject to lazy evaluation is not evaluated until its value is required and, once evaluated, is never
+    reevaluated.
+
+    syntax: (delay expr)
+    returns: a promise
+    procedure: (force promise)
+    returns: result of forcing promise
+    libraries: (rnrs r5rs)
+
+    The first time a promise created by delay is forced (with force), it evaluates expr, "remembering" the resulting
+    value. Thereafter, each time the promise is forced, it returns the remembered value instead of reevaluating expr.
+
+    delay and force are typically used only in the absence of side effects, e.g., assignments, so that the order of
+    evaluation is unimportant.
+
+    The benefit of using delay and force is that some amount of computation might be avoided altogether if it is delayed
+    until absolutely required. Delayed evaluation may be used to construct conceptually infinite lists, or streams. The
+    example below shows how a stream abstraction may be built with delay and force. A stream is a promise that, when
+    forced, returns a pair whose cdr is a stream.
+
+#+begin_src scheme
+(define stream-car
+  (lambda (s)
+    (car (force s))))
+
+(define stream-cdr
+  (lambda (s)
+    (cdr (force s))))
+
+(define counters
+  (let next ([n 1])
+    (delay (cons n (next (+ n 1))))))
+
+(stream-car counters) → 1
+
+(stream-car (stream-cdr counters)) → 2
+
+(define stream-add
+  (lambda (s1 s2)
+    (delay (cons
+             (+ (stream-car s1) (stream-car s2))
+             (stream-add (stream-cdr s1) (stream-cdr s2))))))
+
+(define even-counters
+  (stream-add counters counters))
+
+(stream-car even-counters) → 2
+
+(stream-car (stream-cdr even-counters)) → 4
+
+#+end_src
+
+    delay may be defined by
+
+#+begin_src scheme
+(define-syntax delay
+  (syntax-rules ()
+    [(_ expr) (make-promise (lambda () expr))]))
+#+end_src
+
+    where make-promise might be defined as follows.
+
+#+begin_src scheme
+(define make-promise
+  (lambda (p)
+    (let ([val #f] [set? #f])
+      (lambda ()
+        (unless set?
+          (let ([x (p)])
+            (unless set?
+              (set! val x)
+              (set! set? #t))))
+        val))))
+#+end_src
+
+    With this definition of delay, force simply invokes the promise to force evaluation or to retrieve the saved value.
+
+#+begin_src scheme
+(define force
+  (lambda (promise)
+    (promise)))
+#+end_src
+
+    The second test of the variable set? in make-promise is necessary in the event that, as a result of applying p, the
+    promise is recursively forced. Since a promise must always return the same value, the result of the first
+    application of p to complete is returned.
+
+    Whether delay and force handle multiple return values is unspecified; the implementation given above does not, but
+    the following version does, with the help of call-with-values and apply.
+
+#+begin_src scheme
+(define make-promise
+  (lambda (p)
+    (let ([vals #f] [set? #f])
+      (lambda ()
+        (unless set?
+          (call-with-values p
+            (lambda x
+              (unless set?
+                (set! vals x)
+                (set! set? #t)))))
+        (apply values vals)))))
+
+(define p (delay (values 1 2 3)))
+(force p) → 1
+           2
+           3
+(call-with-values (lambda () (force p)) +) → 6
+#+end_src
+
+    Neither implementation is quite right, since force must raise an exception with condition type &assertion if its
+    argument is not a promise. Since distinguishing procedures created by make-promise from other procedures is
+    impossible, force cannot do so reliably. The following reimplementation of make-promise and force represents
+    promises as records of the type promise to allow force to make the required check.
+
+#+begin_src scheme
+(define-record-type promise
+  (fields (immutable p) (mutable vals) (mutable set?))
+  (protocol (lambda (new) (lambda (p) (new p #f #f)))))
+
+(define force
+  (lambda (promise)
+    (unless (promise? promise)
+      (assertion-violation 'promise "invalid argument" promise))
+    (unless (promise-set? promise)
+      (call-with-values (promise-p promise)
+        (lambda x
+          (unless (promise-set? promise)
+            (promise-vals-set! promise x)
+            (promise-set?-set! promise #t)))))
+    (apply values (promise-vals promise))))
+#+end_src
+
 *** Multiple Values
+
+    While all Scheme primitives and most user-defined procedures return exactly one value, some programming problems are
+    best solved by returning zero values, more than one value, or even a variable number of values. For example, a
+    procedure that partitions a list of values into two sublists needs to return two values. While it is possible for
+    the producer of multiple values to package them into a data structure and for the consumer to extract them, it is
+    often cleaner to use the built-in multiple-values interface. This interface consists of two procedures: values and
+    call-with-values. The former produces multiple values and the latter links procedures that produce multiple-value
+    values with procedures that consume them.
+
+    procedure: (values obj ...)
+    returns: obj ...
+    libraries: (rnrs base), (rnrs)
+
+    The procedure values accepts any number of arguments and simply passes (returns) the arguments to its continuation.
+
+#+begin_src scheme
+(values) →
+
+(values 1) → 1
+
+(values 1 2 3) → 1
+                2
+                3
+
+(define head&tail
+  (lambda (ls)
+    (values (car ls) (cdr ls))))
+
+(head&tail '(a b c)) → a
+                      (b c)
+#+end_src
+
+    procedure: (call-with-values producer consumer)
+    returns: see below
+    libraries: (rnrs base), (rnrs)
+
+    producer and consumer must be procedures. call-with-values applies consumer to the values returned by invoking
+    producer without arguments.
+
+#+begin_src scheme
+(call-with-values
+  (lambda () (values 'bond 'james))
+  (lambda (x y) (cons y x))) → (james . bond)
+
+(call-with-values values list) → '()
+#+end_src
+
+    In the second example, values itself serves as the producer. It receives no arguments and thus returns no
+    values. list is thus applied to no arguments and so returns the empty list.
+
+    The procedure dxdy defined below computes the change in x and y coordinates for a pair of points whose coordinates
+    are represented by (x . y) pairs.
+
+#+begin_src scheme
+(define dxdy
+  (lambda (p1 p2)
+    (values (- (car p2) (car p1))
+            (- (cdr p2) (cdr p1)))))
+
+(dxdy '(0 . 0) '(0 . 5)) → 0
+                          5
+#+end_src
+
+    dxdy can be used to compute the length and slope of a segment represented by two endpoints.
+
+#+begin_src scheme
+(define segment-length
+  (lambda (p1 p2)
+    (call-with-values
+      (lambda () (dxdy p1 p2))
+      (lambda (dx dy) (sqrt (+ (* dx dx) (* dy dy)))))))
+
+(define segment-slope
+  (lambda (p1 p2)
+    (call-with-values
+      (lambda () (dxdy p1 p2))
+      (lambda (dx dy) (/ dy dx)))))
+
+(segment-length '(1 . 4) '(4 . 8)) → 5
+(segment-slope '(1 . 4) '(4 . 8)) → 4/3
+#+end_src
+
+    We can of course combine these to form one procedure that returns two values.
+
+#+begin_src scheme
+(define describe-segment
+  (lambda (p1 p2)
+    (call-with-values
+      (lambda () (dxdy p1 p2))
+      (lambda (dx dy)
+        (values
+          (sqrt (+ (* dx dx) (* dy dy)))
+          (/ dy dx))))))
+
+(describe-segment '(1 . 4) '(4 . 8)) → 5
+                                     → 4/3
+#+end_src
+
+    The example below employs multiple values to divide a list nondestructively into two sublists of alternating
+    elements.
+
+#+begin_src scheme
+(define split
+  (lambda (ls)
+    (if (or (null? ls) (null? (cdr ls)))
+        (values ls '())
+        (call-with-values
+          (lambda () (split (cddr ls)))
+          (lambda (odds evens)
+            (values (cons (car ls) odds)
+                    (cons (cadr ls) evens)))))))
+
+(split '(a b c d e f)) → (a c e)
+                        (b d f)
+#+end_src
+
+    At each level of recursion, the procedure split returns two values: a list of the odd-numbered elements from the
+    argument list and a list of the even-numbered elements.
+
+    The continuation of a call to values need not be one established by a call to call-with-values, nor must only values
+    be used to return to a continuation established by call-with-values. In particular, (values e) and e are equivalent
+    expressions. For example:
+
+#+begin_src scheme
+(+ (values 2) 4) → 6
+
+(if (values #t) 1 2) → 1
+
+(call-with-values
+  (lambda () 4)
+  (lambda (x) x)) → 4
+#+end_src
+
+    Similarly, values may be used to pass any number of values to a continuation that ignores the values, as in the
+    following.
+
+#+begin_src scheme
+(begin (values 1 2 3) 4) → 4
+#+end_src
+
+    Because a continuation may accept zero or more than one value, continuations obtained via call/cc may accept zero or
+    more than one argument.
+
+#+begin_src scheme
+(call-with-values
+  (lambda ()
+    (call/cc (lambda (k) (k 2 3))))
+  (lambda (x y) (list x y))) → (2 3)
+#+end_src
+
+    The behavior is unspecified when a continuation expecting exactly one value receives zero values or more than one
+    value. For example, the behavior of each of the following expressions is unspecified. Some implementations raise an
+    exception, while others silently suppress additional values or supply defaults for missing values.
+
+#+begin_src scheme
+(if (values 1 2) 'x 'y)
+
+(+ (values) 5)
+#+end_src
+
+    Programs that wish to force extra values to be ignored in particular contexts can do so easily by calling
+    call-with-values explicitly. A syntactic form, which we might call first, can be defined to abstract the discarding
+    of more than one value when only one is desired.
+
+#+begin_src scheme
+(define-syntax first
+  (syntax-rules ()
+    [(_ expr)
+     (call-with-values
+       (lambda () expr)
+       (lambda (x . y) x))]))
+
+(if (first (values #t #f)) 'a 'b) → a
+#+end_src
+
+    Since implementations are required to raise an exception with condition type &assertion if a procedure does not
+    accept the number of arguments passed to it, each of the following raises an exception.
+
+#+begin_src scheme
+(call-with-values
+  (lambda () (values 2 3 4))
+  (lambda (x y) x))
+
+(call-with-values
+  (lambda () (call/cc (lambda (k) (k 0))))
+  (lambda (x y) x))
+#+end_src
+
+    Since producer is most often a lambda expression, it is often convenient to use a syntactic extension that
+    suppresses the lambda expression in the interest of readability.
+
+#+begin_src scheme
+(define-syntax with-values
+  (syntax-rules ()
+    [(_ expr consumer)
+     (call-with-values (lambda () expr) consumer)]))
+
+(with-values (values 1 2) list) → (1 2)
+(with-values (split '(1 2 3 4))
+  (lambda (odds evens)
+    evens)) → (2 4)
+#+end_src
+
+    If the consumer is also a lambda expression, the multiple-value variants of let and let* described in Section 4.5
+    are usually even more convenient.
+
+#+begin_src scheme
+(let-values ([(odds evens) (split '(1 2 3 4))])
+  evens) → (2 4)
+
+(let-values ([ls (values 'a 'b 'c)])
+  ls) → (a b c)
+#+end_src
+
+    Many standard syntactic forms and procedures pass along multiple values. Most of these are "automatic," in the sense
+    that nothing special must be done by the implementation to make this happen. The usual expansion of let into a
+    direct lambda call automatically propagates multiple values produced by the body of the let. Other operators must be
+    coded specially to pass along multiple values. The call-with-port procedure (page 7.6), for example, calls its
+    procedure argument, then closes the port argument before returning the procedure's values, so it must save the
+    values temporarily. This is easily accomplished via let-values, apply, and values:
+
+#+begin_src scheme
+(define call-with-port
+  (lambda (port proc)
+    (let-values ([val* (proc port)])
+      (close-port port)
+      (apply values val*))))
+#+end_src
+
+    If this seems like too much overhead when a single value is returned, the code can use call-with-values and
+    case-lambda to handle the single-value case more efficiently:
+
+#+begin_src scheme
+(define call-with-port
+  (lambda (port proc)
+    (call-with-values (lambda () (proc port))
+      (case-lambda
+        [(val) (close-port port) val]
+        [val* (close-port port) (apply values val*)]))))
+#+end_src
+
+    The definitions of values and call-with-values (and concomitant redefinition of call/cc) in the library below
+    demonstrate that the multiple-return-values interface could be implemented in Scheme if it were not already built
+    in. No error checking can be done, however, for the case in which more than one value is returned to a single-value
+    context, such as the test part of an if expression.
+
+#+begin_src scheme
+(library (mrvs)
+  (export call-with-values values call/cc
+    (rename (call/cc call-with-current-continuation)))
+  (import
+    (rename
+      (except (rnrs) values call-with-values)
+      (call/cc rnrs:call/cc)))
+
+  (define magic (cons 'multiple 'values))
+
+  (define magic?
+    (lambda (x)
+      (and (pair? x) (eq? (car x) magic))))
+
+  (define call/cc
+    (lambda (p)
+      (rnrs:call/cc
+        (lambda (k)
+          (p (lambda args
+               (k (apply values args))))))))
+
+  (define values
+    (lambda args
+      (if (and (not (null? args)) (null? (cdr args)))
+          (car args)
+          (cons magic args))))
+
+  (define call-with-values
+    (lambda (producer consumer)
+      (let ([x (producer)])
+        (if (magic? x)
+            (apply consumer (cdr x))
+            (consumer x))))))
+#+end_src
+
+    Multiple values can be implemented more efficiently [2], but this code serves to illustrate the meanings of the
+    operators and may be used to provide multiple values in older, nonstandard implementations that do not support
+    them.
+
 *** Eval
+
+    Scheme's eval procedure allows programmers to write programs that construct and evaluate other programs. This
+    ability to do run-time meta programming should not be overused but is handy when needed.
+
+    procedure: (eval obj environment)
+    returns: values of the Scheme expression represented by obj in environment
+    libraries: (rnrs eval)
+
+    If obj does not represent a syntactically valid expression, eval raises an exception with condition type
+    &syntax. The environments returned by environment, scheme-report-environment, and null-environment are
+    immutable. Thus, eval also raises an exception with condition type &syntax if an assignment to any of the variables
+    in the environment appears within the expression.
+
+#+begin_src scheme
+(define cons 'not-cons)
+(eval '(let ([x 3]) (cons x 4)) (environment '(rnrs))) → (3 . 4)
+
+(define lambda 'not-lambda)
+(eval '(lambda (x) x) (environment '(rnrs))) → #<procedure>
+
+(eval '(cons 3 4) (environment)) → exception
+#+end_src
+
+    procedure: (environment import-spec ...)
+    returns: an environment
+    libraries: (rnrs eval)
+
+    environment returns an environment formed from the combined bindings of the given import specifiers. Each
+    import-spec must be an s-expression representing a valid import specifier (see Chapter 10).
+
+#+begin_src scheme
+(define env (environment '(rnrs) '(prefix (rnrs lists) $)))
+(eval '($cons* 3 4 (* 5 8)) env) → (3 4 . 40)
+#+end_src
+
+    procedure: (null-environment version)
+    procedure: (scheme-report-environment version)
+    returns: an R5RS compatibility environment
+    libraries: (rnrs r5rs)
+
+    version must be the exact integer 5.
+
+    null-environment returns an environment containing bindings for the keywords whose meanings are defined by the
+    Revised5 Report on Scheme, along with bindings for the auxiliary keywords else, =>, ..., and _.
+
+    scheme-report-environment returns an environment containing the same keyword bindings as the environment returned by
+    null-environment along with bindings for the variables whose meanings are defined by the Revised5 Report on Scheme,
+    except those not defined by the Revised6 Report: load, interaction-environment, transcript-on, transcript-off, and
+    char-ready?.
+
+    The bindings for each of the identifiers in the environments returned by these procedures are those of the
+    corresponding Revised6 Report library, so this does not provide full backward compatibility, even if the excepted
+    identifier bindings are not used.
 
 #+LATEX: \newpage
 [[./images/ch6.png]]
