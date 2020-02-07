@@ -3880,26 +3880,27 @@
 
      и другие операторы на ваш выбор.
 
-*** Libraries
+*** Библиотеки
 
-    At the end of the preceding section, we discussed a form of modularization that involves assigning a set of top-level
-    variables from within a let while keeping unpublished helpers local to the let. This form of modularization has
-    several drawbacks:
+    В конце предыдущего раздела мы обсудили форму модульности, которая включает в себя присвоение набора переменных
+    верхнего уровня из ~let~, сохраняя неопубликованные помощники локальными для ~let~. Эта форма модульности имеет
+    несколько недостатков:
 
-    * It is unportable, because the behavior and even existence of an interactive top level is not guaranteed by the
+    + Это непереносимо, потому что поведение и даже существование интерактивного верхнего уровня не гарантируется
       Revised6 Report.
-    * It requires assignments, which make the code appear somewhat awkward and may inhibit compiler analyses and
-      optimizations.
-    * It does not support the publication of keyword bindings, since there is no analogue to set! for keywords.
+    + Это требует назначений, которые делают код несколько неуклюжим и могут препятствовать анализу и оптимизации
+      компилятора.
+    + Он не поддерживает публикацию привязки ключевых слов, так как нет аналога ~set!~ для ключевых слов.
 
-    An alternative that does not share these drawbacks is to create a library. A library exports a set of identifiers,
-    each defined within the library or imported from some other library. An exported identifier need not be bound as a
-    variable; it may be bound as a keyword instead.
+    Альтернативой, которая не разделяет эти недостатки, является создание библиотеки. Библиотека экспортирует набор
+    идентификаторов, каждый из которых определен в библиотеке или импортирован из какой-либо другой
+    библиотеки. Экспортированный идентификатор не обязательно должен быть связан как переменная; вместо этого он может
+    быть связан как ключевое слово.
 
-    The following library exports two identifiers: the variable gpa->grade and the keyword gpa. The variable gpa->grade
-    is bound to a procedure that takes a grade-point average (GPA), represented as a number, and returns the
-    corresponding letter grade, based on a four-point scale. The keyword gpa names a syntactic extension whose subforms
-    must all be letter grades and whose value is the GPA computed from those letter grades.
+    Следующая библиотека экспортирует два идентификатора: переменная ~gpa->grade~ и ключевое слово ~gpa~. Переменная
+    ~gpa->grade~ связана с процедурой, которая принимает средний балл (GPA), представленный в виде числа, и возвращает
+    соответствующую буквенную оценку по четырехбалльной шкале. Ключевое слово ~gpa~ называет синтаксическое расширение,
+    чьи подчиненные формы должны быть буквенными оценками, а значение - это GPA, вычисленный из этих буквенных оценок.
 
 #+begin_src scheme
     (library (grades)
@@ -3950,16 +3951,18 @@
              (/ (apply + ls) (length ls)))])))
 #+end_src
 
-    The name of the library is (grades). This may seem like a funny kind of name, but all library names are
-    parenthesized. The library imports from the standard (rnrs) library, which contains most of the primitive and keyword
-    bindings we have used in this chapter and the last, and everything we need to implement gpa->grade and gpa.
+    Название библиотеки ~(grades)~. Это может показаться странным названием, но все имена библиотек заключены в
+    скобки. Библиотека импортирует из стандартной библиотеки (rnrs), которая содержит большинство примитивов и привязок
+    ключевых слов, которые мы использовали в этой и последней главе, и все, что нам нужно для реализации ~gpa->grade~ и
+    ~gpa~.
 
-    Along with gpa->grade and gpa, several other syntactic extensions and procedures are defined within the library, but
-    none of the others are exported. The ones that aren't exported are simply helpers for the ones that are. Everything
-    used within the library should be familiar, except for the apply procedure, which is described on page 107.
+    Наряду с ~gpa->grade~ и ~gpa~, в библиотеке определены несколько других синтаксических расширений и процедур, но ни
+    одна из них не экспортируется. Те, которые не экспортируются, являются просто помощниками для тех, которые
+    экспортируются. Все, что используется в библиотеке, должно быть знакомо, за исключением процедуры ~apply~, которая
+    описана в главе 5.1.
 
-    If your Scheme implementation supports import in the interactive top level, you can test the two exports as shown
-    below.
+    Если ваша реализация Scheme поддерживает импорт на интерактивном верхнем уровне, вы можете протестировать два
+    экспорта, как показано ниже.
 
 #+begin_src scheme
     (import (grades))
@@ -3967,12 +3970,12 @@
     (gpa->grade 2.8) → b
 #+end_src
 
-    Chapter 10 describes libraries in more detail and provides additional examples of their use.
+    Глава 10 описывает библиотеки более подробно и предоставляет дополнительные примеры их использования.
 
 **** Упражнение 3.6.1
 
-     Modify gpa to handle "x" grades, which do not count in the grade-point average. Be careful to handle gracefully the
-     situation where each grade is x.
+     Измените ~gpa~ для обработки оценок "х", которые не учитываются в среднем балле. Будьте осторожны, чтобы изящно
+     справиться с ситуацией, когда все оценки равны "x".
 
 #+begin_src scheme
      (import (grades))
@@ -3981,9 +3984,9 @@
 
 **** Упражнение 3.6.2
 
-     Export from (grades) a new syntactic form, distribution, that takes a set of grades, like gpa, but returns a list of
-     the form ((n g) ...), where n is the number of times g appears in the set, with one entry for each g. Have
-     distribution call an unexported procedure to do the actual work.
+     Экспортируйте из ~(grades)~ новую синтаксическую форму, ~distribution~, которая принимает набор оценок, например,
+     ~gpa~, но возвращает список вида ~((ng) ...)~, где ~n~ - количество раз, когда ~g~ появляется в наборе для каждой
+     записи ~g~. Пусть ~distribution~ вызывает неэкспортированную процедуру для выполнения реальной работы.
 
 #+begin_src scheme
      (import (grades))
@@ -3992,9 +3995,9 @@
 
 **** Упражнение 3.6.3
 
-     Now read about output operations in Section 7.8 and define a new export, histogram, as a procedure that takes a
-     textual output port and a distribution, such as might be produced by distribution, and prints a histogram in the
-     style illustrated by the example below.
+     Теперь прочитайте об операциях вывода в Разделе 7.8 и определите новый экспорт, ~histogram~, как процедуру, которая
+     принимает текстовый порт вывода и распределение, которое может быть произведено ~distribution~, и печатает
+     гистограмму в стиле, проиллюстрированном примером ниже.
 
 #+begin_src scheme
      (import (grades))
@@ -4003,7 +4006,7 @@
        (distribution a b a c c a c a f b a))
 #+end_src
 
-     prints:
+     напечатает:
 
 #+BEGIN_EXAMPLE
    a: *****
