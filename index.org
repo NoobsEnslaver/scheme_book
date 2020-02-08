@@ -4021,26 +4021,27 @@
 #+LATEX: \newpage
 [[./images/ch4.png]]
 
-** Procedures and Variable Bindings
-   Procedures and variable bindings are the fundamental building blocks of Scheme programs. This chapter describes the
-   small set of syntactic forms whose primary purpose is to create procedures and manipulate variable bindings. It
-   begins with the two most fundamental building blocks of Scheme programs: variable references and lambda expressions,
-   and continues with descriptions of the variable binding and assignment forms such as define, letrec, let-values, and
-   set!.
+** Связывания процедур и переменных
 
-   Various other forms that bind or assign variables for which the binding or assignment is not the primary purpose
-   (such as named let) are found in Chapter 5.
+   Процедуры и привязки переменных являются основными строительными блоками Scheme программ. В этой главе описывается
+   небольшой набор синтаксических форм, основной целью которых является создание процедур и управление привязками
+   переменных. Он начинается с двух самых фундаментальных строительных блоков программ Scheme: ссылок на переменные и
+   лямбда-выражений и продолжается описанием форм привязки и назначения переменных, таких как ~define~, ~letrec~,
+   ~let-values~ и ~set!~.
 
-*** Variable References
+   Различные другие формы, которые связывают или присваивают переменные, для которых привязка или присваивание не
+   является основной целью (например, именованный ~let~), описаны в главе 5.
+
+*** Ссылки на переменные
 
 #+BEGIN_VERSE
-    *syntax:* variable
-    *returns:* the value of variable
+    *синтаксис:* variable
+    *возвращает:* значение переменной
 #+END_VERSE
 
-    Any identifier appearing as an expression in a program is a variable if a visible variable binding for the
-    identifier exists, e.g., the identifier appears within the scope of a binding created by define, lambda, let, or
-    some other variable-binding construct.
+    Любой идентификатор, появляющийся как выражение в программе, является переменной, если существует видимая привязка
+    переменной для идентификатора, например, идентификатор появляется в пределах области привязки, созданной при помощи
+    ~define~, ~lambda~, ~let~ или другой конструкции привязки переменной.
 
 #+begin_src scheme
 list → #<procedure>
@@ -4051,11 +4052,12 @@ list → #<procedure>
 (let ([let 'let]) let) → let
 #+end_src
 
-    It is a syntax violation for an identifier reference to appear within a library form or top-level program if it is
-    not bound as a variable, keyword, record name, or other entity. Since the scope of the definitions in a library,
-    top-level program, lambda, or other local body is the entire body, it is not necessary for the definition of a
-    variable to appear before its first reference appears, as long as the reference is not actually evaluated until the
-    definition has been completed. So, for example, the reference to g within the definition of f below
+    Это синтаксическое нарушение, когда ссылка на идентификатор появляется внутри формы ~library~ или программы
+    верхнего уровня, если она не связана как переменная, ключевое слово, имя записи или другая сущность. В случае, если
+    область определения это все тело, будь то библиотеки, программы верхнего уровня, лямбды или другого локального тела,
+    нет необходимости, чтобы определение переменной появлялось до того, как появится первая ссылка на неё, если только
+    не пытаться получить значение по ссылке, пока определение не будет завершено. Так, например, ссылка на ~g~ в
+    определении ~f~ ниже
 
 #+begin_src scheme
 (define f
@@ -4066,7 +4068,7 @@ list → #<procedure>
     (+ x x)))
 #+end_src
 
-    is okay, but the reference to g in the definition of q below is not.
+    это нормально, но ссылка на ~g~ в определении ~q~ ниже нет.
 
 #+begin_src scheme
 (define q (g 3))
@@ -4078,43 +4080,45 @@ list → #<procedure>
 *** Lambda
 
 #+BEGIN_VERSE
-    *syntax:* (lambda formals body1 body2 ...)
-    *returns:* a procedure
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* ~(lambda formals body1 body2 ...)~
+    *возвращает:* процедуру
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
 #+END_VERSE
 
-    The lambda syntactic form is used to create procedures. Any operation that creates a procedure or establishes local
-    variable bindings is ultimately defined in terms of lambda or case-lambda.
+    Синтаксическая форма ~lambda~ используется для создания процедур. Любая операция, которая создает процедуру или
+    устанавливает привязки локальных переменных, в конечном итоге определяется в терминах ~lambda~ или ~case-lambda~.
 
-    The variables in formals are the formal parameters of the procedure, and the sequence of subforms body1 body2 ... is
-    its body.
+    Переменные ~formals~ являются формальными параметрами процедуры, а последовательность подвыражений ~body1 body2 ...~
+    является ее телом.
 
-    The body may begin with a sequence of definitions, in which case the bindings created by the definitions are local
-    to the body. If definitions are present, the keyword bindings are used and discarded while expanding the body, and
-    the body is expanded into a letrec* expression formed from the variable definitions and the remaining expressions,
-    as described on page 292. The remainder of this description of lambda assumes that this transformation has taken
-    place, if necessary, so that the body is a sequence of expressions without definitions.
+    Тело может начинаться с последовательности определений, и в этом случае привязки, созданные определениями, являются
+    локальными для тела. Если определения присутствуют, привязки ключевых слов используются и отбрасываются при
+    раскрытии тела, а тело ракрывается в выражение ~letrec*~, сформированного из определений переменных и оставшихся
+    выражений. Остальная часть описания лямбда-выражения предполагает, что это преобразование имело место, если
+    необходимо, так что тело является последовательностью выражений без определений.
 
-    When the procedure is created, the bindings of all variables occurring free within the body, excluding the formal
-    parameters, are retained with the procedure. Subsequently, whenever the procedure is applied to a sequence of actual
-    parameters, the formal parameters are bound to the actual parameters, the retained bindings are restored, and the
-    body is evaluated.
+    Когда процедура создана, привязки всех переменных, свободно встречающихся в теле, за исключением формальных
+    параметров, сохраняются вместе с процедурой. Впоследствии всякий раз, когда процедура применяется к
+    последовательности фактических параметров, формальные параметры привязываются к фактическим параметрам, сохраненные
+    привязки восстанавливаются, и тело выполняется.
 
-    Upon application, the formal parameters defined by formals are bound to the actual parameters as follows.
+    При применении формальные параметры, ~formals~, привязываются к фактическим параметрам следующим образом.
 
-    + If formals is a proper list of variables, e.g., (x y z), each variable is bound to the corresponding actual
-      parameter. An exception with condition type &assertion is raised if too few or too many actual parameters are
-      supplied.
-    + If formals is a single variable (not in a list), e.g., z, it is bound to a list of the actual parameters.
-    + If formals is an improper list of variables terminated by a variable, e.g., (x y . z), each variable but the last
-      is bound to the corresponding actual parameter. The last variable is bound to a list of the remaining actual
-      parameters. An exception with condition type &assertion is raised if too few actual parameters are supplied.
+    + Если ~formals~ - это правильный список переменных, например, ~(x y z)~, каждая переменная связывается с
+      соответствующим фактическим параметром. Выбрасывается исключение с типом ~?&assertation~, если задано
+      слишком мало или слишком много фактических параметров.
+    + Если ~formals~ - это одна переменная (не из списка), например, ~z~, она привязывается к списку фактических
+      параметров.
+    + Если ~formals~ - это неправильный список переменных, оканчивающихся переменной, например, ~(x y. z)~, каждая
+      переменная, кроме последней, связывается с соответствующим фактическим параметром. Последняя переменная
+      связывается со списком оставшихся фактических параметров. Выбрасывается исключение с типом ~&assertation~, если
+      предоставлено слишком мало фактических параметров.
 
-    When the body is evaluated, the expressions in the body are evaluated in sequence, and the procedure returns the
-    values of the last expression.
+    Когда тело выполняется, выражения в теле вычисляются последовательно, и процедура возвращает значения последнего
+    выражения.
 
-    Procedures do not have a printed representation in the usual sense. Scheme systems print procedures in different
-    ways; this book uses the notation #<procedure>.
+    Процедуры не имеют печатного представления в обычном смысле. Системы Scheme отображают процедуры по-разному; эта
+    книга использует обозначение ~#<procedure>~.
 
 #+begin_src scheme
 (lambda (x) (+ x 3)) → #<procedure>
@@ -4134,64 +4138,64 @@ list → #<procedure>
 
 *** Case-Lambda
 
-    A Scheme lambda expression always produces a procedure with a fixed number of arguments or with an indefinite number
-    of arguments greater than or equal to a certain number. In particular,
+    Лямбда-выражение Scheme всегда создает процедуру с фиксированным числом аргументов или с неопределенным числом
+    аргументов, большим или равным определенному числу. В частности,
 
 #+begin_src scheme
 (lambda (var1 ... varn) body1 body2 ...)
 #+end_src
 
-    accepts exactly n arguments,
+    принимает ровно ~n~ аргументов,
 
 #+begin_src scheme
 (lambda r body1 body2 ...)
 #+end_src
 
-    accepts zero or more arguments, and
+    принимает ноль или более аргументов, и
 
 #+begin_src scheme
 (lambda (var1 ... varn . r) body1 body2 ...)
 #+end_src
 
-    accepts n or more arguments.
+    принимает ~n~ или более аргументов.
 
-    lambda cannot directly produce, however, a procedure that accepts, say, either two or three arguments. In
-    particular, procedures that accept optional arguments are not supported directly by lambda. The latter form of
-    lambda shown above can be used, in conjunction with length checks and compositions of car and cdr, to implement
-    procedures with optional arguments, though at the cost of clarity and efficiency.
+    Однако лямбда не может напрямую произвести процедуру, которая принимает, скажем, два или три аргумента. В частности,
+    процедуры, которые принимают необязательные аргументы, напрямую не поддерживаются лямбда-выражением. Последняя форма
+    лямбды, показанная выше, может использоваться в сочетании с проверками длины и комбинациями ~car~ и ~cdr~ для
+    реализации процедур с необязательными аргументами, хотя и за счет ясности и эффективности.
 
-    The case-lambda syntactic form directly supports procedures with optional arguments as well as procedures with fixed
-    or indefinite numbers of arguments. case-lambda is based on the lambda* syntactic form introduced in the article "A
-    New Approach to Procedures with Variable Arity" [11].
+    Синтаксическая форма ~case-lambda~ напрямую поддерживает процедуры с необязательными аргументами, а также процедуры
+    с фиксированным или неопределенным числом аргументов. ~case-lambda~ основана на синтаксической форме ~lambda*~,
+    представленной в статье «Новый подход к процедурам с переменной арностью» [fn:11].
 
 #+BEGIN_VERSE
-    *syntax:* (case-lambda clause ...)
-    *returns:* a procedure
-    *libraries:* (rnrs control), (rnrs)
+    *синтаксис:* ~(case-lambda clause ...)~
+    *возвращает:* процедуру
+    *библиотеки:* ~(rnrs control)~, ~(rnrs)~
 #+END_VERSE
 
-    A case-lambda expression consists of a set of clauses, each resembling a lambda expression. Each clause has the form
-    below.
+    ~case-lambda~ выражение состоит из набора клауз, каждая из которых напоминает лямбда-выражение. Каждая клауза имеет
+    форму, представленную ниже.
 
 #+BEGIN_EXAMPLE
 [formals body1 body2 ...]
 #+END_EXAMPLE
 
-    The formal parameters of a clause are defined by formals in the same manner as for a lambda expression. The number
-    of arguments accepted by the procedure value of a case-lambda expression is determined by the numbers of arguments
-    accepted by the individual clauses.
+    Формальные параметры клаузы определяются ~formals~ так же, как для лямбда-выражения. Количество аргументов,
+    принимаемых ~case-clause~, определяется количеством аргументов, принимаемых отдельными клаузами.
 
-    When a procedure created with case-lambda is invoked, the clauses are considered in order. The first clause that
-    accepts the given number of actual parameters is selected, the formal parameters defined by its formals are bound to
-    the corresponding actual parameters, and the body is evaluated as described for lambda above. If formals in a clause
-    is a proper list of identifiers, then the clause accepts exactly as many actual parameters as there are formal
-    parameters (identifiers) in formals. As with a lambda formals, a case-lambda clause formals may be a single
-    identifier, in which case the clause accepts any number of arguments, or an improper list of identifiers terminated
-    by an identifier, in which case the clause accepts any number of arguments greater than or equal to the number of
-    formal parameters excluding the terminating identifier. If no clause accepts the number of actual parameters
-    supplied, an exception with condition type &assertion is raised.
+    Когда вызывается процедура, созданная с помощью ~case-lambda~, клаузы проверяются на соответствие по
+    порядку. Выбирается первая клаузы, которая принимает заданное количество фактических параметров, формальные
+    параметры, определенные его формальными значениями, привязываются к соответствующим фактическим параметрам, и тело
+    выполняется, как описано выше для лямбды. Если ~formals~ в клаузе - это правильный список идентификаторов, то клауза
+    принимает ровно столько фактических параметров, сколько формальных параметров (идентификаторов) в ~formals~. Как и в
+    случае ~formals~ для ~lambda~, в ~formals~ ~case-lambda~ выражений может быть один идентификатор, в этом случае
+    клауза принимает любое количество аргументов, или неправильный список идентификаторов, оканчивающийся
+    идентификатором, и в этом случае клауза принимает любое количество аргументов, большее или равное количеству
+    формальных параметров, исключая последний идентификатор. Если ни одна из клауз не принимает количество
+    предоставленных фактических параметров, возникает исключение с типом ~&assertation~.
 
-    The following definition for make-list uses case-lambda to support an optional fill parameter.
+    Следующее определение для ~make-list~ использует ~case-lambda~ для поддержки необязательного параметра заполнителя.
 
 #+begin_src scheme
 (define make-list
@@ -4202,8 +4206,9 @@ list → #<procedure>
          ((zero? n) ls))]))
 #+end_src
 
-    The substring procedure may be extended with case-lambda to accept either no end index, in which case it defaults to
-    the end of the string, or no start and end indices, in which case substring is equivalent to string-copy:
+    Процедура ~substring~ может быть расширена с помощью ~case-lambda~, чтобы принимать либо отсутствие конечного
+    индекса, в этом случае по умолчанию используется конец строки, либо отсутствие начального и конечного индексов, в
+    этом случае ~substring~ эквивалентна ~string-copy~:
 
 #+begin_src scheme
 (define substring1
@@ -4213,7 +4218,7 @@ list → #<procedure>
     [(s start end) (substring s start end)]))
 #+end_src
 
-    It is also possible to default the start index rather than the end index when only one index is supplied:
+    Также возможно по умолчанию использовать начальный индекс, а не конечный, если указан только один индекс:
 
 #+begin_src scheme
 (define substring2
@@ -4223,8 +4228,8 @@ list → #<procedure>
     [(s start end) (substring s start end)]))
 #+end_src
 
-    It is even possible to require that both or neither of the start and end indices be supplied, simply by leaving out
-    the middle clause:
+    Можно даже потребовать, чтобы оба или ни один из начального и конечного индексов были предоставлены, просто
+    опустив среднюю клаузу:
 
 #+begin_src scheme
 (define substring3
@@ -4233,24 +4238,23 @@ list → #<procedure>
     [(s start end) (substring s start end)]))
 #+end_src
 
-*** Local Binding
+*** Локальные связывания
 
 #+BEGIN_VERSE
-    *syntax:* (let ((var expr) ...) body1 body2 ...)
-    *returns:* the values of the final body expression
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* ~(let ((var expr) ...) body1 body2 ...)~
+    *возвращает:* значение последнего выражения в теле
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
 #+END_VERSE
 
-    let establishes local variable bindings. Each variable var is bound to the value of the corresponding expression
-    expr. The body of the let, in which the variables are bound, is the sequence of subforms body1 body2 ... and is
-    processed and evaluated like a lambda body.
+    ~let~ устанавливает привязки локальных переменных. Каждая переменная ~var~ связана со значением соответствующего
+    выражения ~expr~. Тело ~let~, в котором связаны переменные, является последовательностью сабформ ~body1 body2 ...~ и
+    обрабатывается и выполняется как тело лямбда-выражения.
 
-    The forms let, let*, letrec, and letrec* (the others are described after let) are similar but serve slightly
-    different purposes. With let, in contrast with let*, letrec, and letrec*, the expressions expr ... are all outside
-    the scope of the variables var .... Also, in contrast with let* and letrec*, no ordering is implied for the
-    evaluation of the expressions expr .... They may be evaluated from left to right, from right to left, or in any
-    other order at the discretion of the implementation. Use let whenever the values are independent of the variables
-    and the order of evaluation is unimportant.
+    Формы ~let~, ~let*~, ~letrec~ и ~letrec*~ (остальные описаны после ~let~) похожи, но служат несколько разным
+    целям. С ~let~, в отличие от ~let*~, ~letrec~ и ~letrec*~, выражения ~expr ...~ находятся вне области видимости
+    переменных ~var ...~. Кроме того, в отличие от ~let*~ и ~letrec*~, упорядочение не подразумевается при выполнении
+    выражений ~expr ...~. Они могут выполняться слева направо, справа налево или в любом другом порядке по усмотрению
+    реализации. Используйте ~let~ всякий раз, когда значения не зависят от переменных, а порядок вычисления не важен.
 
 #+begin_src scheme
 (let ([x (* 3.0 3.0)] [y (* 4.0 4.0)])
@@ -4264,7 +4268,7 @@ list → #<procedure>
     (list x y))) → (1 0)
 #+end_src
 
-    The following definition of let shows the typical derivation of let from lambda.
+    Следующее определение ~let~ показывает типичное происхождение ~let~ из ~lambda~.
 
 #+begin_src scheme
 (define-syntax let
@@ -4273,18 +4277,17 @@ list → #<procedure>
      ((lambda (x ...) b1 b2 ...) e ...)]))
 #+end_src
 
-    Another form of let, named let, is described in Section 5.4, and a definition of the full let can be found on
-    page 312.
+    Другая форма ~let~, именованный ~let~, описана в разделе 5.4, а полное определение ~let~ можно найти в разделе 8.4.
 
 #+BEGIN_VERSE
-    *syntax:* (let* ((var expr) ...) body1 body2 ...)
-    *returns:* the values of the final body expression
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* ~(let* ((var expr) ...) body1 body2 ...)~
+    *возвращает:* значение последнего выражения в теле
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
 #+END_VERSE
 
-    let* is similar to let except that the expressions expr ... are evaluated in sequence from left to right, and each
-    of these expressions is within the scope of the variables to the left. Use let* when there is a linear dependency
-    among the values or when the order of evaluation is important.
+    ~let*~ аналогичен ~let~, за исключением того, что выражения ~expr ...~ вычисляются в последовательности слева
+    направо, и каждое из этих выражений находится в области видимости переменных слева. Используйте ~let*~, когда
+    существует линейная зависимость между значениями или когда важен порядок выполнения.
 
 #+begin_src scheme
 (let* ([x (* 5.0 5.0)]
@@ -4296,8 +4299,8 @@ list → #<procedure>
     (list x y))) → (1 1)
 #+end_src
 
-    Any let* expression may be converted to a set of nested let expressions. The following definition of let*
-    demonstrates the typical transformation.
+    Любое выражение ~let*~ может быть преобразовано во множество вложенных выражений ~let~. Следующее определение ~let*~
+    демонстрирует типичное преобразование.
 
 #+begin_src scheme
 (define-syntax let*
@@ -4310,13 +4313,13 @@ list → #<procedure>
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (letrec ((var expr) ...) body1 body2 ...)
-    *returns:* the values of the final body expression
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* ~(letrec ((var expr) ...) body1 body2 ...)~
+    *возвращает:* значение последнего выражения в теле
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
 #+END_VERSE
 
-    letrec is similar to let and let*, except that all of the expressions expr ... are within the scope of all of the
-    variables var .... letrec allows the definition of mutually recursive procedures.
+    ~letrec~ аналогичен ~let~ и ~let*~, за исключением того, что все выражения ~expr ...~ находятся в области видимости
+    всех переменных ~var ...~. ~letrec~ позволяет определять взаимно рекурсивные процедуры.
 
 #+begin_src scheme
 (letrec ([sum (lambda (x)
@@ -4326,28 +4329,27 @@ list → #<procedure>
   (sum 5)) → 15
 #+end_src
 
-    The order of evaluation of the expressions expr ... is unspecified, so a program must not evaluate a reference to
-    any of the variables bound by the letrec expression before all of the values have been computed. (Occurrence of a
-    variable within a lambda expression does not count as a reference, unless the resulting procedure is applied before
-    all of the values have been computed.) If this restriction is violated, an exception with condition type &assertion
-    is raised.
+    Порядок вычисления выражений ~expr ...~ не определен, поэтому программа не должна использовать ссылки на любую из
+    переменных, связанных выражением ~letrec~, до того, как будут вычислены все значения. (Вхождение переменной в
+    лямбда-выражение не считается ссылкой, если только результирующая процедура не будет применена до того, как будут
+    вычислены все значения.) Если это ограничение нарушается, возникает исключение с типом ~&assertation~.
 
-    An expr should not return more than once. That is, it should not return both normally and via the invocation of a
-    continuation obtained during its evaluation, and it should not return twice via two invocations of such a
-    continuation. Implementations are not required to detect a violation of this restriction, but if they do, an
-    exception with condition type &assertion is raised.
+    ~expr~ не должен возвращать более одного раза. То есть оно не должен возвращать как обычно, так и через вызов
+    продолжения, полученного во время его выполнения, и оно не должено возвращать дважды через два вызова такого
+    продолжения. Реализации не обязаны обнаруживать нарушение этого ограничения, но если они это делают, возникает
+    исключение с типом ~&assertation~.
 
-    Choose letrec over let or let* when there is a circular dependency among the variables and their values and when the
-    order of evaluation is unimportant. Choose letrec* over letrec when there is a circular dependency and the bindings
-    need to be evaluated from left to right.
+    Выберайте ~letrec~ вместо ~let~ или ~let*~, когда существует круговая зависимость между переменными и их значениями
+    и когда порядок выполнения не важен. Выберайте ~letrec*~ вместо ~letrec~, когда существует циклическая зависимость,
+    и привязки должны выполняться слева направо.
 
-    A letrec expression of the form
+    Выражение формы ~letrec~
 
 #+begin_src scheme
 (letrec ((var expr) ...) body1 body2 ...)
 #+end_src
 
-    may be expressed in terms of let and set! as
+    может быть выражено в терминах ~let~ и ~set!~
 
 #+begin_src scheme
 (let ((var #f) ...)
@@ -4356,37 +4358,38 @@ list → #<procedure>
     (let () body1 body2 ...)))
 #+end_src
 
-    where temp ... are fresh variables, i.e., ones that do not already appear in the letrec expression, one for each
-    (var expr) pair. The outer let expression establishes the variable bindings. The initial value given each variable
-    is unimportant, so any value suffices in place of #f. The bindings are established first so that expr ... may
-    contain occurrences of the variables, i.e., so that the expressions are computed within the scope of the
-    variables. The middle let evaluates the values and binds them to the temporary variables, and the set! expressions
-    assign each variable to the corresponding value. The inner let is present in case the body contains internal
-    definitions.
+    где ~temp ...~ - свежие переменные, то есть переменные, которые еще не присутствуют в выражении ~letrec~, по одной
+    для каждой пары ~(var expr)~. Внешнее выражение ~let~ устанавливает привязки переменных. Начальное значение,
+    заданное для каждой переменной неважно, поэтому вместо ~#f~ может быть любое значение. Привязки устанавливаются
+    первыми, чтобы ~expr ...~ мог содержать вхождения переменных, то есть, чтобы выражения вычислялись в области
+    видимости переменных. Среднее значение ~let~ вычисляет значения и связывает их с временными переменными и ~set!~
+    выражение присваивают каждой переменной соответствующее значение. Внутренний ~let~ присутствует для случая, если
+    тело содержит внутренние определения.
 
-    A definition of letrec that uses this transformation is shown on page 310.
+    Определение ~letrec~, которое использует это преобразование, показано в разделе 8.3.
 
-    This transformation does not enforce the restriction that the expr expressions must not evaluate any references of
-    or assignments to the variables. More elaborate transformations that enforce this restriction and actually produce
-    more efficient code are possible [31].
+    Это преобразование не налагает ограничения на то, что выражения ~expr~ не должны выполнять какие-либо ссылки на
+    переменные или их присваивания. Возможны более сложные преобразования, которые усиливают это ограничение и
+    фактически производят более эффективный код [fn:31].
 
 #+BEGIN_VERSE
-    *syntax:* (letrec* ((var expr) ...) body1 body2 ...)
-    *returns:* the values of the final body expression
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* ~(letrec* ((var expr) ...) body1 body2 ...)~
+    *возвращает:* значение последнего выражения в теле
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
 #+END_VERSE
 
-    letrec* is similar to letrec, except that letrec* evaluates expr ... in sequence from left to right. While programs
-    must still not evaluate a reference to any var before the corresponding expr has been evaluated, references to var
-    may be evaluated any time thereafter, including during the evaluation of the expr of any subsequent binding.
+    ~letrec*~ аналогичен ~letrec~, за исключением того, что ~letrec*~ вычисляет ~expr ...~ в последовательности слева
+    направо. Хотя программы по-прежнему не должны использовать ссылку на какой-либо ~var~ до того, как соответствующий
+    ~expr~ будет выполнен, ссылки на ~var~ могут быть выполнены в любое время после этого, в том числе во время
+    выполнения ~expr~ любого последующего связывания.
 
-    A letrec* expression of the form
+    Форма выражения ~letrec*~
 
 #+begin_src scheme
 (letrec* ((var expr) ...) body1 body2 ...)
 #+end_src
 
-    may be expressed in terms of let and set! as
+    может быть выражена в терминах ~let~ и ~set!~
 
 #+begin_src scheme
 (let ((var #f) ...)
@@ -4394,9 +4397,9 @@ list → #<procedure>
   (let () body1 body2 ...))
 #+end_src
 
-    The outer let expression creates the bindings, each assignment evaluates an expression and immediately sets the
-    corresponding variable to its value, in sequence, and the inner let evaluates the body. let is used in the latter
-    case rather than begin since the body may include internal definitions as well as expressions.
+    Внешнее выражение ~let~ создает связывания, каждое присваивание выполняет выражение и сразу устанавливает
+    соответствующей переменной его значение по порядку, а внутренний ~let~ выполняет тело. ~let~ используется в
+    последнем случае, поскольку, как и выражения, тело может содержать и внутренние определения.
 
 #+begin_src scheme
 (letrec* ([sum (lambda (x)
@@ -4417,20 +4420,20 @@ list → #<procedure>
   (eq? (g) g)) → exception: attempt to reference undefined variable f
 #+end_src
 
-*** Multiple Values
+*** Множественные значения
 
 #+BEGIN_VERSE
-    *syntax:* (let-values ((formals expr) ...) body1 body2 ...)
-    *syntax:* (let*-values ((formals expr) ...) body1 body2 ...)
-    *returns:* the values of the final body expression
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* ~(let-values ((formals expr) ...) body1 body2 ...)~
+    *синтаксис:* ~(let*-values ((formals expr) ...) body1 body2 ...)~
+    *возвращает:* значение последнего выражения
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
 #+END_VERSE
 
-    let-values is a convenient way to receive multiple values and bind them to variables. It is structured like let but
-    permits an arbitrary formals list (like lambda) on each left-hand side. let*-values is similar but performs the
-    bindings in left-to-right order, as with let*. An exception with condition type &assertion is raised if the number
-    of values returned by an expr is not appropriate for the corresponding formals, as described in the entry for lambda
-    above. A definition of let-values is given on page 310.
+    ~let-values~ - это удобный способ получить несколько значений и связать их с переменными. Он структурирован как
+    ~let~, но в произвольной структурой левой части формальных параметров (например, ~lambda~). ~let*-values~
+    аналогична, но выполняет привязки в порядке слева направо, как и в случае ~let*~. Исключение с типом ~&assertation~
+    возникает, если число значений, возвращаемых выражением, не соответствует списку формальных параметров, как для
+    ~lambda~ выше. Определение допустимых значений приведено в разделе 8.3.
 
 #+begin_src scheme
 (let-values ([(a b) (values 1 2)] [c (values 1 2 3)])
@@ -4440,24 +4443,25 @@ list → #<procedure>
   (list a b)) → (2 1)
 #+end_src
 
-*** Variable Definitions
+*** Объявление переменных
 
-    *syntax:* (define var expr)
-    *syntax:* (define var)
-    *syntax:* (define (var0 var1 ...) body1 body2 ...)
-    *syntax:* (define (var0 . varr) body1 body2 ...)
-    *syntax:* (define (var0 var1 var2 ... . varr) body1 body2 ...)
-    *libraries:* (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *синтаксис:* ~(define var expr)~
+    *синтаксис:* ~(define var)~
+    *синтаксис:* ~(define (var0 var1 ...) body1 body2 ...)~
+    *синтаксис:* ~(define (var0 . varr) body1 body2 ...)~
+    *синтаксис:* ~(define (var0 var1 var2 ... . varr) body1 body2 ...)~
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
+#+END_VERSE
 
-    In the first form, define creates a new binding of var to the value of expr. The expr should not return more than
-    once. That is, it should not return both normally and via the invocation of a continuation obtained during its
-    evaluation, and it should not return twice via two invocations of such a continuation. Implementations are not
-    required to detect a violation of this restriction, but if they do, an exception with condition type &assertion is
-    raised.
+    В первой форме ~define~ создает новое связывание ~var~ со значением ~expr~. ~expr~ не должен возвращать более одного раза. То есть оно не должен возвращать как обычно, так и через вызов
+    продолжения, полученного во время его выполнения, и оно не должено возвращать дважды через два вызова такого
+    продолжения. Реализации не обязаны обнаруживать нарушение этого ограничения, но если они это делают, возникает
+    исключение с типом ~&assertation~.
 
-    The second form is equivalent to (define var unspecified), where unspecified is some unspecified value. The
-    remaining are shorthand forms for binding variables to procedures; they are identical to the following definition in
-    terms of lambda.
+    Вторая форма эквивалентна ~(define var unspecified)~, где ~unspecified~ - это некоторое неопределённое
+    значение. Остальные - это сокращенные формы для привязки переменных к процедурам; они идентичны следующему
+    определению с точки зрения ~lambda~.
 
 #+begin_src scheme
 (define var
@@ -4465,14 +4469,15 @@ list → #<procedure>
     body1 body2 ...))
 #+end_src
 
-    where formals is (var1 ...), varr, or (var1 var2 ... . varr) for the third, fourth, and fifth define formats.
+    где ~formals~ - это ~(var1 ...)~, ~varr~ или ~(var1 var2 .... varr)~ для третьего, четвертого и пятого форматов.
 
-    Definitions may appear at the front of a library body, anywhere among the forms of a top-level-program body, and at
-    the front of a lambda or case-lambda body or the body of any form derived from lambda, e.g., let, or letrec*. Any
-    body that begins with a sequence of definitions is transformed during macro expansion into a letrec* expression as
-    described on page 292.
+    Определения могут появляться в начале тела библиотеки, в любом месте среди форм тела программы верхнего уровня, и в
+    начале тела ~lambda~ или ~case-lambda~ или тела любой формы, полученной из ~lambda~, например, ~let~, или ~letrec*~.
+    Любое тело, начинающееся с последовательности определений, преобразуется во время раскрытия макроса в выражение
+    ~letrec*~, как описано в главе 8.1.
 
-    Syntax definitions may appear along with variable definitions wherever variable definitions may appear; see Chapter 8.
+    Определения синтаксиса могут появляться вместе с определениями переменных везде, где могут появляться определения
+    переменных; см. главу 8.
 
 #+begin_src scheme
 (define x 3)
@@ -4498,9 +4503,10 @@ x → 3
 (f 3) → 4
 #+end_src
 
-    A set of definitions may be grouped by enclosing them in a begin form. Definitions grouped in this manner may appear
-    wherever ordinary variable and syntax definitions may appear. They are treated as if written separately, i.e.,
-    without the enclosing begin form. This feature allows syntactic extensions to expand into groups of definitions.
+    Набор определений можно сгруппировать, заключив их в форму ~begin~. Определения, сгруппированные таким образом,
+    могут появляться везде, где могут появляться определения обычных переменных и синтаксиса. Они интерпретируются так,
+    как будто они написаны отдельно, то есть без заключения в форму ~begin~. Эта функция позволяет синтаксическим
+    расширениям раскрываться в группу определений.
 
 #+begin_src scheme
 (define-syntax multi-define-syntax
@@ -4521,12 +4527,12 @@ x → 3
   (plus 7 8)) → 15
 #+end_src
 
-    Many implementations support an interactive "top level" in which variable and other definitions may be entered
-    interactively or loaded from files. The behavior of these top-level definitions is outside the scope of the Revised6
-    Report, but as long as top-level variables are defined before any references or assignments to them are evaluated,
-    the behavior is consistent across most implementations. So, for example, the reference to g in the top-level
-    definition of f below is okay if g is not already defined, and g is assumed to name a variable to be defined at some
-    later point.
+    Многие реализации поддерживают интерактивный «верхний уровень», в котором переменные и другие определения могут
+    вводиться интерактивно или загружаться из файлов. Поведение этих определений верхнего уровня выходит за рамки отчета
+    ~Revised6~, но касаемо того, что переменные верхнего уровня должны быть определены до того, как будут испольоваться
+    или присваиваться, поведение является согласованным в большинстве реализаций. Так, например, ссылка на ~g~ в
+    определении верхнего уровня для ~f~ ниже допустима, и это нормально, если ~g~ еще не определено, и предполагается,
+    что ~g~ это имя переменной, которая должна быть определена в какой-то более поздний момент.
 
 #+begin_src scheme
 (define f
@@ -4534,8 +4540,8 @@ x → 3
     (g x)))
 #+end_src
 
-    If this is then followed by a definition of g before f is evaluated, the assumption that g would be defined as a
-    variable is proven correct, and a call to f works as expected.
+    Если за этим следует определение ~g~, до выполнения ~f~, то предположение о том, что ~g~ будет определена как
+    переменная, подтверждается, и вызов ~f~ работает, как и ожидалось.
 
 #+begin_src scheme
 (define g
@@ -4544,23 +4550,24 @@ x → 3
 (f 3) → 6
 #+end_src
 
-    If g were defined instead as the keyword for a syntactic extension, the assumption that g would be bound as a
-    variable is proven false, and if f is not redefined before it is invoked, the implementation is likely to raise an
-    exception.
+    Если вместо этого g было определено как ключевое слово для синтаксического расширения, предположение о том, что ~g~
+    будет связана как переменная, окажется ложным, и если ~f~ не переопределено до его вызова, реализация, вероятно,
+    вызовет исключение.
 
-*** Assignment
+*** Присваивания
 
 #+BEGIN_VERSE
-    *syntax:* (set! var expr)
-    *returns:* unspecified
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* ~(set! var expr)~
+    *возвращает:* unspecified
+    *библиотеки:* ~(rnrs base)~, ~(rnrs)~
 #+END_VERSE
 
-    set! does not establish a new binding for var but rather alters the value of an existing binding. It first evaluates
-    expr, then assigns var to the value of expr. Any subsequent reference to var within the scope of the altered binding
-    evaluates to the new value.
+    ~set!~ не устанавливает новую привязку для ~var~, а изменяет значение существующей привязки. Сначала он вычисляет
+    ~expr~, а затем присваивает ~var~ значение ~expr~. Любая последующая ссылка на ~var~ в рамках измененной привязки
+    возвращает новое значение.
 
-    Assignments are not employed as frequently in Scheme as in most other languages, but they are useful for implementing state changes.
+    Назначения не используются так часто в Scheme, как в большинстве других языков, но они полезны для реализации
+    изменений состояния.
 
 #+begin_src scheme
 (define flip-flop
@@ -4574,9 +4581,10 @@ x → 3
 (flip-flop) → #t
 #+end_src
 
-    Assignments are also useful for caching values. The example below uses a technique called memoization, in which a
-    procedure records the values associated with old input values so it need not recompute them, to implement a fast
-    version of the otherwise exponential doubly recursive definition of the Fibonacci function (see page 69).
+    Назначения также полезны для кэширования значений. В приведенном ниже примере используется метод, называемый
+    мемоизацией, в котором процедура записывает значения, связанные со старыми входными значениями, поэтому нет
+    необходимости пересчитывать их, чтобы реализовать быструю версию экспоненциального двукратно рекурсивного
+    определения функции Фибоначчи (см. Раздел 3.2).
 
 #+begin_src scheme
 (define memoize
@@ -4613,8 +4621,8 @@ x → 3
 *** Procedure Application
 
 #+BEGIN_VERSE
-    *syntax:* (expr0 expr1 ...)
-    *returns:* values of applying the value of expr0 to the values of expr1 ...
+    *синтаксис:* (expr0 expr1 ...)
+    *возвращает:* values of applying the value of expr0 to the values of expr1 ...
 #+END_VERSE
 
     Procedure application is the most basic Scheme control structure. Any structured form without a syntax keyword in
@@ -4639,9 +4647,9 @@ x → 3
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (apply procedure obj ... list)
-    *returns:* the values of applying procedure to obj ... and the elements of list
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (apply procedure obj ... list)
+    *возвращает:* the values of applying procedure to obj ... and the elements of list
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     apply invokes procedure, passing the first obj as the first argument, the second obj as the second argument, and so
@@ -4677,9 +4685,9 @@ x → 3
 *** Sequencing
 
 #+BEGIN_VERSE
-    *syntax:* (begin expr1 expr2 ...)
-    *returns:* the values of the last subexpression
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (begin expr1 expr2 ...)
+    *возвращает:* the values of the last subexpression
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The expressions expr1 expr2 ... are evaluated in sequence from left to right. begin is used to sequence assignments,
@@ -4722,10 +4730,10 @@ x → 3
 *** Conditionals
 
 #+BEGIN_VERSE
-    *syntax:* (if test consequent alternative)
-    *syntax:* (if test consequent)
-    *returns:* the values of consequent or alternative depending on the value of test
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (if test consequent alternative)
+    *синтаксис:* (if test consequent)
+    *возвращает:* the values of consequent or alternative depending on the value of test
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The test, consequent, and alternative subforms must be expressions. If test evaluates to a true value (anything
@@ -4758,9 +4766,9 @@ x → 3
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (not obj)
-    *returns:* #t if obj is false, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (not obj)
+    *возвращает:* #t if obj is false, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     not is equivalent to (lambda (x) (if x #f #t)).
@@ -4773,9 +4781,9 @@ x → 3
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (and expr ...)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (and expr ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If no subexpressions are present, the and form evaluates to #t. Otherwise, and evaluates each subexpression in
@@ -4795,9 +4803,9 @@ x → 3
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (or expr ...)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (or expr ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If no subexpressions are present, the or form evaluates to #f. Otherwise, or evaluates each subexpression in
@@ -4817,9 +4825,9 @@ x → 3
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (cond clause1 clause2 ...)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (cond clause1 clause2 ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     Each clause but the last must take one of the forms below.
@@ -4874,9 +4882,9 @@ x → 3
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* else
-    *syntax:* =>
-    *libraries:* (rnrs base), (rnrs exceptions), (rnrs)
+    *синтаксис:* else
+    *синтаксис:* =>
+    *библиотеки:* (rnrs base), (rnrs exceptions), (rnrs)
 #+END_VERSE
 
     These identifiers are auxiliary keywords for cond. Both also serve as auxiliary keywords for guard, and else also
@@ -4884,10 +4892,10 @@ x → 3
     where they are recognized as auxiliary keywords.
 
 #+BEGIN_VERSE
-    *syntax:* (when test-expr expr1 expr2 ...)
-    *syntax:* (unless test-expr expr1 expr2 ...)
-    *returns:* see below
-    *libraries:* (rnrs control), (rnrs)
+    *синтаксис:* (when test-expr expr1 expr2 ...)
+    *синтаксис:* (unless test-expr expr1 expr2 ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs control), (rnrs)
 #+END_VERSE
 
     For when, if test-expr evaluates to a true value, the expressions expr1 expr2 ... are evaluated in sequence, and the
@@ -4944,9 +4952,9 @@ or in terms of when as follows:
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (case expr0 clause1 clause2 ...)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (case expr0 clause1 clause2 ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     Each clause but the last must take the form
@@ -4984,9 +4992,9 @@ or in terms of when as follows:
 *** Recursion and Iteration
 
 #+BEGIN_VERSE
-    *syntax:* (let name ((var expr) ...) body1 body2 ...)
-    *returns:* values of the final body expression
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (let name ((var expr) ...) body1 body2 ...)
+    *возвращает:* values of the final body expression
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     This form of let, called named let, is a general-purpose iteration and recursion construct. It is similar to the
@@ -5043,9 +5051,9 @@ or in terms of when as follows:
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (do ((var init update) ...) (test result ...) expr ...)
-    *returns:* the values of the last result expression
-    *libraries:* (rnrs control), (rnrs)
+    *синтаксис:* (do ((var init update) ...) (test result ...) expr ...)
+    *возвращает:* the values of the last result expression
+    *библиотеки:* (rnrs control), (rnrs)
 #+END_VERSE
 
     do allows a common restricted form of iteration to be expressed succinctly. The variables var ... are bound
@@ -5127,9 +5135,9 @@ vec → #(2 4 6 8 10)
     elements of the list one by one. A few mapping operators are also available for vectors and strings.
 
 #+BEGIN_VERSE
-    *procedure:* (map procedure list1 list2 ...)
-    *returns:* list of results
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (map procedure list1 list2 ...)
+    *возвращает:* list of results
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     map applies procedure to corresponding elements of the lists list1 list2 ... and returns a list of the resulting
@@ -5171,9 +5179,9 @@ vec → #(2 4 6 8 10)
     the cars and cdrs of the list of input lists; this works because of the special treatment of the single-list case.
 
 #+BEGIN_VERSE
-    *procedure:* (for-each procedure list1 list2 ...)
-    *returns:* unspecified
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (for-each procedure list1 list2 ...)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     for-each is similar to map except that for-each does not create and return a list of the resulting values, and
@@ -5199,9 +5207,9 @@ vec → #(2 4 6 8 10)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (exists procedure list1 list2 ...)
-    *returns:* see below
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (exists procedure list1 list2 ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
@@ -5237,9 +5245,9 @@ vec → #(2 4 6 8 10)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (for-all procedure list1 list2 ...)
-    *returns:* see below
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (for-all procedure list1 list2 ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
@@ -5275,9 +5283,9 @@ vec → #(2 4 6 8 10)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fold-left procedure obj list1 list2 ...)
-    *returns:* see below
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (fold-left procedure obj list1 list2 ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     The list arguments should all have the same length. procedure should accept one more argument than the number of
@@ -5303,9 +5311,9 @@ vec → #(2 4 6 8 10)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fold-right procedure obj list1 list2 ...)
-    *returns:* see below
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (fold-right procedure obj list1 list2 ...)
+    *возвращает:* see below
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     The list arguments should all have the same length. procedure should accept one more argument than the number of
@@ -5330,9 +5338,9 @@ vec → #(2 4 6 8 10)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector-map procedure vector1 vector1 ...)
-    *returns:* vector of results
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector-map procedure vector1 vector1 ...)
+    *возвращает:* vector of results
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     vector-map applies procedure to corresponding elements of vector1 vector2 ... and returns a vector of the resulting
@@ -5350,9 +5358,9 @@ vec → #(2 4 6 8 10)
     vector is the same as that of the corresponding values in the input vectors.
 
 #+BEGIN_VERSE
-    *procedure:* (vector-for-each procedure vector1 vector2 ...)
-    *returns:* unspecified
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector-for-each procedure vector1 vector2 ...)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     vector-for-each is similar to vector-map except that vector-for-each does not create and return a vector of the
@@ -5371,9 +5379,9 @@ vec → #(2 4 6 8 10)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-for-each procedure string1 string2 ...)
-    *returns:* unspecified
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string-for-each procedure string1 string2 ...)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     string-for-each is similar to for-each and vector-for-each except that the inputs are strings rather than lists or
@@ -5395,10 +5403,10 @@ vec → #(2 4 6 8 10)
     computation. They may be obtained with call-with-current-continuation, which can be abbreviated to call/cc.
 
 #+BEGIN_VERSE
-    *procedure:* (call/cc procedure)
-    *procedure:* (call-with-current-continuation procedure)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (call/cc procedure)
+    *процедура:* (call-with-current-continuation procedure)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     These procedures are the same. The shorter name is often used for the obvious reason that it requires fewer
@@ -5439,9 +5447,9 @@ vec → #(2 4 6 8 10)
     with surprising ease and efficiency and with no impact on programs that do not use continuations [17].
 
 #+BEGIN_VERSE
-    *procedure:* (dynamic-wind in body out)
-    *returns:* values resulting from the application of body
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (dynamic-wind in body out)
+    *возвращает:* values resulting from the application of body
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     dynamic-wind offers "protection" from continuation invocation. It is useful for performing tasks that must be
@@ -5617,11 +5625,11 @@ x → 0
     reevaluated.
 
 #+BEGIN_VERSE
-    *syntax:* (delay expr)
-    *returns:* a promise
-    *procedure:* (force promise)
-    *returns:* result of forcing promise
-    *libraries:* (rnrs r5rs)
+    *синтаксис:* (delay expr)
+    *возвращает:* a promise
+    *процедура:* (force promise)
+    *возвращает:* result of forcing promise
+    *библиотеки:* (rnrs r5rs)
 #+END_VERSE
 
     The first time a promise created by delay is forced (with force), it evaluates expr, "remembering" the resulting
@@ -5759,9 +5767,9 @@ x → 0
     values with procedures that consume them.
 
 #+BEGIN_VERSE
-    *procedure:* (values obj ...)
-    *returns:* obj ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (values obj ...)
+    *возвращает:* obj ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The procedure values accepts any number of arguments and simply passes (returns) the arguments to its continuation.
@@ -5784,9 +5792,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (call-with-values producer consumer)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (call-with-values producer consumer)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     producer and consumer must be procedures. call-with-values applies consumer to the values returned by invoking
@@ -6045,9 +6053,9 @@ x → 0
     ability to do run-time meta programming should not be overused but is handy when needed.
 
 #+BEGIN_VERSE
-    *procedure:* (eval obj environment)
-    *returns:* values of the Scheme expression represented by obj in environment
-    *libraries:* (rnrs eval)
+    *процедура:* (eval obj environment)
+    *возвращает:* values of the Scheme expression represented by obj in environment
+    *библиотеки:* (rnrs eval)
 #+END_VERSE
 
     If obj does not represent a syntactically valid expression, eval raises an exception with condition type
@@ -6066,9 +6074,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (environment import-spec ...)
-    *returns:* an environment
-    *libraries:* (rnrs eval)
+    *процедура:* (environment import-spec ...)
+    *возвращает:* an environment
+    *библиотеки:* (rnrs eval)
 #+END_VERSE
 
     environment returns an environment formed from the combined bindings of the given import specifiers. Each
@@ -6080,10 +6088,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (null-environment version)
-    *procedure:* (scheme-report-environment version)
-    *returns:* an R5RS compatibility environment
-    *libraries:* (rnrs r5rs)
+    *процедура:* (null-environment version)
+    *процедура:* (scheme-report-environment version)
+    *возвращает:* an R5RS compatibility environment
+    *библиотеки:* (rnrs r5rs)
 #+END_VERSE
 
     version must be the exact integer 5.
@@ -6117,8 +6125,8 @@ x → 0
 *** Constants and Quotation
 
 #+BEGIN_VERSE
-    *syntax:* constant
-    *returns:* constant
+    *синтаксис:* constant
+    *возвращает:* constant
 #+END_VERSE
 
     constant is any self-evaluating constant, i.e., a number, boolean, character, string, or bytevector. Constants are
@@ -6133,10 +6141,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (quote obj)
-    *syntax:* 'obj
-    *returns:* obj
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (quote obj)
+    *синтаксис:* 'obj
+    *возвращает:* obj
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     'obj is equivalent to (quote obj). The abbreviated form is converted into the longer form by the Scheme reader (see
@@ -6162,14 +6170,14 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (quasiquote obj ...)
-    *syntax:* `obj
-    *syntax:* (unquote obj ...)
-    *syntax:* ,obj
-    *syntax:* (unquote-splicing obj ...)
-    *syntax:* ,@obj
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *синтаксис:* (quasiquote obj ...)
+    *синтаксис:* `obj
+    *синтаксис:* (unquote obj ...)
+    *синтаксис:* ,obj
+    *синтаксис:* (unquote-splicing obj ...)
+    *синтаксис:* ,@obj
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     `obj is equivalent to (quasiquote obj), ,obj is equivalent to (unquote obj), and ,@obj is equivalent to
@@ -6232,9 +6240,9 @@ x → 0
     equal? are discussed first, followed by the type predicates.
 
 #+BEGIN_VERSE
-    *procedure:* (eq? obj1 obj2)
-    *returns:* #t if obj1 and obj2 are identical, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (eq? obj1 obj2)
+    *возвращает:* #t if obj1 and obj2 are identical, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     In most Scheme systems, two objects are considered identical if they are represented internally by the same pointer
@@ -6349,9 +6357,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (eqv? obj1 obj2)
-    *returns:* #t if obj1 and obj2 are equivalent, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (eqv? obj1 obj2)
+    *возвращает:* #t if obj1 and obj2 are equivalent, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     eqv? is similar to eq? except eqv? is guaranteed to return #t for two characters that are considered equal by char=?
@@ -6459,9 +6467,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (equal? obj1 obj2)
-    *returns:* #t if obj1 and obj2 have the same structure and contents, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (equal? obj1 obj2)
+    *возвращает:* #t if obj1 and obj2 have the same structure and contents, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     Two objects are equal if they are equivalent according to eqv?, strings that are string=?, bytevectors that are
@@ -6565,9 +6573,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (boolean? obj)
-    *returns:* #t if obj is either #t or #f, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (boolean? obj)
+    *возвращает:* #t if obj is either #t or #f, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     boolean? is equivalent to (lambda (x) (or (eq? x #t) (eq? x #f))).
@@ -6579,9 +6587,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (null? obj)
-    *returns:* #t if obj is the empty list, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (null? obj)
+    *возвращает:* #t if obj is the empty list, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     null? is equivalent to (lambda (x) (eq? x '())).
@@ -6595,9 +6603,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (pair? obj)
-    *returns:* #t if obj is a pair, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (pair? obj)
+    *возвращает:* #t if obj is a pair, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6609,17 +6617,17 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (number? obj)
-    *returns:* #t if obj is a number object, #f otherwise
-    *procedure:* (complex? obj)
-    *returns:* #t if obj is a complex number object, #f otherwise
-    *procedure:* (real? obj)
-    *returns:* #t if obj is a real number object, #f otherwise
-    *procedure:* (rational? obj)
-    *returns:* #t if obj is a rational number object, #f otherwise
-    *procedure:* (integer? obj)
-    *returns:* #t if obj is an integer object, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (number? obj)
+    *возвращает:* #t if obj is a number object, #f otherwise
+    *процедура:* (complex? obj)
+    *возвращает:* #t if obj is a complex number object, #f otherwise
+    *процедура:* (real? obj)
+    *возвращает:* #t if obj is a real number object, #f otherwise
+    *процедура:* (rational? obj)
+    *возвращает:* #t if obj is a rational number object, #f otherwise
+    *процедура:* (integer? obj)
+    *возвращает:* #t if obj is an integer object, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     These predicates form a hierarchy: any integer is rational, any rational is real, any real is complex, and any
@@ -6680,13 +6688,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (real-valued? obj)
-    *returns:* #t if obj is a real number, #f otherwise
-    *procedure:* (rational-valued? obj)
-    *returns:* #t if obj is a rational number, #f otherwise
-    *procedure:* (integer-valued? obj)
-    *returns:* #t if obj is an integer, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (real-valued? obj)
+    *возвращает:* #t if obj is a real number, #f otherwise
+    *процедура:* (rational-valued? obj)
+    *возвращает:* #t if obj is a rational number, #f otherwise
+    *процедура:* (integer-valued? obj)
+    *возвращает:* #t if obj is an integer, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     These predicates are similar to real?, rational?, and integer?, but treat as real, rational, or integral complex
@@ -6731,9 +6739,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char? obj)
-    *returns:* #t if obj is a character, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (char? obj)
+    *возвращает:* #t if obj is a character, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6745,9 +6753,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string? obj)
-    *returns:* #t if obj is a string, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string? obj)
+    *возвращает:* #t if obj is a string, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6757,9 +6765,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector? obj)
-    *returns:* #t if obj is a vector, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector? obj)
+    *возвращает:* #t if obj is a vector, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6772,9 +6780,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (symbol? obj)
-    *returns:* #t if obj is a symbol, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (symbol? obj)
+    *возвращает:* #t if obj is a symbol, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6787,9 +6795,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (procedure? obj)
-    *returns:* #t if obj is a procedure, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (procedure? obj)
+    *возвращает:* #t if obj is a procedure, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6801,9 +6809,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector? obj)
-    *returns:* #t if obj is a bytevector, #f otherwise
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector? obj)
+    *возвращает:* #t if obj is a bytevector, #f otherwise
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6813,9 +6821,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable? obj)
-    *returns:* #t if obj is a hashtable, #f otherwise
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable? obj)
+    *возвращает:* #t if obj is a hashtable, #f otherwise
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -6852,9 +6860,9 @@ x → 0
     index argument.
 
 #+BEGIN_VERSE
-    *procedure:* (cons obj1 obj2)
-    *returns:* a new pair whose car and cdr are obj1 and obj2
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (cons obj1 obj2)
+    *возвращает:* a new pair whose car and cdr are obj1 and obj2
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     cons is the pair constructor procedure. obj1 becomes the car and obj2 becomes the cdr of the new pair.
@@ -6866,9 +6874,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (car pair)
-    *returns:* the car of pair
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (car pair)
+    *возвращает:* the car of pair
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The empty list is not a pair, so the argument must not be the empty list.
@@ -6880,9 +6888,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (cdr pair)
-    *returns:* the cdr of pair
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (cdr pair)
+    *возвращает:* the cdr of pair
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The empty list is not a pair, so the argument must not be the empty list.
@@ -6894,9 +6902,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (set-car! pair obj)
-    *returns:* unspecified
-    *libraries:* (rnrs mutable-pairs)
+    *процедура:* (set-car! pair obj)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs mutable-pairs)
 #+END_VERSE
 
     set-car! changes the car of pair to obj.
@@ -6908,9 +6916,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (set-cdr! pair obj)
-    *returns:* unspecified
-    *libraries:* (rnrs mutable-pairs)
+    *процедура:* (set-cdr! pair obj)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs mutable-pairs)
 #+END_VERSE
 
     set-cdr! changes the cdr of pair to obj.
@@ -6922,11 +6930,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (caar pair)
-    *procedure:* (cadr pair)  →
-    *procedure:* (cddddr pair)
-    *returns:* the caar, cadr, ..., or cddddr of pair
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (caar pair)
+    *процедура:* (cadr pair)  →
+    *процедура:* (cddddr pair)
+    *возвращает:* the caar, cadr, ..., or cddddr of pair
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     These procedures are defined as the composition of up to four cars and cdrs. The a's and d's between the c and r
@@ -6941,9 +6949,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (list obj ...)
-    *returns:* a list of obj ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (list obj ...)
+    *возвращает:* a list of obj ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     list is equivalent to (lambda x x).
@@ -6955,9 +6963,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (cons* obj ... final-obj)
-    *returns:* a list of obj ... terminated by final-obj
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (cons* obj ... final-obj)
+    *возвращает:* a list of obj ... terminated by final-obj
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     If the objects obj ... are omitted, the result is simply final-obj. Otherwise, a list of obj ... is constructed, as
@@ -6972,9 +6980,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (list? obj)
-    *returns:* #t if obj is a proper list, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (list? obj)
+    *возвращает:* #t if obj is a proper list, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     list? must return #f for all improper lists, including cyclic lists. A definition of list? is shown on page 67.
@@ -6991,9 +6999,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (length list)
-    *returns:* the number of elements in list
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (length list)
+    *возвращает:* the number of elements in list
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     length may be defined as follows, using an adaptation of the hare and tortoise algorithm used for the definition of
@@ -7034,9 +7042,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (list-ref list n)
-    *returns:* the nth element (zero-based) of list
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (list-ref list n)
+    *возвращает:* the nth element (zero-based) of list
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of list. list-ref may be defined without error checks as follows.
@@ -7054,9 +7062,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (list-tail list n)
-    *returns:* the nth tail (zero-based) of list
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (list-tail list n)
+    *возвращает:* the nth tail (zero-based) of list
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than or equal to the length of list. The result is not a copy; the tail
@@ -7082,10 +7090,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (append)
-    *procedure:* (append list ... obj)
-    *returns:* the concatenation of the input lists
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (append)
+    *процедура:* (append list ... obj)
+    *возвращает:* the concatenation of the input lists
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     append returns a new list consisting of the elements of the first list followed by the elements of the second list,
@@ -7113,9 +7121,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (reverse list)
-    *returns:* a new list containing the elements of list in reverse order
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (reverse list)
+    *возвращает:* a new list containing the elements of list in reverse order
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     reverse may be defined without error checks as follows.
@@ -7133,11 +7141,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (memq obj list)
-    *procedure:* (memv obj list)
-    *procedure:* (member obj list)
-    *returns:* the first tail of list whose car is equivalent to obj, or #f
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (memq obj list)
+    *процедура:* (memv obj list)
+    *процедура:* (member obj list)
+    *возвращает:* the first tail of list whose car is equivalent to obj, or #f
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     These procedures traverse the argument list in order, comparing the elements of list against obj. If an object
@@ -7193,9 +7201,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (memp procedure list)
-    *returns:* the first tail of list for whose car procedure returns true, or #f
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (memp procedure list)
+    *возвращает:* the first tail of list for whose car procedure returns true, or #f
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
@@ -7211,11 +7219,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (remq obj list)
-    *procedure:* (remv obj list)
-    *procedure:* (remove obj list)
-    *returns:* a list containing the elements of list with all occurrences of obj removed
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (remq obj list)
+    *процедура:* (remv obj list)
+    *процедура:* (remove obj list)
+    *возвращает:* a list containing the elements of list with all occurrences of obj removed
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     These procedures traverse the argument list, removing any objects that are equivalent to obj. The elements remaining
@@ -7235,9 +7243,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (remp procedure list)
-    *returns:* a list of the elements of list for which procedure returns #f
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (remp procedure list)
+    *возвращает:* a list of the elements of list for which procedure returns #f
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
@@ -7253,9 +7261,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (filter procedure list)
-    *returns:* a list of the elements of list for which procedure returns true
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (filter procedure list)
+    *возвращает:* a list of the elements of list for which procedure returns true
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
@@ -7272,9 +7280,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (partition procedure list)
-    *returns:* see below
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (partition procedure list)
+    *возвращает:* see below
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
@@ -7296,9 +7304,9 @@ x → 0
     calls to procedure for each element of list.
 
 #+BEGIN_VERSE
-    *procedure:* (find procedure list)
-    *returns:* the first element of list for which procedure returns true, or #f
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (find procedure list)
+    *возвращает:* the first element of list for which procedure returns true, or #f
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
@@ -7318,11 +7326,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (assq obj alist)
-    *procedure:* (assv obj alist)
-    *procedure:* (assoc obj alist)
-    *returns:* first element of alist whose car is equivalent to obj, or #f
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (assq obj alist)
+    *процедура:* (assv obj alist)
+    *процедура:* (assoc obj alist)
+    *возвращает:* first element of alist whose car is equivalent to obj, or #f
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     The argument alist must be an association list. An association list is a proper list whose elements are key-value
@@ -7366,9 +7374,9 @@ x → 0
     lookup and assignment.
 
 #+BEGIN_VERSE
-    *procedure:* (assp procedure alist)
-    *returns:* first element of alist for whose car procedure returns true, or #f
-    *libraries:* (rnrs lists), (rnrs)
+    *процедура:* (assp procedure alist)
+    *возвращает:* first element of alist for whose car procedure returns true, or #f
+    *библиотеки:* (rnrs lists), (rnrs)
 #+END_VERSE
 
     alist must be an association list. An association list is a proper list whose elements are key-value pairs of the
@@ -7385,9 +7393,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (list-sort predicate list)
-    *returns:* a list containing the elements of list sorted according to predicate
-    *libraries:* (rnrs sorting), (rnrs)
+    *процедура:* (list-sort predicate list)
+    *возвращает:* a list containing the elements of list sorted according to predicate
+    *библиотеки:* (rnrs sorting), (rnrs)
 #+END_VERSE
 
     predicate should be a procedure that expects two arguments and returns #t if its first argument must precede its
@@ -7499,9 +7507,9 @@ x → 0
     required, the name exint is used. In each case, a suffix may appear on the name, e.g., int2.
 
 #+BEGIN_VERSE
-    *procedure:* (exact? num)
-    *returns:* #t if num is exact, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (exact? num)
+    *возвращает:* #t if num is exact, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7514,9 +7522,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (inexact? num)
-    *returns:* #t if num is inexact, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (inexact? num)
+    *возвращает:* #t if num is inexact, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7527,13 +7535,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (= num1 num2 num3 ...)
-    *procedure:* (< real1 real2 real3 ...)
-    *procedure:* (> real1 real2 real3 ...)
-    *procedure:* (<= real1 real2 real3 ...)
-    *procedure:* (>= real1 real2 real3 ...)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (= num1 num2 num3 ...)
+    *процедура:* (< real1 real2 real3 ...)
+    *процедура:* (> real1 real2 real3 ...)
+    *процедура:* (<= real1 real2 real3 ...)
+    *процедура:* (>= real1 real2 real3 ...)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The predicate = returns #t if its arguments are equal. The predicate < returns #t if its arguments are monotonically
@@ -7582,9 +7590,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (+ num ...)
-    *returns:* the sum of the arguments num ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (+ num ...)
+    *возвращает:* the sum of the arguments num ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     When called with no arguments, + returns 0.
@@ -7600,11 +7608,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (- num)
-    *returns:* the additive inverse of num
-    *procedure:* (- num1 num2 num3 ...)
-    *returns:* the difference between num1 and the sum of num2 num3 ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (- num)
+    *возвращает:* the additive inverse of num
+    *процедура:* (- num1 num2 num3 ...)
+    *возвращает:* the difference between num1 and the sum of num2 num3 ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7616,9 +7624,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (* num ...)
-    *returns:* the product of the arguments num ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (* num ...)
+    *возвращает:* the product of the arguments num ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     When called with no arguments, * returns 1.
@@ -7633,11 +7641,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (/ num)
-    *returns:* the multiplicative inverse of num
-    *procedure:* (/ num1 num2 num3 ...)
-    *returns:* the result of dividing num1 by the product of num2 num3 ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (/ num)
+    *возвращает:* the multiplicative inverse of num
+    *процедура:* (/ num1 num2 num3 ...)
+    *возвращает:* the result of dividing num1 by the product of num2 num3 ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7651,9 +7659,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (zero? num)
-    *returns:* #t if num is zero, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (zero? num)
+    *возвращает:* #t if num is zero, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     zero? is equivalent to (lambda (x) (= x 0)).
@@ -7668,9 +7676,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (positive? real)
-    *returns:* #t if real is greater than zero, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (positive? real)
+    *возвращает:* #t if real is greater than zero, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     positive? is equivalent to (lambda (x) (> x 0)).
@@ -7684,9 +7692,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (negative? real)
-    *returns:* #t if real is less than zero, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (negative? real)
+    *возвращает:* #t if real is less than zero, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     negative? is equivalent to (lambda (x) (< x 0)).
@@ -7700,11 +7708,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (even? int)
-    *returns:* #t if int is even, #f otherwise
-    *procedure:* (odd? int)
-    *returns:* #t if int is odd, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (even? int)
+    *возвращает:* #t if int is even, #f otherwise
+    *процедура:* (odd? int)
+    *возвращает:* #t if int is odd, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7722,13 +7730,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (finite? real)
-    *returns:* #t if real is finite, #f otherwise
-    *procedure:* (infinite? real)
-    *returns:* #t if real is infinite, #f otherwise
-    *procedure:* (nan? real)
-    *returns:* #t if real is a NaN, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (finite? real)
+    *возвращает:* #t if real is finite, #f otherwise
+    *процедура:* (infinite? real)
+    *возвращает:* #t if real is infinite, #f otherwise
+    *процедура:* (nan? real)
+    *возвращает:* #t if real is a NaN, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7750,13 +7758,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (quotient int1 int2)
-    *returns:* the integer quotient of int1 and int2
-    *procedure:* (remainder int1 int2)
-    *returns:* the integer remainder of int1 and int2
-    *procedure:* (modulo int1 int2)
-    *returns:* the integer modulus of int1 and int2
-    *libraries:* (rnrs r5rs)
+    *процедура:* (quotient int1 int2)
+    *возвращает:* the integer quotient of int1 and int2
+    *процедура:* (remainder int1 int2)
+    *возвращает:* the integer remainder of int1 and int2
+    *процедура:* (modulo int1 int2)
+    *возвращает:* the integer modulus of int1 and int2
+    *библиотеки:* (rnrs r5rs)
 #+END_VERSE
 
     The result of remainder has the same sign as int1, while the result of modulo has the same sign as int2.
@@ -7780,11 +7788,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (div x1 x2)
-    *procedure:* (mod x1 x2)
-    *procedure:* (div-and-mod x1 x2)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (div x1 x2)
+    *процедура:* (mod x1 x2)
+    *процедура:* (div-and-mod x1 x2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If x1 and x2 are exact, x2 must not be zero. These procedures implement number-theoretic integer division, with the
@@ -7820,11 +7828,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (div0 x1 x2)
-    *procedure:* (mod0 x1 x2)
-    *procedure:* (div0-and-mod0 x1 x2)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (div0 x1 x2)
+    *процедура:* (mod0 x1 x2)
+    *процедура:* (div0-and-mod0 x1 x2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If x1 and x2 are exact, x2 must not be zero. These procedures are similar to div, mod, and div-and-mod, but
@@ -7858,9 +7866,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (truncate real)
-    *returns:* the integer closest to real toward zero
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (truncate real)
+    *возвращает:* the integer closest to real toward zero
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If real is an infinity or NaN, truncate returns real.
@@ -7874,9 +7882,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (floor real)
-    *returns:* the integer closest to real toward →
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (floor real)
+    *возвращает:* the integer closest to real toward →
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If real is an infinity or NaN, floor returns real.
@@ -7890,9 +7898,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (ceiling real)
-    *returns:* the integer closest to real toward →
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (ceiling real)
+    *возвращает:* the integer closest to real toward →
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If real is an infinity or NaN, ceiling returns real.
@@ -7906,9 +7914,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (round real)
-    *returns:* the integer closest to real
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (round real)
+    *возвращает:* the integer closest to real
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If real is exactly between two integers, the closest even integer is returned. If real is an infinity or NaN, round
@@ -7925,9 +7933,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (abs real)
-    *returns:* the absolute value of real
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (abs real)
+    *возвращает:* the absolute value of real
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     abs is equivalent to (lambda (x) (if (< x 0) (- x) x)). abs and magnitude (see page 183) are identical for real
@@ -7941,9 +7949,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (max real1 real2 ...)
-    *returns:* the maximum of real1 real2 ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (max real1 real2 ...)
+    *возвращает:* the maximum of real1 real2 ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7957,9 +7965,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (min real1 real2 ...)
-    *returns:* the minimum of real1 real2 ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (min real1 real2 ...)
+    *возвращает:* the minimum of real1 real2 ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -7973,9 +7981,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (gcd int ...)
-    *returns:* the greatest common divisor of its arguments int ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (gcd int ...)
+    *возвращает:* the greatest common divisor of its arguments int ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The result is always nonnegative, i.e., factors of -1 are ignored. When called with no arguments, gcd returns 0.
@@ -7988,9 +7996,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (lcm int ...)
-    *returns:* the least common multiple of its arguments int ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (lcm int ...)
+    *возвращает:* the least common multiple of its arguments int ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The result is always nonnegative, i.e., common multiples of -1 are ignored. Although lcm should probably return
@@ -8006,9 +8014,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (expt num1 num2)
-    *returns:* num1 raised to the num2 power
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (expt num1 num2)
+    *возвращает:* num1 raised to the num2 power
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If both arguments are 0, expt returns 1.
@@ -8023,9 +8031,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (inexact num)
-    *returns:* an inexact representation of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (inexact num)
+    *возвращает:* an inexact representation of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If num is already inexact, it is returned unchanged. If no inexact representation for num is supported by the
@@ -8042,9 +8050,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (exact num)
-    *returns:* an exact representation of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (exact num)
+    *возвращает:* an exact representation of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If num is already exact, it is returned unchanged. If no exact representation for num is supported by the
@@ -8059,19 +8067,19 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (exact->inexact num)
-    *returns:* an inexact representation of num
-    *procedure:* (inexact->exact num)
-    *returns:* an exact representation of num
-    *libraries:* (rnrs r5rs)
+    *процедура:* (exact->inexact num)
+    *возвращает:* an inexact representation of num
+    *процедура:* (inexact->exact num)
+    *возвращает:* an exact representation of num
+    *библиотеки:* (rnrs r5rs)
 #+END_VERSE
 
     These are alternative names for inexact and exact, supported for compatibility with the Revised5 Report.
 
 #+BEGIN_VERSE
-    *procedure:* (rationalize real1 real2)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (rationalize real1 real2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     rationalize returns the simplest rational number that differs from real1 by no more than real2. A rational number q1
@@ -8085,9 +8093,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (numerator rat)
-    *returns:* the numerator of rat
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (numerator rat)
+    *возвращает:* the numerator of rat
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If rat is an integer, the numerator is rat.
@@ -8102,9 +8110,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (denominator rat)
-    *returns:* the denominator of rat
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (denominator rat)
+    *возвращает:* the denominator of rat
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If rat is an integer, including zero, the denominator is one.
@@ -8120,9 +8128,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (real-part num)
-    *returns:* the real component of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (real-part num)
+    *возвращает:* the real component of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If num is real, real-part returns num.
@@ -8136,9 +8144,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (imag-part num)
-    *returns:* the imaginary component of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (imag-part num)
+    *возвращает:* the imaginary component of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If num is real, imag-part returns exact zero.
@@ -8152,9 +8160,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (make-rectangular real1 real2)
-    *returns:* a complex number with real component real1 and imaginary component real2
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (make-rectangular real1 real2)
+    *возвращает:* a complex number with real component real1 and imaginary component real2
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8164,9 +8172,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (make-polar real1 real2)
-    *returns:* a complex number with magnitude real1 and angle real2
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (make-polar real1 real2)
+    *возвращает:* a complex number with magnitude real1 and angle real2
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8177,9 +8185,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (angle num)
-    *returns:* the angle part of the polar representation of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (angle num)
+    *возвращает:* the angle part of the polar representation of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The range of the result is → (exclusive) to → (inclusive).
@@ -8190,9 +8198,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (magnitude num)
-    *returns:* the magnitude of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (magnitude num)
+    *возвращает:* the magnitude of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     magnitude and abs (see page 178) are identical for real arguments. The magnitude of a complex number x + yi is
@@ -8208,9 +8216,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (sqrt num)
-    *returns:* the principal square root of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (sqrt num)
+    *возвращает:* the principal square root of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     Implementations are encouraged, but not required, to return exact results for exact inputs to sqrt whenever
@@ -8226,9 +8234,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (exact-integer-sqrt n)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (exact-integer-sqrt n)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     This procedure returns two nonnegative exact integers s and r where n = s2 + r and n < (s + 1)2.
@@ -8243,9 +8251,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (exp num)
-    *returns:* e to the num power
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (exp num)
+    *возвращает:* e to the num power
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8255,11 +8263,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (log num)
-    *returns:* the natural logarithm of num
-    *procedure:* (log num1 num2)
-    *returns:* the base-num2 logarithm of num1
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (log num)
+    *возвращает:* the natural logarithm of num
+    *процедура:* (log num1 num2)
+    *возвращает:* the base-num2 logarithm of num1
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8273,11 +8281,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (sin num)
-    *procedure:* (cos num)
-    *procedure:* (tan num)
-    *returns:* the sine, cosine, or tangent of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (sin num)
+    *процедура:* (cos num)
+    *процедура:* (tan num)
+    *возвращает:* the sine, cosine, or tangent of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The argument is specified in radians.
@@ -8289,10 +8297,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (asin num)
-    *procedure:* (acos num)
-    *returns:* the arc sine or the arc cosine of num
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (asin num)
+    *процедура:* (acos num)
+    *возвращает:* the arc sine or the arc cosine of num
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The result is in radians. The arc sine and arc cosine of a complex number z are defined as follows.
@@ -8308,10 +8316,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (atan num)
-    *procedure:* (atan real1 real2)
-    *returns:* see below
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (atan num)
+    *процедура:* (atan real1 real2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     When passed a single complex argument num (the first form), atan returns the arc tangent of num. The arc tangent of
@@ -8328,15 +8336,15 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-not exint)
-    *returns:* the bitwise not of exint
-    *procedure:* (bitwise-and exint ...)
-    *returns:* the bitwise and of exint ...
-    *procedure:* (bitwise-ior exint ...)
-    *returns:* the bitwise inclusive or of exint ...
-    *procedure:* (bitwise-xor exint ...)
-    *returns:* the bitwise exclusive or of exint ...
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-not exint)
+    *возвращает:* the bitwise not of exint
+    *процедура:* (bitwise-and exint ...)
+    *возвращает:* the bitwise and of exint ...
+    *процедура:* (bitwise-ior exint ...)
+    *возвращает:* the bitwise inclusive or of exint ...
+    *процедура:* (bitwise-xor exint ...)
+    *возвращает:* the bitwise exclusive or of exint ...
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     The inputs are treated as if represented in two's complement, even if they are not represented that way internally.
@@ -8351,9 +8359,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-if exint1 exint2 exint3)
-    *returns:* the bitwise "if" of its arguments
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-if exint1 exint2 exint3)
+    *возвращает:* the bitwise "if" of its arguments
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     The inputs are treated as if represented in two's complement, even if they are not represented that way internally.
@@ -8376,9 +8384,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-bit-count exint)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-bit-count exint)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     For nonnegative inputs, bitwise-bit-count returns the number of bits set in the two's complement representation of
@@ -8398,9 +8406,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-length exint)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-length exint)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     This procedure returns the number of bits of the smallest two's complement representation of exint, not including
@@ -8418,9 +8426,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-first-bit-set exint)
-    *returns:* the index of the least significant bit set in exint
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-first-bit-set exint)
+    *возвращает:* the index of the least significant bit set in exint
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     The input is treated as if represented in two's complement, even if it is not represented that way internally.
@@ -8438,9 +8446,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-bit-set? exint1 exint2)
-    *returns:* #t if bit exint2 of exint1 is set, #f otherwise
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-bit-set? exint1 exint2)
+    *возвращает:* #t if bit exint2 of exint1 is set, #f otherwise
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. The two's
@@ -8462,9 +8470,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-copy-bit exint1 exint2 exint3)
-    *returns:* exint1 with bit exint2 replaced by exint3
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-copy-bit exint1 exint2 exint3)
+    *возвращает:* exint1 with bit exint2 replaced by exint3
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. exint3 must be
@@ -8477,9 +8485,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-bit-field exint1 exint2 exint3)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-bit-field exint1 exint2 exint3)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the number
@@ -8494,9 +8502,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-copy-bit-field exint1 exint2 exint3 exint4)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-copy-bit-field exint1 exint2 exint3 exint4)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns exint1
@@ -8511,11 +8519,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-arithmetic-shift-right exint1 exint2)
-    *returns:* exint1 arithmetically shifted right by exint2 bits
-    *procedure:* (bitwise-arithmetic-shift-left exint1 exint2)
-    *returns:* exint1 shifted left by exint2 bits
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-arithmetic-shift-right exint1 exint2)
+    *возвращает:* exint1 arithmetically shifted right by exint2 bits
+    *процедура:* (bitwise-arithmetic-shift-left exint1 exint2)
+    *возвращает:* exint1 shifted left by exint2 bits
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     exint2 must be nonnegative. exint1 is treated as if represented in two's complement, even if it is not represented
@@ -8531,9 +8539,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-arithmetic-shift exint1 exint2)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-arithmetic-shift exint1 exint2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     If exint2 is negative, bitwise-arithmetic-shift returns the result of arithmetically shifting exint1 right by
@@ -8559,9 +8567,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-rotate-bit-field exint1 exint2 exint3 exint4)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-rotate-bit-field exint1 exint2 exint3 exint4)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     exint2, exint3, and exint4 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns
@@ -8575,9 +8583,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bitwise-reverse-bit-field exint1 exint2 exint3)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+    *процедура:* (bitwise-reverse-bit-field exint1 exint2 exint3)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic bitwise), (rnrs)
 #+END_VERSE
 
     exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the result
@@ -8590,10 +8598,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string->number string)
-    *procedure:* (string->number string radix)
-    *returns:* the number represented by string, or #f
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string->number string)
+    *процедура:* (string->number string radix)
+    *возвращает:* the number represented by string, or #f
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     If string is a valid representation of a number, that number is returned, otherwise #f is returned. The number is
@@ -8610,11 +8618,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (number->string num)
-    *procedure:* (number->string num radix)
-    *procedure:* (number->string num radix precision)
-    *returns:* an external representation of num as a string
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (number->string num)
+    *процедура:* (number->string num radix)
+    *процедура:* (number->string num radix precision)
+    *возвращает:* an external representation of num as a string
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The num is expressed in radix radix, which must be an exact integer in the set {2,8,10,16}. If not specified, radix
@@ -8667,9 +8675,9 @@ x → 0
     represented that way internally.
 
 #+BEGIN_VERSE
-    *procedure:* (fixnum? obj)
-    *returns:* #t if obj is a fixnum, #f otherwise
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fixnum? obj)
+    *возвращает:* #t if obj is a fixnum, #f otherwise
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8680,11 +8688,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (least-fixnum)
-    *returns:* the least (most negative) fixnum supported by the implementation
-    *procedure:* (greatest-fixnum)
-    *returns:* the greatest (most positive) fixnum supported by the implementation
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (least-fixnum)
+    *возвращает:* the least (most negative) fixnum supported by the implementation
+    *процедура:* (greatest-fixnum)
+    *возвращает:* the greatest (most positive) fixnum supported by the implementation
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8695,9 +8703,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fixnum-width)
-    *returns:* the implementation-dependent fixnum width
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fixnum-width)
+    *возвращает:* the implementation-dependent fixnum width
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     As described in the lead-in to this section, the fixnum width determines the size of the fixnum range and must be at
@@ -8711,13 +8719,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fx=? fx1 fx2 fx3 ...)
-    *procedure:* (fx<? fx1 fx2 fx3 ...)
-    *procedure:* (fx>? fx1 fx2 fx3 ...)
-    *procedure:* (fx<=? fx1 fx2 fx3 ...)
-    *procedure:* (fx>=? fx1 fx2 fx3 ...)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fx=? fx1 fx2 fx3 ...)
+    *процедура:* (fx<? fx1 fx2 fx3 ...)
+    *процедура:* (fx>? fx1 fx2 fx3 ...)
+    *процедура:* (fx<=? fx1 fx2 fx3 ...)
+    *процедура:* (fx>=? fx1 fx2 fx3 ...)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     The predicate fx=? returns #t if its arguments are equal. The predicate fx<? returns #t if its arguments are
@@ -8737,13 +8745,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxzero? fx)
-    *returns:* #t if fx is zero, #f otherwise
-    *procedure:* (fxpositive? fx)
-    *returns:* #t if fx is greater than zero, #f otherwise
-    *procedure:* (fxnegative? fx)
-    *returns:* #t if fx is less than zero, #f otherwise
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxzero? fx)
+    *возвращает:* #t if fx is zero, #f otherwise
+    *процедура:* (fxpositive? fx)
+    *возвращает:* #t if fx is greater than zero, #f otherwise
+    *процедура:* (fxnegative? fx)
+    *возвращает:* #t if fx is less than zero, #f otherwise
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fxzero? is equivalent to (lambda (x) (fx=? x 0)), fxpositive? is equivalent to (lambda (x) (fx>? x 0)), and
@@ -8763,11 +8771,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-*procedure:* (fxeven? fx)
-*returns:* #t if fx is even, #f otherwise
-*procedure:* (fxodd? fx)
-*returns:* #t if fx is odd, #f otherwise
-*libraries:* (rnrs arithmetic fixnums), (rnrs)
+*процедура:* (fxeven? fx)
+*возвращает:* #t if fx is even, #f otherwise
+*процедура:* (fxodd? fx)
+*возвращает:* #t if fx is odd, #f otherwise
+*библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8783,11 +8791,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxmin fx1 fx2 ...)
-    *returns:* the minimum of fx1 fx2 ...
-    *procedure:* (fxmax fx1 fx2 ...)
-    *returns:* the maximum of fx1 fx2 ...
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxmin fx1 fx2 ...)
+    *возвращает:* the minimum of fx1 fx2 ...
+    *процедура:* (fxmax fx1 fx2 ...)
+    *возвращает:* the maximum of fx1 fx2 ...
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8803,9 +8811,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fx+ fx1 fx2)
-    *returns:* the sum of fx1 and fx2
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fx+ fx1 fx2)
+    *возвращает:* the sum of fx1 and fx2
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8813,11 +8821,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fx- fx)
-    *returns:* the additive inverse of fx
-    *procedure:* (fx- fx1 fx2)
-    *returns:* the difference between fx1 and fx2
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fx- fx)
+    *возвращает:* the additive inverse of fx
+    *процедура:* (fx- fx1 fx2)
+    *возвращает:* the difference between fx1 and fx2
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8826,9 +8834,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fx* fx1 fx2)
-    *returns:* the product of fx1 and fx2
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fx* fx1 fx2)
+    *возвращает:* the product of fx1 and fx2
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8836,11 +8844,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxdiv fx1 fx2)
-    *procedure:* (fxmod fx1 fx2)
-    *procedure:* (fxdiv-and-mod fx1 fx2)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxdiv fx1 fx2)
+    *процедура:* (fxmod fx1 fx2)
+    *процедура:* (fxdiv-and-mod fx1 fx2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 must not be zero. These are fixnum-specific versions of the generic div, mod, and div-and-mod.
@@ -8860,11 +8868,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxdiv0 fx1 fx2)
-    *procedure:* (fxmod0 fx1 fx2)
-    *procedure:* (fxdiv0-and-mod0 fx1 fx2)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxdiv0 fx1 fx2)
+    *процедура:* (fxmod0 fx1 fx2)
+    *процедура:* (fxdiv0-and-mod0 fx1 fx2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 must not be zero. These are fixnum-specific versions of the generic div0, mod0, and div0-and-mod0.
@@ -8884,11 +8892,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fx+/carry fx1 fx2 fx3)
-    *procedure:* (fx-/carry fx1 fx2 fx3)
-    *procedure:* (fx*/carry fx1 fx2 fx3)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fx+/carry fx1 fx2 fx3)
+    *процедура:* (fx-/carry fx1 fx2 fx3)
+    *процедура:* (fx*/carry fx1 fx2 fx3)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     When an ordinary fixnum addition, subtraction, or multiplication operation overflows, an exception is raised. These
@@ -8923,15 +8931,15 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxnot fx)
-    *returns:* the bitwise not of fx
-    *procedure:* (fxand fx ...)
-    *returns:* the bitwise and of fx ...
-    *procedure:* (fxior fx ...)
-    *returns:* the bitwise inclusive or of fx ...
-    *procedure:* (fxxor fx ...)
-    *returns:* the bitwise exclusive or of fx ...
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxnot fx)
+    *возвращает:* the bitwise not of fx
+    *процедура:* (fxand fx ...)
+    *возвращает:* the bitwise and of fx ...
+    *процедура:* (fxior fx ...)
+    *возвращает:* the bitwise inclusive or of fx ...
+    *процедура:* (fxxor fx ...)
+    *возвращает:* the bitwise exclusive or of fx ...
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -8944,9 +8952,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxif fx1 fx2 fx3)
-    *returns:* the bitwise "if" of its arguments
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxif fx1 fx2 fx3)
+    *возвращает:* the bitwise "if" of its arguments
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     For each bit set in fx1, the corresponding bit of the result is taken from fx2, and for each bit not set in fx1, the
@@ -8966,9 +8974,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxbit-count fx)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxbit-count fx)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     For nonnegative inputs, fxbit-count returns the number of bits set in the two's complement representation of fx. For
@@ -8987,9 +8995,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxlength fx)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxlength fx)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     This procedure returns the number of bits of the smallest two's complement representation of fx, not including the
@@ -9007,9 +9015,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxfirst-bit-set fx)
-    *returns:* the index of the least significant bit set in fx
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxfirst-bit-set fx)
+    *возвращает:* the index of the least significant bit set in fx
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     If fx is 0, fxfirst-bit-set returns -1.
@@ -9025,9 +9033,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxbit-set? fx1 fx2)
-    *returns:* #t if bit fx2 of fx1 is set, #f otherwise
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxbit-set? fx1 fx2)
+    *возвращает:* #t if bit fx2 of fx1 is set, #f otherwise
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 must be nonnegative. It is taken as a zero-based index for the bits in the two's complement representation of
@@ -9045,9 +9053,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxcopy-bit fx1 fx2 fx3)
-    *returns:* fx1 with bit fx2 replaced by fx3
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxcopy-bit fx1 fx2 fx3)
+    *возвращает:* fx1 with bit fx2 replaced by fx3
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 must be nonnegative and less than the value of (- (fixnum-width) 1). fx3 must be 0 or 1. This procedure
@@ -9059,9 +9067,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxbit-field fx1 fx2 fx3)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxbit-field fx1 fx2 fx3)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
@@ -9076,9 +9084,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxcopy-bit-field fx1 fx2 fx3 fx4)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxcopy-bit-field fx1 fx2 fx3 fx4)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
@@ -9093,11 +9101,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxarithmetic-shift-right fx1 fx2)
-    *returns:* fx1 arithmetically shifted right by fx2 bits
-    *procedure:* (fxarithmetic-shift-left fx1 fx2)
-    *returns:* fx1 shifted left by fx2 bits
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxarithmetic-shift-right fx1 fx2)
+    *возвращает:* fx1 arithmetically shifted right by fx2 bits
+    *процедура:* (fxarithmetic-shift-left fx1 fx2)
+    *возвращает:* fx1 shifted left by fx2 bits
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 must be nonnegative and less than the value of (fixnum-width).
@@ -9112,9 +9120,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxarithmetic-shift fx1 fx2)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxarithmetic-shift fx1 fx2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     The absolute value of fx2 must be less than the value of (fixnum-width). If fx2 is negative, fxarithmetic-shift
@@ -9140,9 +9148,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxrotate-bit-field fx1 fx2 fx3 fx4)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxrotate-bit-field fx1 fx2 fx3 fx4)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2, fx3, and fx4 must be nonnegative and less than the value of (fixnum-width), fx2 must not be greater than fx3,
@@ -9157,9 +9165,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fxreverse-bit-field fx1 fx2 fx3)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+    *процедура:* (fxreverse-bit-field fx1 fx2 fx3)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic fixnums), (rnrs)
 #+END_VERSE
 
     fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
@@ -9188,9 +9196,9 @@ x → 0
     specified, the numeric values of flonum-specific procedures are flonums.
 
 #+BEGIN_VERSE
-    *procedure:* (flonum? obj)
-    *returns:* #t if obj is a flonum, otherwise #f
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flonum? obj)
+    *возвращает:* #t if obj is a flonum, otherwise #f
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9203,13 +9211,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fl=? fl1 fl2 fl3 ...)
-    *procedure:* (fl<? fl1 fl2 fl3 ...)
-    *procedure:* (fl>? fl1 fl2 fl3 ...)
-    *procedure:* (fl<=? fl1 fl2 fl3 ...)
-    *procedure:* (fl>=? fl1 fl2 fl3 ...)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fl=? fl1 fl2 fl3 ...)
+    *процедура:* (fl<? fl1 fl2 fl3 ...)
+    *процедура:* (fl>? fl1 fl2 fl3 ...)
+    *процедура:* (fl<=? fl1 fl2 fl3 ...)
+    *процедура:* (fl>=? fl1 fl2 fl3 ...)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     The predicate fl=? returns #t if its arguments are equal. The predicate fl<? returns #t if its arguments are
@@ -9235,13 +9243,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flzero? fl)
-    *returns:* #t if fl is zero, #f otherwise
-    *procedure:* (flpositive? fl)
-    *returns:* #t if fl is greater than zero, #f otherwise
-    *procedure:* (flnegative? fl)
-    *returns:* #t if fl is less than zero, #f otherwise
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flzero? fl)
+    *возвращает:* #t if fl is zero, #f otherwise
+    *процедура:* (flpositive? fl)
+    *возвращает:* #t if fl is greater than zero, #f otherwise
+    *процедура:* (flnegative? fl)
+    *возвращает:* #t if fl is less than zero, #f otherwise
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     flzero? is equivalent to (lambda (x) (fl=? x 0.0)), flpositive? is equivalent to (lambda (x) (fl>? x 0.0)), and
@@ -9273,9 +9281,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flinteger? fl)
-    *returns:* #t if fl is integer, #f otherwise
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flinteger? fl)
+    *возвращает:* #t if fl is integer, #f otherwise
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9286,13 +9294,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flfinite? fl)
-    *returns:* #t if fl is finite, #f otherwise
-    *procedure:* (flinfinite? fl)
-    *returns:* #t if fl is infinite, #f otherwise
-    *procedure:* (flnan? fl)
-    *returns:* #t if fl is a NaN, #f otherwise
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flfinite? fl)
+    *возвращает:* #t if fl is finite, #f otherwise
+    *процедура:* (flinfinite? fl)
+    *возвращает:* #t if fl is infinite, #f otherwise
+    *процедура:* (flnan? fl)
+    *возвращает:* #t if fl is a NaN, #f otherwise
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9310,11 +9318,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fleven? fl-int)
-    *returns:* #t if fl-int is even, #f otherwise
-    *procedure:* (flodd? fl-int)
-    *returns:* #t if fl-int is odd, #f otherwise
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fleven? fl-int)
+    *возвращает:* #t if fl-int is even, #f otherwise
+    *процедура:* (flodd? fl-int)
+    *возвращает:* #t if fl-int is odd, #f otherwise
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     fl-int must be an integer-valued flonum.
@@ -9332,11 +9340,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flmin fl1 fl2 ...)
-    *returns:* the minimum of fl1 fl2 ...
-    *procedure:* (flmax fl1 fl2 ...)
-    *returns:* the maximum of fl1 fl2 ...
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flmin fl1 fl2 ...)
+    *возвращает:* the minimum of fl1 fl2 ...
+    *процедура:* (flmax fl1 fl2 ...)
+    *возвращает:* the maximum of fl1 fl2 ...
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9352,9 +9360,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fl+ fl ...)
-    *returns:* the sum of the arguments fl ...
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fl+ fl ...)
+    *возвращает:* the sum of the arguments fl ...
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     When called with no arguments, fl+ returns 0.0.
@@ -9367,11 +9375,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fl- fl)
-    *returns:* the additive inverse of fl
-    *procedure:* (fl- fl1 fl2 fl3 ...)
-    *returns:* the difference between fl1 and the sum of fl2 fl3 ...
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fl- fl)
+    *возвращает:* the additive inverse of fl
+    *процедура:* (fl- fl1 fl2 fl3 ...)
+    *возвращает:* the difference between fl1 and the sum of fl2 fl3 ...
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     With an IEEE floating-point representation of flonums, the single-argument fl- is equivalent to
@@ -9402,9 +9410,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fl* fl ...)
-    *returns:* the product of the arguments fl ...
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fl* fl ...)
+    *возвращает:* the product of the arguments fl ...
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     When called with no arguments, fl* returns 1.0.
@@ -9417,11 +9425,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fl/ fl)
-    *returns:* the multiplicative inverse of fl
-    *procedure:* (fl/ fl1 fl2 fl3 ...)
-    *returns:* the result of dividing fl1 by the product of fl2 fl3 ...
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fl/ fl)
+    *возвращает:* the multiplicative inverse of fl
+    *процедура:* (fl/ fl1 fl2 fl3 ...)
+    *возвращает:* the result of dividing fl1 by the product of fl2 fl3 ...
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9432,11 +9440,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fldiv fl1 fl2)
-    *procedure:* (flmod fl1 fl2)
-    *procedure:* (fldiv-and-mod fl1 fl2)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fldiv fl1 fl2)
+    *процедура:* (flmod fl1 fl2)
+    *процедура:* (fldiv-and-mod fl1 fl2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     These are flonum-specific versions of the generic div, mod, and div-and-mod.
@@ -9456,11 +9464,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fldiv0 fl1 fl2)
-    *procedure:* (flmod0 fl1 fl2)
-    *procedure:* (fldiv0-and-mod0 fl1 fl2)
-    *returns:* see below
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fldiv0 fl1 fl2)
+    *процедура:* (flmod0 fl1 fl2)
+    *процедура:* (fldiv0-and-mod0 fl1 fl2)
+    *возвращает:* see below
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     These are flonum-specific versions of the generic div0, mod0, and div0-and-mod0.
@@ -9480,15 +9488,15 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flround fl)
-    *returns:* the integer closest to fl
-    *procedure:* (fltruncate fl)
-    *returns:* the integer closest to fl toward zero
-    *procedure:* (flfloor fl)
-    *returns:* the integer closest to fl toward →
-    *procedure:* (flceiling fl)
-    *returns:* the integer closest to fl toward →
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flround fl)
+    *возвращает:* the integer closest to fl
+    *процедура:* (fltruncate fl)
+    *возвращает:* the integer closest to fl toward zero
+    *процедура:* (flfloor fl)
+    *возвращает:* the integer closest to fl toward →
+    *процедура:* (flceiling fl)
+    *возвращает:* the integer closest to fl toward →
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     If fl is an integer, NaN, or infinity, each of these procedures returns fl. If fl is exactly between two integers,
@@ -9511,11 +9519,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flnumerator fl)
-    *returns:* the numerator of fl
-    *procedure:* (fldenominator fl)
-    *returns:* the denominator of fl
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flnumerator fl)
+    *возвращает:* the numerator of fl
+    *процедура:* (fldenominator fl)
+    *возвращает:* the denominator of fl
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     If fl is an integer, including 0.0, or infinity, the numerator is fl and the denominator is 1.0.
@@ -9537,9 +9545,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flabs fl)
-    *returns:* absolute value of fl
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flabs fl)
+    *возвращает:* absolute value of fl
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9548,13 +9556,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flexp fl)
-    *returns:* e to the fl power
-    *procedure:* (fllog fl)
-    *returns:* the natural logarithm of fl
-    *procedure:* (fllog fl1 fl2)
-    *returns:* the base-fl2 logarithm of fl1
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flexp fl)
+    *возвращает:* e to the fl power
+    *процедура:* (fllog fl)
+    *возвращает:* the natural logarithm of fl
+    *процедура:* (fllog fl1 fl2)
+    *возвращает:* the base-fl2 logarithm of fl1
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9570,28 +9578,28 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flsin fl)
-    *returns:* the sine of fl
-    *procedure:* (flcos fl)
-    *returns:* the cosine of fl
-    *procedure:* (fltan fl)
-    *returns:* the tangent of fl
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flsin fl)
+    *возвращает:* the sine of fl
+    *процедура:* (flcos fl)
+    *возвращает:* the cosine of fl
+    *процедура:* (fltan fl)
+    *возвращает:* the tangent of fl
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 
 
-    *procedure:* (flasin fl)
-    *returns:* the arc sine of fl
-    *procedure:* (flacos fl)
-    *returns:* the arc cosine of fl
-    *procedure:* (flatan fl)
-    *returns:* the arc tangent of fl
-    *procedure:* (flatan fl1 fl2)
-    *returns:* the arc tangent of fl1/fl2
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flasin fl)
+    *возвращает:* the arc sine of fl
+    *процедура:* (flacos fl)
+    *возвращает:* the arc cosine of fl
+    *процедура:* (flatan fl)
+    *возвращает:* the arc tangent of fl
+    *процедура:* (flatan fl1 fl2)
+    *возвращает:* the arc tangent of fl1/fl2
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 
-    *procedure:* (flsqrt fl)
-    *returns:* the principal square root of fl
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flsqrt fl)
+    *возвращает:* the principal square root of fl
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     Returns the principal square root of fl. The square root of -0.0 should be -0.0. The result for other negative
@@ -9604,9 +9612,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (flexpt fl1 fl2)
-    *returns:* fl1 raised to the fl2 power
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (flexpt fl1 fl2)
+    *возвращает:* fl1 raised to the fl2 power
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     If fl1 is negative and fl2 is not an integer, the result may be a NaN or some other unspecified flonum. If fl1 and
@@ -9619,11 +9627,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (fixnum->flonum fx)
-    *returns:* the flonum representation closest to fx
-    *procedure:* (real->flonum real)
-    *returns:* the flonum representation closest to real
-    *libraries:* (rnrs arithmetic flonums), (rnrs)
+    *процедура:* (fixnum->flonum fx)
+    *возвращает:* the flonum representation closest to fx
+    *процедура:* (real->flonum real)
+    *возвращает:* the flonum representation closest to real
+    *библиотеки:* (rnrs arithmetic flonums), (rnrs)
 #+END_VERSE
 
     fixnum->flonum is a restricted variant of inexact. real->flonum is a restricted variant of inexact when the input is
@@ -9652,13 +9660,13 @@ x → 0
     and Chapter 7 on input and output for other operations relating to characters.
 
 #+BEGIN_VERSE
-    *procedure:* (char=? char1 char2 char3 ...)
-    *procedure:* (char<? char1 char2 char3 ...)
-    *procedure:* (char>? char1 char2 char3 ...)
-    *procedure:* (char<=? char1 char2 char3 ...)
-    *procedure:* (char>=? char1 char2 char3 ...)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (char=? char1 char2 char3 ...)
+    *процедура:* (char<? char1 char2 char3 ...)
+    *процедура:* (char>? char1 char2 char3 ...)
+    *процедура:* (char<=? char1 char2 char3 ...)
+    *процедура:* (char>=? char1 char2 char3 ...)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     These predicates behave in a similar manner to the numeric predicates =, <, >, <=, and >=. For example, char=?
@@ -9676,13 +9684,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-ci=? char1 char2 char3 ...)
-    *procedure:* (char-ci<? char1 char2 char3 ...)
-    *procedure:* (char-ci>? char1 char2 char3 ...)
-    *procedure:* (char-ci<=? char1 char2 char3 ...)
-    *procedure:* (char-ci>=? char1 char2 char3 ...)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-ci=? char1 char2 char3 ...)
+    *процедура:* (char-ci<? char1 char2 char3 ...)
+    *процедура:* (char-ci>? char1 char2 char3 ...)
+    *процедура:* (char-ci<=? char1 char2 char3 ...)
+    *процедура:* (char-ci>=? char1 char2 char3 ...)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     These predicates are identical to the predicates char=?, char<?, char>?, char<=?, and char>=? except that they are
@@ -9699,13 +9707,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-alphabetic? char)
-    *returns:* #t if char is a letter, #f otherwise
-    *procedure:* (char-numeric? char)
-    *returns:* #t if char is a digit, #f otherwise
-    *procedure:* (char-whitespace? char)
-    *returns:* #t if char is whitespace, #f otherwise
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-alphabetic? char)
+    *возвращает:* #t if char is a letter, #f otherwise
+    *процедура:* (char-numeric? char)
+    *возвращает:* #t if char is a digit, #f otherwise
+    *процедура:* (char-whitespace? char)
+    *возвращает:* #t if char is whitespace, #f otherwise
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     A character is alphabetic if it has the Unicode "Alphabetic" property, numeric if it has the Unicode "Numeric"
@@ -9728,13 +9736,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-lower-case? char)
-    *returns:* #t if char is lower case, #f otherwise
-    *procedure:* (char-upper-case? char)
-    *returns:* #t if char is upper case, #f otherwise
-    *procedure:* (char-title-case? char)
-    *returns:* #t if char is title case, #f otherwise
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-lower-case? char)
+    *возвращает:* #t if char is lower case, #f otherwise
+    *процедура:* (char-upper-case? char)
+    *возвращает:* #t if char is upper case, #f otherwise
+    *процедура:* (char-title-case? char)
+    *возвращает:* #t if char is title case, #f otherwise
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     A character is upper-case if it has the Unicode "Uppercase" property, lower-case if it has the "Lowercase" property,
@@ -9752,9 +9760,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-general-category char)
-    *returns:* a symbol representing the Unicode general category of char
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-general-category char)
+    *возвращает:* a symbol representing the Unicode general category of char
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     The return value is one of the symbols Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Ps, Pe, Pi, Pf, Pd, Pc, Po, Sc,
@@ -9767,9 +9775,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-upcase char)
-    *returns:* the upper-case character counterpart of char
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-upcase char)
+    *возвращает:* the upper-case character counterpart of char
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     If char is a lower- or title-case character and has a single upper-case counterpart, char-upcase returns the
@@ -9783,9 +9791,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-downcase char)
-    *returns:* the lower-case character equivalent of char
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-downcase char)
+    *возвращает:* the lower-case character equivalent of char
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     If char is an upper- or title-case character and has a single lower-case counterpart, char-downcase returns the
@@ -9799,9 +9807,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-titlecase char)
-    *returns:* the title-case character equivalent of char
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-titlecase char)
+    *возвращает:* the title-case character equivalent of char
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     If char is an upper- or lower-case character and has a single title-case counterpart, char-titlecase returns the
@@ -9817,9 +9825,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char-foldcase char)
-    *returns:* the case-folded character equivalent of char
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (char-foldcase char)
+    *возвращает:* the case-folded character equivalent of char
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     If char has a case-folded counterpart, char-foldcase returns the case-folded counterpart. Otherwise, char-foldcase
@@ -9834,9 +9842,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (char->integer char)
-    *returns:* the Unicode scalar value of char as an exact integer
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (char->integer char)
+    *возвращает:* the Unicode scalar value of char as an exact integer
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9846,9 +9854,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (integer->char n)
-    *returns:* the character corresponding to the Unicode scalar value n
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (integer->char n)
+    *возвращает:* the character corresponding to the Unicode scalar value n
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact integer and a valid Unicode scalar value, i.e., [[./images/23.png]] or [[./images/24.png]].
@@ -9875,13 +9883,13 @@ x → 0
     highest valid index for a given string is one less than its length.
 
 #+BEGIN_VERSE
-    *procedure:* (string=? string1 string2 string3 ...)
-    *procedure:* (string<? string1 string2 string3 ...)
-    *procedure:* (string>? string1 string2 string3 ...)
-    *procedure:* (string<=? string1 string2 string3 ...)
-    *procedure:* (string>=? string1 string2 string3 ...)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string=? string1 string2 string3 ...)
+    *процедура:* (string<? string1 string2 string3 ...)
+    *процедура:* (string>? string1 string2 string3 ...)
+    *процедура:* (string<=? string1 string2 string3 ...)
+    *процедура:* (string>=? string1 string2 string3 ...)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     As with =, <, >, <=, and >=, these predicates express relationships among all of the arguments. For example,
@@ -9933,13 +9941,13 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-ci=? string1 string2 string3 ...)
-    *procedure:* (string-ci<? string1 string2 string3 ...)
-    *procedure:* (string-ci>? string1 string2 string3 ...)
-    *procedure:* (string-ci<=? string1 string2 string3 ...)
-    *procedure:* (string-ci>=? string1 string2 string3 ...)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (string-ci=? string1 string2 string3 ...)
+    *процедура:* (string-ci<? string1 string2 string3 ...)
+    *процедура:* (string-ci>? string1 string2 string3 ...)
+    *процедура:* (string-ci<=? string1 string2 string3 ...)
+    *процедура:* (string-ci>=? string1 string2 string3 ...)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     These predicates are identical to string=?, string<?, string>?, string<=?, and string>=? except that they are
@@ -9953,9 +9961,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string char ...)
-    *returns:* a string containing the characters char ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string char ...)
+    *возвращает:* a string containing the characters char ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -9965,10 +9973,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (make-string n)
-    *procedure:* (make-string n char)
-    *returns:* a string of length n
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (make-string n)
+    *процедура:* (make-string n char)
+    *возвращает:* a string of length n
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer. If char is supplied, the string is filled with n occurrences of char,
@@ -9981,9 +9989,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-length string)
-    *returns:* the number of characters in string
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string-length string)
+    *возвращает:* the number of characters in string
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The length of a string is always an exact nonnegative integer.
@@ -9996,9 +10004,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-ref string n)
-    *returns:* the nth character (zero-based) of string
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string-ref string n)
+    *возвращает:* the nth character (zero-based) of string
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of string.
@@ -10009,9 +10017,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-set! string n char)
-    *returns:* unspecified
-    *libraries:* (rnrs mutable-strings)
+    *процедура:* (string-set! string n char)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs mutable-strings)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of string. string-set! changes the nth element of string
@@ -10025,9 +10033,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-copy string)
-    *returns:* a new copy of string
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string-copy string)
+    *возвращает:* a new copy of string
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     This procedure creates a new string with the same length and contents as string.
@@ -10040,9 +10048,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-append string ...)
-    *returns:* a new string formed by concatenating the strings string ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string-append string ...)
+    *возвращает:* a new string formed by concatenating the strings string ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -10069,9 +10077,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (substring string start end)
-    *returns:* a copy of string from start (inclusive) to end (exclusive)
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (substring string start end)
+    *возвращает:* a copy of string from start (inclusive) to end (exclusive)
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     start and end must be exact nonnegative integers; start must be less than or equal to end, while end must be less
@@ -10098,9 +10106,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-fill! string char)
-    *returns:* unspecified
-    *libraries:* (rnrs mutable-strings)
+    *процедура:* (string-fill! string char)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs mutable-strings)
 #+END_VERSE
 
     string-fill! sets every character in string to char.
@@ -10125,15 +10133,15 @@ x → 0
     An alternative definition is given on page 276.
 
 #+BEGIN_VERSE
-    *procedure:* (string-upcase string)
-    *returns:* the upper-case equivalent of string
-    *procedure:* (string-downcase string)
-    *returns:* the lower-case equivalent of string
-    *procedure:* (string-foldcase string)
-    *returns:* the case-folded equivalent of string
-    *procedure:* (string-titlecase string)
-    *returns:* the title-case equivalent of string
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (string-upcase string)
+    *возвращает:* the upper-case equivalent of string
+    *процедура:* (string-downcase string)
+    *возвращает:* the lower-case equivalent of string
+    *процедура:* (string-foldcase string)
+    *возвращает:* the case-folded equivalent of string
+    *процедура:* (string-titlecase string)
+    *возвращает:* the title-case equivalent of string
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     These procedures implement Unicode's locale-independent case mappings from scalar-value sequences to scalar-value
@@ -10165,15 +10173,15 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string-normalize-nfd string)
-    *returns:* the Unicode normalized form D of string
-    *procedure:* (string-normalize-nfkd string)
-    *returns:* the Unicode normalized form KD of string
-    *procedure:* (string-normalize-nfc string)
-    *returns:* the Unicode normalized form C of string
-    *procedure:* (string-normalize-nfkc string)
-    *returns:* the Unicode normalized form KC of string
-    *libraries:* (rnrs unicode), (rnrs)
+    *процедура:* (string-normalize-nfd string)
+    *возвращает:* the Unicode normalized form D of string
+    *процедура:* (string-normalize-nfkd string)
+    *возвращает:* the Unicode normalized form KD of string
+    *процедура:* (string-normalize-nfc string)
+    *возвращает:* the Unicode normalized form C of string
+    *процедура:* (string-normalize-nfkc string)
+    *возвращает:* the Unicode normalized form KC of string
+    *библиотеки:* (rnrs unicode), (rnrs)
 #+END_VERSE
 
     If the result string is the same as string (by string=?), string or a copy of string may be returned. Otherwise, the
@@ -10187,9 +10195,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string->list string)
-    *returns:* a list of the characters in string
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string->list string)
+    *возвращает:* a list of the characters in string
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     string->list allows a string to be converted into a list, so that Scheme's list-processing operations may be applied
@@ -10211,9 +10219,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (list->string list)
-    *returns:* a string of the characters in list
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (list->string list)
+    *возвращает:* a string of the characters in list
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     list must consist entirely of characters.
@@ -10254,9 +10262,9 @@ x → 0
     ). For example, a vector consisting of the elements a, b, and c would be written #(a b c).
 
 #+BEGIN_VERSE
-    *procedure:* (vector obj ...)
-    *returns:* a vector of the objects obj ...
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector obj ...)
+    *возвращает:* a vector of the objects obj ...
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -10265,10 +10273,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (make-vector n)
-    *procedure:* (make-vector n obj)
-    *returns:* a vector of length n
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (make-vector n)
+    *процедура:* (make-vector n obj)
+    *возвращает:* a vector of length n
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer. If obj is supplied, each element of the vector is filled with obj;
@@ -10281,9 +10289,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector-length vector)
-    *returns:* the number of elements in vector
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector-length vector)
+    *возвращает:* the number of elements in vector
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The length of a vector is always an exact nonnegative integer.
@@ -10296,9 +10304,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector-ref vector n)
-    *returns:* the nth element (zero-based) of vector
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector-ref vector n)
+    *возвращает:* the nth element (zero-based) of vector
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of vector.
@@ -10310,9 +10318,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector-set! vector n obj)
-    *returns:* unspecified
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector-set! vector n obj)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of vector. vector-set! changes the nth element of vector
@@ -10325,9 +10333,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector-fill! vector obj)
-    *returns:* unspecified
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector-fill! vector obj)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     vector-fill! replaces each element of vector with obj. It may be defined without error checks as follows.
@@ -10346,9 +10354,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector->list vector)
-    *returns:* a list of the elements of vector
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (vector->list vector)
+    *возвращает:* a list of the elements of vector
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     vector->list provides a convenient method for applying list-processing operations to vectors. It may be defined
@@ -10369,9 +10377,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (list->vector list)
-    *returns:* a vector of the elements of list
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (list->vector list)
+    *возвращает:* a vector of the elements of list
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     list->vector is the functional inverse of vector->list. The two procedures are often used in combination to take
@@ -10397,11 +10405,11 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (vector-sort predicate vector)
-    *returns:* a vector containing the elements of vector, sorted according to predicate
-    *procedure:* (vector-sort! predicate vector)
-    *returns:* unspecified
-    *libraries:* (rnrs sorting), (rnrs)
+    *процедура:* (vector-sort predicate vector)
+    *возвращает:* a vector containing the elements of vector, sorted according to predicate
+    *процедура:* (vector-sort! predicate vector)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs sorting), (rnrs)
 #+END_VERSE
 
     predicate should be a procedure that expects two arguments and returns #t if its first argument must precede its
@@ -10458,9 +10466,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *syntax:* (endianness symbol)
-    *returns:* symbol
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *синтаксис:* (endianness symbol)
+    *возвращает:* symbol
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     symbol must be the symbol little, the symbol big, or some other symbol recognized by the implementation as an
@@ -10474,9 +10482,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (native-endianness)
-    *returns:* a symbol naming the implementation's native endianness
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (native-endianness)
+    *возвращает:* a symbol naming the implementation's native endianness
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     The return value is the symbol little, the symbol big, or some other endianness symbol recognized by the
@@ -10487,10 +10495,10 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (make-bytevector n)
-    *procedure:* (make-bytevector n fill)
-    *returns:* a new bytevector of length n
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (make-bytevector n)
+    *процедура:* (make-bytevector n fill)
+    *возвращает:* a new bytevector of length n
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     If fill is supplied, each element of the bytevector is initialized to fill; otherwise, the elements are
@@ -10505,9 +10513,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-length bytevector)
-    *returns:* the length of bytevector in 8-bit bytes
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-length bytevector)
+    *возвращает:* the length of bytevector in 8-bit bytes
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -10517,9 +10525,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector=? bytevector1 bytevector2)
-    *returns:* #t if the relation holds, #f otherwise
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector=? bytevector1 bytevector2)
+    *возвращает:* #t if the relation holds, #f otherwise
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     Two bytevectors are equal by bytevector=? if and only if they have the same length and same contents.
@@ -10532,9 +10540,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-fill! bytevector fill)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-fill! bytevector fill)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255 inclusive. A
@@ -10553,9 +10561,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-copy bytevector)
-    *returns:* a new bytevector that is a copy of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-copy bytevector)
+    *возвращает:* a new bytevector that is a copy of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     bytevector-copy creates a new bytevector with the same length and contents as bytevector.
@@ -10568,9 +10576,9 @@ x → 0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-copy! src src-start dst dst-start n)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-copy! src src-start dst dst-start n)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     src and dst must be bytevectors. src-start, dst-start, and n must be exact nonnegative integers. The sum of
@@ -10599,9 +10607,9 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-u8-ref bytevector n)
-    *returns:* the 8-bit unsigned byte at index n (zero-based) of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-u8-ref bytevector n)
+    *возвращает:* the 8-bit unsigned byte at index n (zero-based) of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector.
@@ -10615,9 +10623,9 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-s8-ref bytevector n)
-    *returns:* the 8-bit signed byte at index n (zero-based) of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-s8-ref bytevector n)
+    *возвращает:* the 8-bit signed byte at index n (zero-based) of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector.
@@ -10633,9 +10641,9 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-u8-set! bytevector n u8)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-u8-set! bytevector n u8)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector. u8 must be an 8-bit unsigned value, i.e.,
@@ -10650,9 +10658,9 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-s8-set! bytevector n s8)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-s8-set! bytevector n s8)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector. s8 must be an 8-bit signed value, i.e., a
@@ -10669,9 +10677,9 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector->u8-list bytevector)
-    *returns:* a list of the 8-bit unsigned elements of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector->u8-list bytevector)
+    *возвращает:* a list of the 8-bit unsigned elements of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -10683,9 +10691,9 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (u8-list->bytevector list)
-    *returns:* a new bytevector of the elements of list
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (u8-list->bytevector list)
+    *возвращает:* a new bytevector of the elements of list
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     list must consist entirely of exact 8-bit unsigned integers, i.e., values in the range 0 to 255 inclusive.
@@ -10700,19 +10708,19 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-u16-native-ref bytevector n)
-    *returns:* the 16-bit unsigned integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-s16-native-ref bytevector n)
-    *returns:* the 16-bit signed integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-u32-native-ref bytevector n)
-    *returns:* the 32-bit unsigned integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-s32-native-ref bytevector n)
-    *returns:* the 32-bit signed integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-u64-native-ref bytevector n)
-    *returns:* the 64-bit unsigned integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-s64-native-ref bytevector n)
-    *returns:* the 64-bit signed integer at index n (zero-based) of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-u16-native-ref bytevector n)
+    *возвращает:* the 16-bit unsigned integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-s16-native-ref bytevector n)
+    *возвращает:* the 16-bit signed integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-u32-native-ref bytevector n)
+    *возвращает:* the 32-bit unsigned integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-s32-native-ref bytevector n)
+    *возвращает:* the 32-bit signed integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-u64-native-ref bytevector n)
+    *возвращает:* the 64-bit unsigned integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-s64-native-ref bytevector n)
+    *возвращает:* the 64-bit signed integer at index n (zero-based) of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
@@ -10756,14 +10764,14 @@ If native endianness is little:
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-u16-native-set! bytevector n u16)
-    *procedure:* (bytevector-s16-native-set! bytevector n s16)
-    *procedure:* (bytevector-u32-native-set! bytevector n u32)
-    *procedure:* (bytevector-s32-native-set! bytevector n s32)
-    *procedure:* (bytevector-u64-native-set! bytevector n u64)
-    *procedure:* (bytevector-s64-native-set! bytevector n s64)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-u16-native-set! bytevector n u16)
+    *процедура:* (bytevector-s16-native-set! bytevector n s16)
+    *процедура:* (bytevector-u32-native-set! bytevector n u32)
+    *процедура:* (bytevector-s32-native-set! bytevector n s32)
+    *процедура:* (bytevector-u64-native-set! bytevector n u64)
+    *процедура:* (bytevector-s64-native-set! bytevector n s64)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
@@ -10842,19 +10850,19 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-u16-ref bytevector n eness)
-    *returns:* the 16-bit unsigned integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-s16-ref bytevector n eness)
-    *returns:* the 16-bit signed integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-u32-ref bytevector n eness)
-    *returns:* the 32-bit unsigned integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-s32-ref bytevector n eness)
-    *returns:* the 32-bit signed integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-u64-ref bytevector n eness)
-    *returns:* the 64-bit unsigned integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-s64-ref bytevector n eness)
-    *returns:* the 64-bit signed integer at index n (zero-based) of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-u16-ref bytevector n eness)
+    *возвращает:* the 16-bit unsigned integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-s16-ref bytevector n eness)
+    *возвращает:* the 16-bit signed integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-u32-ref bytevector n eness)
+    *возвращает:* the 32-bit unsigned integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-s32-ref bytevector n eness)
+    *возвращает:* the 32-bit signed integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-u64-ref bytevector n eness)
+    *возвращает:* the 64-bit unsigned integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-s64-ref bytevector n eness)
+    *возвращает:* the 64-bit signed integer at index n (zero-based) of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
@@ -10891,14 +10899,14 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-u16-set! bytevector n u16 eness)
-    *procedure:* (bytevector-s16-set! bytevector n s16 eness)
-    *procedure:* (bytevector-u32-set! bytevector n u32 eness)
-    *procedure:* (bytevector-s32-set! bytevector n s32 eness)
-    *procedure:* (bytevector-u64-set! bytevector n u64 eness)
-    *procedure:* (bytevector-s64-set! bytevector n s64 eness)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-u16-set! bytevector n u16 eness)
+    *процедура:* (bytevector-s16-set! bytevector n s16 eness)
+    *процедура:* (bytevector-u32-set! bytevector n u32 eness)
+    *процедура:* (bytevector-s32-set! bytevector n s32 eness)
+    *процедура:* (bytevector-u64-set! bytevector n u64 eness)
+    *процедура:* (bytevector-s64-set! bytevector n s64 eness)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
@@ -10938,11 +10946,11 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0 #x0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-uint-ref bytevector n eness size)
-    *returns:* the size-byte unsigned integer at index n (zero-based) of bytevector
-    *procedure:* (bytevector-sint-ref bytevector n eness size)
-    *returns:* the size-byte signed integer at index n (zero-based) of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-uint-ref bytevector n eness size)
+    *возвращает:* the size-byte unsigned integer at index n (zero-based) of bytevector
+    *процедура:* (bytevector-sint-ref bytevector n eness size)
+    *возвращает:* the size-byte signed integer at index n (zero-based) of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive
@@ -10969,10 +10977,10 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0 #x0
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-uint-set! bytevector n uint eness size)
-    *procedure:* (bytevector-sint-set! bytevector n sint eness size)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-uint-set! bytevector n uint eness size)
+    *процедура:* (bytevector-sint-set! bytevector n sint eness size)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive
@@ -10995,11 +11003,11 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector->uint-list bytevector eness size)
-    *returns:* a new list of the size-byte unsigned elements of bytevector
-    *procedure:* (bytevector->sint-list bytevector eness size)
-    *returns:* a new list of the size-byte signed elements of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector->uint-list bytevector eness size)
+    *возвращает:* a new list of the size-byte unsigned elements of bytevector
+    *процедура:* (bytevector->sint-list bytevector eness size)
+    *возвращает:* a new list of the size-byte signed elements of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies
@@ -11016,10 +11024,10 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (uint-list->bytevector list eness size)
-    *procedure:* (sint-list->bytevector list eness size)
-    *returns:* a new bytevector of the elements of list
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (uint-list->bytevector list eness size)
+    *процедура:* (sint-list->bytevector list eness size)
+    *возвращает:* a new bytevector of the elements of list
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies
@@ -11042,11 +11050,11 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-ieee-single-native-ref bytevector n)
-    *returns:* the single floating-point value at index n (zero-based) of bytevector
-    *procedure:* (bytevector-ieee-double-native-ref bytevector n)
-    *returns:* the double floating-point value at index n (zero-based) of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-ieee-single-native-ref bytevector n)
+    *возвращает:* the single floating-point value at index n (zero-based) of bytevector
+    *процедура:* (bytevector-ieee-double-native-ref bytevector n)
+    *возвращает:* the double floating-point value at index n (zero-based) of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
@@ -11056,10 +11064,10 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
     The return value is an inexact real number. Examples appear after the mutation operators below.
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-ieee-single-native-set! bytevector n x)
-    *procedure:* (bytevector-ieee-double-native-set! bytevector n x)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-ieee-single-native-set! bytevector n x)
+    *процедура:* (bytevector-ieee-double-native-set! bytevector n x)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
@@ -11082,11 +11090,11 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-ieee-single-ref bytevector n eness)
-    *returns:* the single floating-point value at index n (zero-based) of bytevector
-    *procedure:* (bytevector-ieee-double-ref bytevector n eness)
-    *returns:* the double floating-point value at index n (zero-based) of bytevector
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-ieee-single-ref bytevector n eness)
+    *возвращает:* the single floating-point value at index n (zero-based) of bytevector
+    *процедура:* (bytevector-ieee-double-ref bytevector n eness)
+    *возвращает:* the double floating-point value at index n (zero-based) of bytevector
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
@@ -11097,10 +11105,10 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
     The return value is an inexact real number. Examples appear after the mutation operators below.
 
 #+BEGIN_VERSE
-    *procedure:* (bytevector-ieee-single-set! bytevector n x eness)
-    *procedure:* (bytevector-ieee-double-set! bytevector n x eness)
-    *returns:* unspecified
-    *libraries:* (rnrs bytevectors), (rnrs)
+    *процедура:* (bytevector-ieee-single-set! bytevector n x eness)
+    *процедура:* (bytevector-ieee-double-set! bytevector n x eness)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs bytevectors), (rnrs)
 #+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
@@ -11148,9 +11156,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     The grammar for symbols on page 458 gives a precise definition of the syntax of symbols.
 
 #+BEGIN_VERSE
-    *procedure:* (symbol=? symbol1 symbol2)
-    *returns:* #t if the two symbols are the same, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (symbol=? symbol1 symbol2)
+    *возвращает:* #t if the two symbols are the same, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     Symbols can also be compared with eq?, which is typically more efficient than symbol=?.
@@ -11162,9 +11170,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (string->symbol string)
-    *returns:* a symbol whose name is string
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (string->symbol string)
+    *возвращает:* a symbol whose name is string
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     string->symbol records all symbols it creates in an internal table that it shares with the system reader. If a
@@ -11187,9 +11195,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (symbol->string symbol)
-    *returns:* a string, the name of symbol
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (symbol->string symbol)
+    *возвращает:* a string, the name of symbol
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The string returned by symbol->string should be treated as immutable. Unpredictable behavior can result if a string
@@ -11208,9 +11216,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     than that it is true.
 
 #+BEGIN_VERSE
-    *procedure:* (boolean=? boolean1 boolean2)
-    *returns:* #t if the two booleans are the same, #f otherwise
-    *libraries:* (rnrs base), (rnrs)
+    *процедура:* (boolean=? boolean1 boolean2)
+    *возвращает:* #t if the two booleans are the same, #f otherwise
+    *библиотеки:* (rnrs base), (rnrs)
 #+END_VERSE
 
     The boolean values #t and #f may also be compared with eq?, which is typically more efficient than boolean=?.
@@ -11227,10 +11235,10 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     as association lists (see page  165) but are typically much faster when large numbers of associations are involved.
 
 #+BEGIN_VERSE
-    *procedure:* (make-eq-hashtable)
-    *procedure:* (make-eq-hashtable size)
-    *returns:* a new mutable eq hashtable
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (make-eq-hashtable)
+    *процедура:* (make-eq-hashtable size)
+    *возвращает:* a new mutable eq hashtable
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable
@@ -11247,10 +11255,10 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (make-eqv-hashtable)
-    *procedure:* (make-eqv-hashtable size)
-    *returns:* a new mutable eqv hashtable
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (make-eqv-hashtable)
+    *процедура:* (make-eqv-hashtable size)
+    *возвращает:* a new mutable eqv hashtable
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable
@@ -11263,10 +11271,10 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     object.
 
 #+BEGIN_VERSE
-    *procedure:* (make-hashtable hash equiv?)
-    *procedure:* (make-hashtable hash equiv? size)
-    *returns:* a new mutable hashtable
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (make-hashtable hash equiv?)
+    *процедура:* (make-hashtable hash equiv? size)
+    *возвращает:* a new mutable hashtable
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     hash and equiv? must be procedures. If size is provided, it must be a nonnegative exact integer indicating
@@ -11287,9 +11295,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-mutable? hashtable)
-    *returns:* #t if hashtable is mutable, #f otherwise
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-mutable? hashtable)
+    *возвращает:* #t if hashtable is mutable, #f otherwise
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     Hashtables returned by one of the hashtable creation procedures above are mutable, but those created by
@@ -11302,11 +11310,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-hash-function hashtable)
-    *returns:* the hash function associated with hashtable
-    *procedure:* (hashtable-equivalence-function hashtable)
-    *returns:* the equivalence function associated with hashtable
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-hash-function hashtable)
+    *возвращает:* the hash function associated with hashtable
+    *процедура:* (hashtable-equivalence-function hashtable)
+    *возвращает:* the equivalence function associated with hashtable
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     hashtable-hash-function returns #f for eq and eqv hashtables.
@@ -11322,12 +11330,12 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (equal-hash obj)
-    *procedure:* (string-hash string)
-    *procedure:* (string-ci-hash string)
-    *procedure:* (symbol-hash symbol)
-    *returns:* an exact nonnegative integer hash value
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (equal-hash obj)
+    *процедура:* (string-hash string)
+    *процедура:* (string-ci-hash string)
+    *процедура:* (symbol-hash symbol)
+    *возвращает:* an exact nonnegative integer hash value
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     These procedures are hash functions suitable for use with the appropriate Scheme predicate: equal? for equal-hash,
@@ -11337,9 +11345,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     hashtable.
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-set! hashtable key obj)
-    *returns:* unspecified
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-set! hashtable key obj)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
@@ -11353,9 +11361,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-ref hashtable key default)
-    *returns:* see below
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-ref hashtable key default)
+    *возвращает:* see below
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     key should be an appropriate key for the hashtable's hash and equivalence functions. default may be any Scheme
@@ -11380,9 +11388,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-contains? hashtable key)
-    *returns:* #t if an association for key exists in hashtable, #f otherwise
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-contains? hashtable key)
+    *возвращает:* #t if an association for key exists in hashtable, #f otherwise
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     key should be an appropriate key for the hashtable's hash and equivalence functions.
@@ -11397,9 +11405,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-update! hashtable key procedure default)
-    *returns:* unspecified
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-update! hashtable key procedure default)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
@@ -11436,9 +11444,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-delete! hashtable key)
-    *returns:* unspecified
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-delete! hashtable key)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
@@ -11459,9 +11467,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-size hashtable)
-    *returns:* number of entries in hashtable
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-size hashtable)
+    *возвращает:* number of entries in hashtable
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -11476,10 +11484,10 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-copy hashtable)
-    *procedure:* (hashtable-copy hashtable mutable?)
-    *returns:* a new hashtable containing the same entries as hashtable
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-copy hashtable)
+    *процедура:* (hashtable-copy hashtable mutable?)
+    *возвращает:* a new hashtable containing the same entries as hashtable
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     If mutable? is present and not false, the copy is mutable; otherwise, the copy is immutable.
@@ -11497,10 +11505,10 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-clear! hashtable)
-    *procedure:* (hashtable-clear! hashtable size)
-    *returns:* unspecified
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-clear! hashtable)
+    *процедура:* (hashtable-clear! hashtable size)
+    *возвращает:* unspecified
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     hashtable must be a mutable hashtable. If size is provided, it must be a nonnegative exact integer.
@@ -11521,9 +11529,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-keys hashtable)
-    *returns:* a vector containing the keys in hashtable
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-keys hashtable)
+    *возвращает:* a vector containing the keys in hashtable
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     The keys may appear in any order in the returned vector.
@@ -11539,9 +11547,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (hashtable-entries hashtable)
-    *returns:* two vectors: one of keys and a second of values
-    *libraries:* (rnrs hashtables), (rnrs)
+    *процедура:* (hashtable-entries hashtable)
+    *возвращает:* two vectors: one of keys and a second of values
+    *библиотеки:* (rnrs hashtables), (rnrs)
 #+END_VERSE
 
     hashtable-entries returns two values. The first is a vector containing the keys in hashtable, and the second is a
@@ -11564,8 +11572,8 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     Enumerations are ordered sets of symbols, typically used to name and manipulate options, as with the buffer modes
     and file options that may be specified when files are created.
 
-    *syntax:* (define-enumeration name (symbol ...) constructor)
-    *libraries:* (rnrs enums), (rnrs)
+    *синтаксис:* (define-enumeration name (symbol ...) constructor)
+    *библиотеки:* (rnrs enums), (rnrs)
 
     A define-enumeration form is a definition and can appear anywhere any other definition can appear.
 
@@ -11591,9 +11599,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (make-enumeration symbol-list)
-    *returns:* an enumeration set
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (make-enumeration symbol-list)
+    *возвращает:* an enumeration set
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     This procedure creates a new enumeration type whose universe comprises the elements of symbol-list, which must be a
@@ -11606,9 +11614,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-constructor enum-set)
-    *returns:* an enumeration-set construction procedure
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-constructor enum-set)
+    *возвращает:* an enumeration-set construction procedure
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     This procedure returns a procedure p that may be used to create subsets of the universe of enum-set. p must be
@@ -11627,9 +11635,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-universe enum-set)
-    *returns:* the universe of enum-set, as an enumeration set
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-universe enum-set)
+    *возвращает:* the universe of enum-set, as an enumeration set
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -11640,9 +11648,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set->list enum-set)
-    *returns:* a list of the elements of enum-set
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set->list enum-set)
+    *возвращает:* a list of the elements of enum-set
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     The symbols in the resulting list appear in the order given to them when the enumeration type of enum-set was
@@ -11656,9 +11664,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-subset? enum-set1 enum-set2)
-    *returns:* #t if enum-set1 is a subset of enum-set2, #f otherwise
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-subset? enum-set1 enum-set2)
+    *возвращает:* #t if enum-set1 is a subset of enum-set2, #f otherwise
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     An enumeration set enum-set1 is a subset of an enumeration set enum-set2 if and only if the universe of enum-set1 is
@@ -11675,9 +11683,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set=? enum-set1 enum-set2)
-    *returns:* #t if enum-set1 and enum-set2 are equivalent, #f otherwise
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set=? enum-set1 enum-set2)
+    *возвращает:* #t if enum-set1 and enum-set2 are equivalent, #f otherwise
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     Two enumeration sets enum-set1 and enum-set2 are equivalent if each is a subset of the other.
@@ -11701,9 +11709,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-member? symbol enum-set)
-    *returns:* #t if symbol is an element of enum-set, #f otherwise
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-member? symbol enum-set)
+    *возвращает:* #t if symbol is an element of enum-set, #f otherwise
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -11714,13 +11722,13 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-union enum-set1 enum-set2)
-    *returns:* the union of enum-set1 and enum-set2
-    *procedure:* (enum-set-intersection enum-set1 enum-set2)
-    *returns:* the intersection of enum-set1 and enum-set2
-    *procedure:* (enum-set-difference enum-set1 enum-set2)
-    *returns:* the difference of enum-set1 and enum-set2
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-union enum-set1 enum-set2)
+    *возвращает:* the union of enum-set1 and enum-set2
+    *процедура:* (enum-set-intersection enum-set1 enum-set2)
+    *возвращает:* the intersection of enum-set1 and enum-set2
+    *процедура:* (enum-set-difference enum-set1 enum-set2)
+    *возвращает:* the difference of enum-set1 and enum-set2
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     enum-set1 and enum-set2 must have the same enumeration type. Each procedure returns a new enumeration set
@@ -11739,9 +11747,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-complement enum-set)
-    *returns:* the complement of enum-set relative to its universe
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-complement enum-set)
+    *возвращает:* the complement of enum-set relative to its universe
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
 #+begin_src scheme
@@ -11752,9 +11760,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-projection enum-set1 enum-set2)
-    *returns:* the projection of enum-set1 into the universe of enum-set2
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-projection enum-set1 enum-set2)
+    *возвращает:* the projection of enum-set1 into the universe of enum-set2
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     Any elements of enum-set1 not in the universe of enum-set2 are dropped. The result is of the same enumeration type
@@ -11772,9 +11780,9 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 #+BEGIN_VERSE
-    *procedure:* (enum-set-indexer enum-set)
-    *returns:* a procedure that returns the index of a symbol in the universe of enum-set
-    *libraries:* (rnrs enums), (rnrs)
+    *процедура:* (enum-set-indexer enum-set)
+    *возвращает:* a procedure that returns the index of a symbol in the universe of enum-set
+    *библиотеки:* (rnrs enums), (rnrs)
 #+END_VERSE
 
     enum-set-indexer returns a procedure p that, when applied to a symbol in the universe of enum-set, returns the index
