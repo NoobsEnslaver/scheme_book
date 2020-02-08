@@ -6,3 +6,4 @@
 *.out
 *.tex
 *.aux
+_minted-index/

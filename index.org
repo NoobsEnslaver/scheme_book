@@ -12,6 +12,7 @@
 #+LATEX_HEADER: \usepackage[english,russian]{babel}
 #+LANGUAGE: RU
 #+OPTIONS: toc:nil title:nil
+
 #+TITLE: Язык программирования Scheme, 4-е издание
 #+AUTHOR: R. Kent Dybvig
 
@@ -4032,8 +4033,10 @@
 
 *** Variable References
 
-    =syntax:= variable
-    =returns:= the value of variable
+#+BEGIN_VERSE
+    *syntax:* variable
+    *returns:* the value of variable
+#+END_VERSE
 
     Any identifier appearing as an expression in a program is a variable if a visible variable binding for the
     identifier exists, e.g., the identifier appears within the scope of a binding created by define, lambda, let, or
@@ -4074,9 +4077,11 @@ list → #<procedure>
 
 *** Lambda
 
-    =syntax:= (lambda formals body1 body2 ...)
-    =returns:= a procedure
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (lambda formals body1 body2 ...)
+    *returns:* a procedure
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The lambda syntactic form is used to create procedures. Any operation that creates a procedure or establishes local
     variable bindings is ultimately defined in terms of lambda or case-lambda.
@@ -4159,9 +4164,11 @@ list → #<procedure>
     or indefinite numbers of arguments. case-lambda is based on the lambda* syntactic form introduced in the article "A
     New Approach to Procedures with Variable Arity" [11].
 
-    =syntax:= (case-lambda clause ...)
-    =returns:= a procedure
-    =libraries:= (rnrs control), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (case-lambda clause ...)
+    *returns:* a procedure
+    *libraries:* (rnrs control), (rnrs)
+#+END_VERSE
 
     A case-lambda expression consists of a set of clauses, each resembling a lambda expression. Each clause has the form
     below.
@@ -4228,9 +4235,11 @@ list → #<procedure>
 
 *** Local Binding
 
-    =syntax:= (let ((var expr) ...) body1 body2 ...)
-    =returns:= the values of the final body expression
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (let ((var expr) ...) body1 body2 ...)
+    *returns:* the values of the final body expression
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     let establishes local variable bindings. Each variable var is bound to the value of the corresponding expression
     expr. The body of the let, in which the variables are bound, is the sequence of subforms body1 body2 ... and is
@@ -4267,9 +4276,11 @@ list → #<procedure>
     Another form of let, named let, is described in Section 5.4, and a definition of the full let can be found on
     page 312.
 
-    =syntax:= (let* ((var expr) ...) body1 body2 ...)
-    =returns:= the values of the final body expression
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (let* ((var expr) ...) body1 body2 ...)
+    *returns:* the values of the final body expression
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     let* is similar to let except that the expressions expr ... are evaluated in sequence from left to right, and each
     of these expressions is within the scope of the variables to the left. Use let* when there is a linear dependency
@@ -4298,9 +4309,11 @@ list → #<procedure>
        (let* ((x2 v2) ...) e1 e2 ...))]))
 #+end_src
 
-    =syntax:= (letrec ((var expr) ...) body1 body2 ...)
-    =returns:= the values of the final body expression
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (letrec ((var expr) ...) body1 body2 ...)
+    *returns:* the values of the final body expression
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     letrec is similar to let and let*, except that all of the expressions expr ... are within the scope of all of the
     variables var .... letrec allows the definition of mutually recursive procedures.
@@ -4357,9 +4370,11 @@ list → #<procedure>
     or assignments to the variables. More elaborate transformations that enforce this restriction and actually produce
     more efficient code are possible [31].
 
-    =syntax:= (letrec* ((var expr) ...) body1 body2 ...)
-    =returns:= the values of the final body expression
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (letrec* ((var expr) ...) body1 body2 ...)
+    *returns:* the values of the final body expression
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     letrec* is similar to letrec, except that letrec* evaluates expr ... in sequence from left to right. While programs
     must still not evaluate a reference to any var before the corresponding expr has been evaluated, references to var
@@ -4404,10 +4419,12 @@ list → #<procedure>
 
 *** Multiple Values
 
-    =syntax:= (let-values ((formals expr) ...) body1 body2 ...)
-    =syntax:= (let*-values ((formals expr) ...) body1 body2 ...)
-    =returns:= the values of the final body expression
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (let-values ((formals expr) ...) body1 body2 ...)
+    *syntax:* (let*-values ((formals expr) ...) body1 body2 ...)
+    *returns:* the values of the final body expression
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     let-values is a convenient way to receive multiple values and bind them to variables. It is structured like let but
     permits an arbitrary formals list (like lambda) on each left-hand side. let*-values is similar but performs the
@@ -4425,12 +4442,12 @@ list → #<procedure>
 
 *** Variable Definitions
 
-    =syntax:= (define var expr)
-    =syntax:= (define var)
-    =syntax:= (define (var0 var1 ...) body1 body2 ...)
-    =syntax:= (define (var0 . varr) body1 body2 ...)
-    =syntax:= (define (var0 var1 var2 ... . varr) body1 body2 ...)
-    =libraries:= (rnrs base), (rnrs)
+    *syntax:* (define var expr)
+    *syntax:* (define var)
+    *syntax:* (define (var0 var1 ...) body1 body2 ...)
+    *syntax:* (define (var0 . varr) body1 body2 ...)
+    *syntax:* (define (var0 var1 var2 ... . varr) body1 body2 ...)
+    *libraries:* (rnrs base), (rnrs)
 
     In the first form, define creates a new binding of var to the value of expr. The expr should not return more than
     once. That is, it should not return both normally and via the invocation of a continuation obtained during its
@@ -4533,9 +4550,11 @@ x → 3
 
 *** Assignment
 
-    =syntax:= (set! var expr)
-    =returns:= unspecified
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (set! var expr)
+    *returns:* unspecified
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     set! does not establish a new binding for var but rather alters the value of an existing binding. It first evaluates
     expr, then assigns var to the value of expr. Any subsequent reference to var within the scope of the altered binding
@@ -4593,8 +4612,10 @@ x → 3
 
 *** Procedure Application
 
-    =syntax:= (expr0 expr1 ...)
-    =returns:= values of applying the value of expr0 to the values of expr1 ...
+#+BEGIN_VERSE
+    *syntax:* (expr0 expr1 ...)
+    *returns:* values of applying the value of expr0 to the values of expr1 ...
+#+END_VERSE
 
     Procedure application is the most basic Scheme control structure. Any structured form without a syntax keyword in
     the first position is a procedure application. The expressions expr0 and expr1 ... are evaluated; each should
@@ -4617,9 +4638,11 @@ x → 3
   (f 8)) → 16
 #+end_src
 
-    =procedure:= (apply procedure obj ... list)
-    =returns:= the values of applying procedure to obj ... and the elements of list
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (apply procedure obj ... list)
+    *returns:* the values of applying procedure to obj ... and the elements of list
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     apply invokes procedure, passing the first obj as the first argument, the second obj as the second argument, and so
     on for each object in obj ..., and passing the elements of list in order as the remaining arguments. Thus, procedure
@@ -4653,9 +4676,11 @@ x → 3
 
 *** Sequencing
 
-    =syntax:= (begin expr1 expr2 ...)
-    =returns:= the values of the last subexpression
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (begin expr1 expr2 ...)
+    *returns:* the values of the last subexpression
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The expressions expr1 expr2 ... are evaluated in sequence from left to right. begin is used to sequence assignments,
     input/output, or other operations that cause side effects.
@@ -4696,10 +4721,12 @@ x → 3
 
 *** Conditionals
 
-    =syntax:= (if test consequent alternative)
-    =syntax:= (if test consequent)
-    =returns:= the values of consequent or alternative depending on the value of test
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (if test consequent alternative)
+    *syntax:* (if test consequent)
+    *returns:* the values of consequent or alternative depending on the value of test
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The test, consequent, and alternative subforms must be expressions. If test evaluates to a true value (anything
     other than #f), consequent is evaluated and its values are returned. Otherwise, alternative is evaluated and its
@@ -4730,9 +4757,11 @@ x → 3
       (list 'plus 4))) → (minus 4)
 #+end_src
 
-    =procedure:= (not obj)
-    =returns:= #t if obj is false, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (not obj)
+    *returns:* #t if obj is false, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     not is equivalent to (lambda (x) (if x #f #t)).
 
@@ -4743,9 +4772,11 @@ x → 3
 (not (< 4 5)) → #f
 #+end_src
 
-    =syntax:= (and expr ...)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (and expr ...)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If no subexpressions are present, the and form evaluates to #t. Otherwise, and evaluates each subexpression in
     sequence from left to right until only one subexpression remains or a subexpression returns #f. If one subexpression
@@ -4763,9 +4794,11 @@ x → 3
 (and '(a b) '(c d) '(e f)) → (e f)
 #+end_src
 
-    =syntax:= (or expr ...)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (or expr ...)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If no subexpressions are present, the or form evaluates to #f. Otherwise, or evaluates each subexpression in
     sequence from left to right until only one subexpression remains or a subexpression returns a value other than
@@ -4783,9 +4816,11 @@ x → 3
 (or #f '(a b) '(c d)) → (a b)
 #+end_src
 
-    =syntax:= (cond clause1 clause2 ...)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (cond clause1 clause2 ...)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     Each clause but the last must take one of the forms below.
 
@@ -4838,18 +4873,22 @@ x → 3
 (select 'e) → 0
 #+end_src
 
-    =syntax:= else
-    =syntax:= =>
-    =libraries:= (rnrs base), (rnrs exceptions), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* else
+    *syntax:* =>
+    *libraries:* (rnrs base), (rnrs exceptions), (rnrs)
+#+END_VERSE
 
     These identifiers are auxiliary keywords for cond. Both also serve as auxiliary keywords for guard, and else also
     serves as an auxiliary keyword for case. It is a syntax violation to reference these identifiers except in contexts
     where they are recognized as auxiliary keywords.
 
-    =syntax:= (when test-expr expr1 expr2 ...)
-    =syntax:= (unless test-expr expr1 expr2 ...)
-    =returns:= see below
-    =libraries:= (rnrs control), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (when test-expr expr1 expr2 ...)
+    *syntax:* (unless test-expr expr1 expr2 ...)
+    *returns:* see below
+    *libraries:* (rnrs control), (rnrs)
+#+END_VERSE
 
     For when, if test-expr evaluates to a true value, the expressions expr1 expr2 ... are evaluated in sequence, and the
     values of the last expression are returned. If test-expr evaluates to false, none of the other expressions are
@@ -4904,9 +4943,11 @@ or in terms of when as follows:
      (when (not e0) e1 e2 ...)]))
 #+end_src
 
-    =syntax:= (case expr0 clause1 clause2 ...)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (case expr0 clause1 clause2 ...)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     Each clause but the last must take the form
 
@@ -4942,9 +4983,11 @@ or in terms of when as follows:
 
 *** Recursion and Iteration
 
-    =syntax:= (let name ((var expr) ...) body1 body2 ...)
-    =returns:= values of the final body expression
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (let name ((var expr) ...) body1 body2 ...)
+    *returns:* values of the final body expression
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     This form of let, called named let, is a general-purpose iteration and recursion construct. It is similar to the
     more common form of let (see Section 4.4) in the binding of the variables var ... to the values of expr ... within
@@ -4999,9 +5042,11 @@ or in terms of when as follows:
         [else (f (+ i 1) ls)]))))
 #+end_src
 
-    =syntax:= (do ((var init update) ...) (test result ...) expr ...)
-    =returns:= the values of the last result expression
-    =libraries:= (rnrs control), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (do ((var init update) ...) (test result ...) expr ...)
+    *returns:* the values of the last result expression
+    *libraries:* (rnrs control), (rnrs)
+#+END_VERSE
 
     do allows a common restricted form of iteration to be expressed succinctly. The variables var ... are bound
     initially to the values of init ... and are rebound on each subsequent iteration to the values of update .... The
@@ -5081,9 +5126,11 @@ vec → #(2 4 6 8 10)
     convenient. These operators abstract away from null checks and explicit recursion by applying a procedure to the
     elements of the list one by one. A few mapping operators are also available for vectors and strings.
 
-    =procedure:= (map procedure list1 list2 ...)
-    =returns:= list of results
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (map procedure list1 list2 ...)
+    *returns:* list of results
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     map applies procedure to corresponding elements of the lists list1 list2 ... and returns a list of the resulting
     values. The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are
@@ -5123,9 +5170,11 @@ vec → #(2 4 6 8 10)
     to be proper lists of the same length. An interesting feature of this definition is that map uses itself to pull out
     the cars and cdrs of the list of input lists; this works because of the special treatment of the single-list case.
 
-    =procedure:= (for-each procedure list1 list2 ...)
-    =returns:= unspecified
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (for-each procedure list1 list2 ...)
+    *returns:* unspecified
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     for-each is similar to map except that for-each does not create and return a list of the resulting values, and
     for-each guarantees to perform the applications in sequence over the elements from left to right. procedure should
@@ -5149,9 +5198,11 @@ vec → #(2 4 6 8 10)
   same-count) → 3
 #+end_src
 
-    =procedure:= (exists procedure list1 list2 ...)
-    =returns:= see below
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (exists procedure list1 list2 ...)
+    *returns:* see below
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
     and should not mutate the list arguments. If the lists are empty, exists returns #f. Otherwise, exists applies
@@ -5185,9 +5236,11 @@ vec → #(2 4 6 8 10)
                 (exists (car ls) (cdr ls) (map cdr more))))))))
 #+end_src
 
-    =procedure:= (for-all procedure list1 list2 ...)
-    =returns:= see below
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (for-all procedure list1 list2 ...)
+    *returns:* see below
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
     and should not mutate the list arguments. If the lists are empty, for-all returns #t. Otherwise, for-all applies
@@ -5221,9 +5274,11 @@ vec → #(2 4 6 8 10)
                  (for-all (car ls) (cdr ls) (map cdr more))))))))
 #+end_src
 
-    =procedure:= (fold-left procedure obj list1 list2 ...)
-    =returns:= see below
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fold-left procedure obj list1 list2 ...)
+    *returns:* see below
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     The list arguments should all have the same length. procedure should accept one more argument than the number of
     list arguments and return a single value. It should not mutate the list arguments.
@@ -5247,9 +5302,11 @@ vec → #(2 4 6 8 10)
   '(the be: or)) → (to be or not to be: that is the question)
 #+end_src
 
-    =procedure:= (fold-right procedure obj list1 list2 ...)
-    =returns:= see below
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fold-right procedure obj list1 list2 ...)
+    *returns:* see below
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     The list arguments should all have the same length. procedure should accept one more argument than the number of
     list arguments and return a single value. It should not mutate the list arguments.
@@ -5272,9 +5329,11 @@ vec → #(2 4 6 8 10)
   '(is sweet gotta see tomorrow))
 #+end_src
 
-    =procedure:= (vector-map procedure vector1 vector1 ...)
-    =returns:= vector of results
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector-map procedure vector1 vector1 ...)
+    *returns:* vector of results
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     vector-map applies procedure to corresponding elements of vector1 vector2 ... and returns a vector of the resulting
     values. The vectors vector1 vector2 ... must be of the same length, and procedure should accept as many arguments as
@@ -5290,9 +5349,11 @@ vec → #(2 4 6 8 10)
     While the order in which the applications themselves occur is not specified, the order of the values in the output
     vector is the same as that of the corresponding values in the input vectors.
 
-    =procedure:= (vector-for-each procedure vector1 vector2 ...)
-    =returns:= unspecified
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector-for-each procedure vector1 vector2 ...)
+    *returns:* unspecified
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     vector-for-each is similar to vector-map except that vector-for-each does not create and return a vector of the
     resulting values, and vector-for-each guarantees to perform the applications in sequence over the elements from left
@@ -5309,9 +5370,11 @@ vec → #(2 4 6 8 10)
   same-count) → 3
 #+end_src
 
-    =procedure:= (string-for-each procedure string1 string2 ...)
-    =returns:= unspecified
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-for-each procedure string1 string2 ...)
+    *returns:* unspecified
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     string-for-each is similar to for-each and vector-for-each except that the inputs are strings rather than lists or
     vectors.
@@ -5331,10 +5394,12 @@ vec → #(2 4 6 8 10)
     Continuations in Scheme are procedures that represent the remainder of a computation from a given point in the
     computation. They may be obtained with call-with-current-continuation, which can be abbreviated to call/cc.
 
-    =procedure:= (call/cc procedure)
-    =procedure:= (call-with-current-continuation procedure)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (call/cc procedure)
+    *procedure:* (call-with-current-continuation procedure)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     These procedures are the same. The shorter name is often used for the obvious reason that it requires fewer
     keystrokes to type.
@@ -5373,9 +5438,11 @@ vec → #(2 4 6 8 10)
     has indefinite extent, some mechanism must be used to preserve the stack contents indefinitely. This can be done
     with surprising ease and efficiency and with no impact on programs that do not use continuations [17].
 
-    =procedure:= (dynamic-wind in body out)
-    =returns:= values resulting from the application of body
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (dynamic-wind in body out)
+    *returns:* values resulting from the application of body
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     dynamic-wind offers "protection" from continuation invocation. It is useful for performing tasks that must be
     performed whenever control enters or leaves body, either normally or by continuation application.
@@ -5549,11 +5616,13 @@ x → 0
     expression subject to lazy evaluation is not evaluated until its value is required and, once evaluated, is never
     reevaluated.
 
-    =syntax:= (delay expr)
-    =returns:= a promise
-    =procedure:= (force promise)
-    =returns:= result of forcing promise
-    =libraries:= (rnrs r5rs)
+#+BEGIN_VERSE
+    *syntax:* (delay expr)
+    *returns:* a promise
+    *procedure:* (force promise)
+    *returns:* result of forcing promise
+    *libraries:* (rnrs r5rs)
+#+END_VERSE
 
     The first time a promise created by delay is forced (with force), it evaluates expr, "remembering" the resulting
     value. Thereafter, each time the promise is forced, it returns the remembered value instead of reevaluating expr.
@@ -5689,9 +5758,11 @@ x → 0
     call-with-values. The former produces multiple values and the latter links procedures that produce multiple-value
     values with procedures that consume them.
 
-    =procedure:= (values obj ...)
-    =returns:= obj ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (values obj ...)
+    *returns:* obj ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The procedure values accepts any number of arguments and simply passes (returns) the arguments to its continuation.
 
@@ -5712,9 +5783,11 @@ x → 0
                       (b c)
 #+end_src
 
-    =procedure:= (call-with-values producer consumer)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (call-with-values producer consumer)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     producer and consumer must be procedures. call-with-values applies consumer to the values returned by invoking
     producer without arguments.
@@ -5971,9 +6044,11 @@ x → 0
     Scheme's eval procedure allows programmers to write programs that construct and evaluate other programs. This
     ability to do run-time meta programming should not be overused but is handy when needed.
 
-    =procedure:= (eval obj environment)
-    =returns:= values of the Scheme expression represented by obj in environment
-    =libraries:= (rnrs eval)
+#+BEGIN_VERSE
+    *procedure:* (eval obj environment)
+    *returns:* values of the Scheme expression represented by obj in environment
+    *libraries:* (rnrs eval)
+#+END_VERSE
 
     If obj does not represent a syntactically valid expression, eval raises an exception with condition type
     &syntax. The environments returned by environment, scheme-report-environment, and null-environment are
@@ -5990,9 +6065,11 @@ x → 0
 (eval '(cons 3 4) (environment)) → exception
 #+end_src
 
-    =procedure:= (environment import-spec ...)
-    =returns:= an environment
-    =libraries:= (rnrs eval)
+#+BEGIN_VERSE
+    *procedure:* (environment import-spec ...)
+    *returns:* an environment
+    *libraries:* (rnrs eval)
+#+END_VERSE
 
     environment returns an environment formed from the combined bindings of the given import specifiers. Each
     import-spec must be an s-expression representing a valid import specifier (see Chapter 10).
@@ -6002,10 +6079,12 @@ x → 0
 (eval '($cons* 3 4 (* 5 8)) env) → (3 4 . 40)
 #+end_src
 
-    =procedure:= (null-environment version)
-    =procedure:= (scheme-report-environment version)
-    =returns:= an R5RS compatibility environment
-    =libraries:= (rnrs r5rs)
+#+BEGIN_VERSE
+    *procedure:* (null-environment version)
+    *procedure:* (scheme-report-environment version)
+    *returns:* an R5RS compatibility environment
+    *libraries:* (rnrs r5rs)
+#+END_VERSE
 
     version must be the exact integer 5.
 
@@ -6037,8 +6116,10 @@ x → 0
 
 *** Constants and Quotation
 
-    =syntax:= constant
-    =returns:= constant
+#+BEGIN_VERSE
+    *syntax:* constant
+    *returns:* constant
+#+END_VERSE
 
     constant is any self-evaluating constant, i.e., a number, boolean, character, string, or bytevector. Constants are
     immutable; see the note in the description of quote below.
@@ -6051,10 +6132,12 @@ x → 0
 #vu8(3 4 5) → #vu8(3 4 5)
 #+end_src
 
-    =syntax:= (quote obj)
-    =syntax:= 'obj
-    =returns:= obj
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (quote obj)
+    *syntax:* 'obj
+    *returns:* obj
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     'obj is equivalent to (quote obj). The abbreviated form is converted into the longer form by the Scheme reader (see
     read).
@@ -6078,14 +6161,16 @@ x → 0
 '7 → 7
 #+end_src
 
-    =syntax:= (quasiquote obj ...)
-    =syntax:= `obj
-    =syntax:= (unquote obj ...)
-    =syntax:= ,obj
-    =syntax:= (unquote-splicing obj ...)
-    =syntax:= ,@obj
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (quasiquote obj ...)
+    *syntax:* `obj
+    *syntax:* (unquote obj ...)
+    *syntax:* ,obj
+    *syntax:* (unquote-splicing obj ...)
+    *syntax:* ,@obj
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     `obj is equivalent to (quasiquote obj), ,obj is equivalent to (unquote obj), and ,@obj is equivalent to
     (unquote-splicing obj). The abbreviated forms are converted into the longer forms by the Scheme reader (see read).
@@ -6146,9 +6231,11 @@ x → 0
     determining the type of an object or the equivalence of two objects. The equivalence predicates eq?, eqv?, and
     equal? are discussed first, followed by the type predicates.
 
-    =procedure:= (eq? obj1 obj2)
-    =returns:= #t if obj1 and obj2 are identical, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (eq? obj1 obj2)
+    *returns:* #t if obj1 and obj2 are identical, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     In most Scheme systems, two objects are considered identical if they are represented internally by the same pointer
     value and distinct (not identical) if they are represented internally by different pointer values, although other
@@ -6261,9 +6348,11 @@ x → 0
   (eq? (f 0) (f 0))) → #f
 #+end_src
 
-    =procedure:= (eqv? obj1 obj2)
-    =returns:= #t if obj1 and obj2 are equivalent, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (eqv? obj1 obj2)
+    *returns:* #t if obj1 and obj2 are equivalent, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     eqv? is similar to eq? except eqv? is guaranteed to return #t for two characters that are considered equal by char=?
     and two numbers that are (a) considered equal by = and (b) cannot be distinguished by any other operation besides
@@ -6369,9 +6458,11 @@ x → 0
   (eqv? (f 0) (f 0))) → #f
 #+end_src
 
-    =procedure:= (equal? obj1 obj2)
-    =returns:= #t if obj1 and obj2 have the same structure and contents, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (equal? obj1 obj2)
+    *returns:* #t if obj1 and obj2 have the same structure and contents, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     Two objects are equal if they are equivalent according to eqv?, strings that are string=?, bytevectors that are
     bytevector=?, pairs whose cars and cdrs are equal, or vectors of the same length whose corresponding elements are
@@ -6471,23 +6562,31 @@ x → 0
     (set-car! x x)
     (set-cdr! x x)
     (cons x x))) → #t
+#+end_src
 
-    =procedure:= (boolean? obj)
-    =returns:= #t if obj is either #t or #f, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (boolean? obj)
+    *returns:* #t if obj is either #t or #f, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     boolean? is equivalent to (lambda (x) (or (eq? x #t) (eq? x #f))).
 
+#+begin_src scheme
 (boolean? #t) → #t
 (boolean? #f) → #t
 (or (boolean? 't) (boolean? '())) → #f
+#+end_src
 
-    =procedure:= (null? obj)
-    =returns:= #t if obj is the empty list, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (null? obj)
+    *returns:* #t if obj is the empty list, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     null? is equivalent to (lambda (x) (eq? x '())).
 
+#+begin_src scheme
 (null? '()) → #t
 (null? '(a)) → #f
 (null? (cdr '(a))) → #t
@@ -6495,9 +6594,11 @@ x → 0
 (null? #f) → #f
 #+end_src
 
-    =procedure:= (pair? obj)
-    =returns:= #t if obj is a pair, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (pair? obj)
+    *returns:* #t if obj is a pair, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (pair? '(a b c)) → #t
@@ -6507,17 +6608,19 @@ x → 0
 (pair? 3) → #f
 #+end_src
 
-    =procedure:= (number? obj)
-    =returns:= #t if obj is a number object, #f otherwise
-    =procedure:= (complex? obj)
-    =returns:= #t if obj is a complex number object, #f otherwise
-    =procedure:= (real? obj)
-    =returns:= #t if obj is a real number object, #f otherwise
-    =procedure:= (rational? obj)
-    =returns:= #t if obj is a rational number object, #f otherwise
-    =procedure:= (integer? obj)
-    =returns:= #t if obj is an integer object, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (number? obj)
+    *returns:* #t if obj is a number object, #f otherwise
+    *procedure:* (complex? obj)
+    *returns:* #t if obj is a complex number object, #f otherwise
+    *procedure:* (real? obj)
+    *returns:* #t if obj is a real number object, #f otherwise
+    *procedure:* (rational? obj)
+    *returns:* #t if obj is a rational number object, #f otherwise
+    *procedure:* (integer? obj)
+    *returns:* #t if obj is an integer object, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     These predicates form a hierarchy: any integer is rational, any rational is real, any real is complex, and any
     complex is numeric. Most implementations do not provide internal representations for irrational numbers, so all real
@@ -6576,13 +6679,15 @@ x → 0
 (number? #\a) → #f
 #+end_src
 
-    =procedure:= (real-valued? obj)
-    =returns:= #t if obj is a real number, #f otherwise
-    =procedure:= (rational-valued? obj)
-    =returns:= #t if obj is a rational number, #f otherwise
-    =procedure:= (integer-valued? obj)
-    =returns:= #t if obj is an integer, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (real-valued? obj)
+    *returns:* #t if obj is a real number, #f otherwise
+    *procedure:* (rational-valued? obj)
+    *returns:* #t if obj is a rational number, #f otherwise
+    *procedure:* (integer-valued? obj)
+    *returns:* #t if obj is an integer, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     These predicates are similar to real?, rational?, and integer?, but treat as real, rational, or integral complex
     numbers with inexact zero imaginary parts.
@@ -6625,9 +6730,11 @@ x → 0
 (real-valued? "3") → #f
 #+end_src
 
-    =procedure:= (char? obj)
-    =returns:= #t if obj is a character, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char? obj)
+    *returns:* #t if obj is a character, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (char? 'a) → #f
@@ -6637,9 +6744,11 @@ x → 0
 (char? (string-ref (make-string 1) 0)) → #t
 #+end_src
 
-    =procedure:= (string? obj)
-    =returns:= #t if obj is a string, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string? obj)
+    *returns:* #t if obj is a string, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (string? "hi") → #t
@@ -6647,9 +6756,11 @@ x → 0
 (string? #\h) → #f
 #+end_src
 
-    =procedure:= (vector? obj)
-    =returns:= #t if obj is a vector, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector? obj)
+    *returns:* #t if obj is a vector, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (vector? '#()) → #t
@@ -6660,9 +6771,11 @@ x → 0
 (vector? "abc") → #f
 #+end_src
 
-    =procedure:= (symbol? obj)
-    =returns:= #t if obj is a symbol, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (symbol? obj)
+    *returns:* #t if obj is a symbol, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (symbol? 't) → #t
@@ -6673,9 +6786,11 @@ x → 0
 (symbol? #t) → #f
 #+end_src
 
-    =procedure:= (procedure? obj)
-    =returns:= #t if obj is a procedure, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (procedure? obj)
+    *returns:* #t if obj is a procedure, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (procedure? car) → #t
@@ -6685,9 +6800,11 @@ x → 0
 (call/cc procedure?) → #t
 #+end_src
 
-    =procedure:= (bytevector? obj)
-    =returns:= #t if obj is a bytevector, #f otherwise
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector? obj)
+    *returns:* #t if obj is a bytevector, #f otherwise
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (bytevector? #vu8()) → #t
@@ -6695,9 +6812,11 @@ x → 0
 (bytevector? "abc") → #f
 #+end_src
 
-    =procedure:= (hashtable? obj)
-    =returns:= #t if obj is a hashtable, #f otherwise
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable? obj)
+    *returns:* #t if obj is a hashtable, #f otherwise
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (hashtable? (make-eq-hashtable)) → #t
@@ -6732,9 +6851,11 @@ x → 0
     the element being sought, and list-ref need never detect circularities, because its recursion is bounded by the
     index argument.
 
-    =procedure:= (cons obj1 obj2)
-    =returns:= a new pair whose car and cdr are obj1 and obj2
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (cons obj1 obj2)
+    *returns:* a new pair whose car and cdr are obj1 and obj2
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     cons is the pair constructor procedure. obj1 becomes the car and obj2 becomes the cdr of the new pair.
 
@@ -6744,9 +6865,11 @@ x → 0
 (cons 3 4) → (3 . 4)
 #+end_src
 
-    =procedure:= (car pair)
-    =returns:= the car of pair
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (car pair)
+    *returns:* the car of pair
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The empty list is not a pair, so the argument must not be the empty list.
 
@@ -6756,9 +6879,11 @@ x → 0
 (car (cons 3 4)) → 3
 #+end_src
 
-    =procedure:= (cdr pair)
-    =returns:= the cdr of pair
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (cdr pair)
+    *returns:* the cdr of pair
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The empty list is not a pair, so the argument must not be the empty list.
 
@@ -6768,9 +6893,11 @@ x → 0
 (cdr (cons 3 4)) → 4
 #+end_src
 
-    =procedure:= (set-car! pair obj)
-    =returns:= unspecified
-    =libraries:= (rnrs mutable-pairs)
+#+BEGIN_VERSE
+    *procedure:* (set-car! pair obj)
+    *returns:* unspecified
+    *libraries:* (rnrs mutable-pairs)
+#+END_VERSE
 
     set-car! changes the car of pair to obj.
 
@@ -6780,9 +6907,11 @@ x → 0
   x) → (1 b c)
 #+end_src
 
-    =procedure:= (set-cdr! pair obj)
-    =returns:= unspecified
-    =libraries:= (rnrs mutable-pairs)
+#+BEGIN_VERSE
+    *procedure:* (set-cdr! pair obj)
+    *returns:* unspecified
+    *libraries:* (rnrs mutable-pairs)
+#+END_VERSE
 
     set-cdr! changes the cdr of pair to obj.
 
@@ -6792,11 +6921,13 @@ x → 0
   x) → (a . 1)
 #+end_src
 
-    =procedure:= (caar pair)
-    =procedure:= (cadr pair)  →
-    =procedure:= (cddddr pair)
-    =returns:= the caar, cadr, ..., or cddddr of pair
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (caar pair)
+    *procedure:* (cadr pair)  →
+    *procedure:* (cddddr pair)
+    *returns:* the caar, cadr, ..., or cddddr of pair
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     These procedures are defined as the composition of up to four cars and cdrs. The a's and d's between the c and r
     represent the application of car or cdr in order from right to left. For example, the procedure cadr applied to a
@@ -6809,9 +6940,11 @@ x → 0
 (cadadr '(a (b c))) → c
 #+end_src
 
-    =procedure:= (list obj ...)
-    =returns:= a list of obj ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (list obj ...)
+    *returns:* a list of obj ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     list is equivalent to (lambda x x).
 
@@ -6821,9 +6954,11 @@ x → 0
 (list 3 2 1) → (3 2 1)
 #+end_src
 
-    =procedure:= (cons* obj ... final-obj)
-    =returns:= a list of obj ... terminated by final-obj
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (cons* obj ... final-obj)
+    *returns:* a list of obj ... terminated by final-obj
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     If the objects obj ... are omitted, the result is simply final-obj. Otherwise, a list of obj ... is constructed, as
     with list, except that the final cdr field is final-obj instead of (). If final-obj is not a list, the result is an
@@ -6836,9 +6971,11 @@ x → 0
 (cons* 'a 'b '(c d)) → (a b c d)
 #+end_src
 
-    =procedure:= (list? obj)
-    =returns:= #t if obj is a proper list, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (list? obj)
+    *returns:* #t if obj is a proper list, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     list? must return #f for all improper lists, including cyclic lists. A definition of list? is shown on page 67.
 
@@ -6853,9 +6990,11 @@ x → 0
   (list? x)) → #f
 #+end_src
 
-    =procedure:= (length list)
-    =returns:= the number of elements in list
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (length list)
+    *returns:* the number of elements in list
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     length may be defined as follows, using an adaptation of the hare and tortoise algorithm used for the definition of
     list? on page 67.
@@ -6894,9 +7033,11 @@ x → 0
     ls))
 #+end_src
 
-    =procedure:= (list-ref list n)
-    =returns:= the nth element (zero-based) of list
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (list-ref list n)
+    *returns:* the nth element (zero-based) of list
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of list. list-ref may be defined without error checks as follows.
 
@@ -6912,9 +7053,11 @@ x → 0
 (list-ref '(a b c) 2) → c
 #+end_src
 
-    =procedure:= (list-tail list n)
-    =returns:= the nth tail (zero-based) of list
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (list-tail list n)
+    *returns:* the nth tail (zero-based) of list
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than or equal to the length of list. The result is not a copy; the tail
     is eq? to the nth cdr of list (or to list itself, if n is zero).
@@ -6938,10 +7081,12 @@ x → 0
        (cddr x))) → #t
 #+end_src
 
-    =procedure:= (append)
-    =procedure:= (append list ... obj)
-    =returns:= the concatenation of the input lists
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (append)
+    *procedure:* (append list ... obj)
+    *returns:* the concatenation of the input lists
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     append returns a new list consisting of the elements of the first list followed by the elements of the second list,
     the elements of the third list, and so on. The new list is made from new pairs for all arguments but the last; the
@@ -6967,9 +7112,11 @@ x → 0
   (eq? x (cdr (append '(a) x)))) → #t
 #+end_src
 
-    =procedure:= (reverse list)
-    =returns:= a new list containing the elements of list in reverse order
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (reverse list)
+    *returns:* a new list containing the elements of list in reverse order
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     reverse may be defined without error checks as follows.
 
@@ -6985,11 +7132,13 @@ x → 0
 (reverse '(a b c)) → (c b a)
 #+end_src
 
-    =procedure:= (memq obj list)
-    =procedure:= (memv obj list)
-    =procedure:= (member obj list)
-    =returns:= the first tail of list whose car is equivalent to obj, or #f
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (memq obj list)
+    *procedure:* (memv obj list)
+    *procedure:* (member obj list)
+    *returns:* the first tail of list whose car is equivalent to obj, or #f
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     These procedures traverse the argument list in order, comparing the elements of list against obj. If an object
     equivalent to obj is found, the tail of the list whose first element is that object is returned. If the list
@@ -7043,9 +7192,11 @@ x → 0
 (count-occurrences 'a '(a b c d a)) → 2
 #+end_src
 
-    =procedure:= (memp procedure list)
-    =returns:= the first tail of list for whose car procedure returns true, or #f
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (memp procedure list)
+    *returns:* the first tail of list for whose car procedure returns true, or #f
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
 
@@ -7059,11 +7210,13 @@ x → 0
 (memp odd? '(2 4 6 8)) → #f
 #+end_src
 
-    =procedure:= (remq obj list)
-    =procedure:= (remv obj list)
-    =procedure:= (remove obj list)
-    =returns:= a list containing the elements of list with all occurrences of obj removed
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (remq obj list)
+    *procedure:* (remv obj list)
+    *procedure:* (remove obj list)
+    *returns:* a list containing the elements of list with all occurrences of obj removed
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     These procedures traverse the argument list, removing any objects that are equivalent to obj. The elements remaining
     in the output list are in the same order as they appear in the input list. If a tail of list (including list itself)
@@ -7081,9 +7234,11 @@ x → 0
 (remove '(b) '((a) (b) (c))) → ((a) (c))
 #+end_src
 
-    =procedure:= (remp procedure list)
-    =returns:= a list of the elements of list for which procedure returns #f
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (remp procedure list)
+    *returns:* a list of the elements of list for which procedure returns #f
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
 
@@ -7097,9 +7252,11 @@ x → 0
   '(-5 15 3 14 -20 6 0 -9)) → (-5 15 14 -20 0 -9)
 #+end_src
 
-    =procedure:= (filter procedure list)
-    =returns:= a list of the elements of list for which procedure returns true
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (filter procedure list)
+    *returns:* a list of the elements of list for which procedure returns true
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
 
@@ -7114,9 +7271,11 @@ x → 0
   '(-5 15 3 14 -20 6 0 -9)) → (3 6)
 #+end_src
 
-    =procedure:= (partition procedure list)
-    =returns:= see below
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (partition procedure list)
+    *returns:* see below
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
 
@@ -7136,9 +7295,11 @@ x → 0
     The values returned by partition can be obtained by calling filter and remp separately, but this would require two
     calls to procedure for each element of list.
 
-    =procedure:= (find procedure list)
-    =returns:= the first element of list for which procedure returns true, or #f
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (find procedure list)
+    *returns:* the first element of list for which procedure returns true, or #f
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     procedure should accept one argument and return a single value. It should not modify list.
 
@@ -7156,11 +7317,13 @@ x → 0
 (find not '(1 a #f 55)) → #f
 #+end_src
 
-    =procedure:= (assq obj alist)
-    =procedure:= (assv obj alist)
-    =procedure:= (assoc obj alist)
-    =returns:= first element of alist whose car is equivalent to obj, or #f
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (assq obj alist)
+    *procedure:* (assv obj alist)
+    *procedure:* (assoc obj alist)
+    *returns:* first element of alist whose car is equivalent to obj, or #f
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     The argument alist must be an association list. An association list is a proper list whose elements are key-value
     pairs of the form (key . value). Associations are useful for storing information (values) associated with certain
@@ -7202,9 +7365,11 @@ x → 0
     The interpreter given in Section 12.7 represents environments as association lists and uses assq for both variable
     lookup and assignment.
 
-    =procedure:= (assp procedure alist)
-    =returns:= first element of alist for whose car procedure returns true, or #f
-    =libraries:= (rnrs lists), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (assp procedure alist)
+    *returns:* first element of alist for whose car procedure returns true, or #f
+    *libraries:* (rnrs lists), (rnrs)
+#+END_VERSE
 
     alist must be an association list. An association list is a proper list whose elements are key-value pairs of the
     form (key . value). procedure should accept one argument and return a single value. It should not modify list.
@@ -7219,9 +7384,11 @@ x → 0
 (assp odd? '((2 . b))) → #f
 #+end_src
 
-    =procedure:= (list-sort predicate list)
-    =returns:= a list containing the elements of list sorted according to predicate
-    =libraries:= (rnrs sorting), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (list-sort predicate list)
+    *returns:* a list containing the elements of list sorted according to predicate
+    *libraries:* (rnrs sorting), (rnrs)
+#+END_VERSE
 
     predicate should be a procedure that expects two arguments and returns #t if its first argument must precede its
     second in the sorted list. That is, if predicate is applied to two elements x and y, where x appears after y in the
@@ -7331,9 +7498,11 @@ x → 0
     real?, rational?, or integer?, i.e., the imaginary part of the number must be exactly zero. Where exact integers are
     required, the name exint is used. In each case, a suffix may appear on the name, e.g., int2.
 
-    =procedure:= (exact? num)
-    =returns:= #t if num is exact, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (exact? num)
+    *returns:* #t if num is exact, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (exact? 1) → #t
@@ -7344,9 +7513,11 @@ x → 0
 (exact? 1.0-2i) → #f
 #+end_src
 
-    =procedure:= (inexact? num)
-    =returns:= #t if num is inexact, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (inexact? num)
+    *returns:* #t if num is inexact, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (inexact? -123) → #f
@@ -7355,13 +7526,15 @@ x → 0
 (inexact? +i) → #f
 #+end_src
 
-    =procedure:= (= num1 num2 num3 ...)
-    =procedure:= (< real1 real2 real3 ...)
-    =procedure:= (> real1 real2 real3 ...)
-    =procedure:= (<= real1 real2 real3 ...)
-    =procedure:= (>= real1 real2 real3 ...)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (= num1 num2 num3 ...)
+    *procedure:* (< real1 real2 real3 ...)
+    *procedure:* (> real1 real2 real3 ...)
+    *procedure:* (<= real1 real2 real3 ...)
+    *procedure:* (>= real1 real2 real3 ...)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The predicate = returns #t if its arguments are equal. The predicate < returns #t if its arguments are monotonically
     increasing, i.e., each argument is greater than the preceding ones, while > returns #t if its arguments are
@@ -7408,9 +7581,11 @@ x → 0
 (> +nan.0 0.0) → #f
 #+end_src
 
-    =procedure:= (+ num ...)
-    =returns:= the sum of the arguments num ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (+ num ...)
+    *returns:* the sum of the arguments num ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     When called with no arguments, + returns 0.
 
@@ -7424,11 +7599,13 @@ x → 0
 (apply + '(1 2 3 4 5)) → 15
 #+end_src
 
-    =procedure:= (- num)
-    =returns:= the additive inverse of num
-    =procedure:= (- num1 num2 num3 ...)
-    =returns:= the difference between num1 and the sum of num2 num3 ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (- num)
+    *returns:* the additive inverse of num
+    *procedure:* (- num1 num2 num3 ...)
+    *returns:* the difference between num1 and the sum of num2 num3 ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (- 3) → -3
@@ -7438,9 +7615,11 @@ x → 0
 (- 4 3 2 1) → -2
 #+end_src
 
-    =procedure:= (* num ...)
-    =returns:= the product of the arguments num ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (* num ...)
+    *returns:* the product of the arguments num ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     When called with no arguments, * returns 1.
 
@@ -7453,11 +7632,13 @@ x → 0
 (apply * '(1 2 3 4 5)) → 120
 #+end_src
 
-    =procedure:= (/ num)
-    =returns:= the multiplicative inverse of num
-    =procedure:= (/ num1 num2 num3 ...)
-    =returns:= the result of dividing num1 by the product of num2 num3 ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (/ num)
+    *returns:* the multiplicative inverse of num
+    *procedure:* (/ num1 num2 num3 ...)
+    *returns:* the result of dividing num1 by the product of num2 num3 ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (/ -17) → -1/17
@@ -7469,9 +7650,11 @@ x → 0
 (/ 60 5 4 3 2) → 1/2
 #+end_src
 
-    =procedure:= (zero? num)
-    =returns:= #t if num is zero, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (zero? num)
+    *returns:* #t if num is zero, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     zero? is equivalent to (lambda (x) (= x 0)).
 
@@ -7484,9 +7667,11 @@ x → 0
 (zero? 0.0-0.0i) → #t
 #+end_src
 
-    =procedure:= (positive? real)
-    =returns:= #t if real is greater than zero, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (positive? real)
+    *returns:* #t if real is greater than zero, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     positive? is equivalent to (lambda (x) (> x 0)).
 
@@ -7498,9 +7683,11 @@ x → 0
 (positive? .001-0.0i) → exception: not a real number
 #+end_src
 
-    =procedure:= (negative? real)
-    =returns:= #t if real is less than zero, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (negative? real)
+    *returns:* #t if real is less than zero, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     negative? is equivalent to (lambda (x) (< x 0)).
 
@@ -7512,11 +7699,13 @@ x → 0
 (negative? -7.0+0.0i) → exception: not a real number
 #+end_src
 
-    =procedure:= (even? int)
-    =returns:= #t if int is even, #f otherwise
-    =procedure:= (odd? int)
-    =returns:= #t if int is odd, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (even? int)
+    *returns:* #t if int is even, #f otherwise
+    *procedure:* (odd? int)
+    *returns:* #t if int is odd, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (even? 0) → #t
@@ -7532,13 +7721,15 @@ x → 0
 (odd? 2.0+0.0i) → exception: not an integer
 #+end_src
 
-    =procedure:= (finite? real)
-    =returns:= #t if real is finite, #f otherwise
-    =procedure:= (infinite? real)
-    =returns:= #t if real is infinite, #f otherwise
-    =procedure:= (nan? real)
-    =returns:= #t if real is a NaN, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (finite? real)
+    *returns:* #t if real is finite, #f otherwise
+    *procedure:* (infinite? real)
+    *returns:* #t if real is infinite, #f otherwise
+    *procedure:* (nan? real)
+    *returns:* #t if real is a NaN, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (finite? 2/3) → #t
@@ -7558,13 +7749,15 @@ x → 0
 (nan? +nan.0) → #t
 #+end_src
 
-    =procedure:= (quotient int1 int2)
-    =returns:= the integer quotient of int1 and int2
-    =procedure:= (remainder int1 int2)
-    =returns:= the integer remainder of int1 and int2
-    =procedure:= (modulo int1 int2)
-    =returns:= the integer modulus of int1 and int2
-    =libraries:= (rnrs r5rs)
+#+BEGIN_VERSE
+    *procedure:* (quotient int1 int2)
+    *returns:* the integer quotient of int1 and int2
+    *procedure:* (remainder int1 int2)
+    *returns:* the integer remainder of int1 and int2
+    *procedure:* (modulo int1 int2)
+    *returns:* the integer modulus of int1 and int2
+    *libraries:* (rnrs r5rs)
+#+END_VERSE
 
     The result of remainder has the same sign as int1, while the result of modulo has the same sign as int2.
 
@@ -7586,11 +7779,13 @@ x → 0
 (modulo -17 -9) → -8
 #+end_src
 
-    =procedure:= (div x1 x2)
-    =procedure:= (mod x1 x2)
-    =procedure:= (div-and-mod x1 x2)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (div x1 x2)
+    *procedure:* (mod x1 x2)
+    *procedure:* (div-and-mod x1 x2)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If x1 and x2 are exact, x2 must not be zero. These procedures implement number-theoretic integer division, with the
     div operation being related to quotient and the mod operation being related to remainder or modulo, but in both
@@ -7624,11 +7819,13 @@ x → 0
                       2.5
 #+end_src
 
-    =procedure:= (div0 x1 x2)
-    =procedure:= (mod0 x1 x2)
-    =procedure:= (div0-and-mod0 x1 x2)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (div0 x1 x2)
+    *procedure:* (mod0 x1 x2)
+    *procedure:* (div0-and-mod0 x1 x2)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If x1 and x2 are exact, x2 must not be zero. These procedures are similar to div, mod, and div-and-mod, but
     constrain the "mod" value differently, which also affects the "div" value. The value nd of (div0 x1 x2) is an
@@ -7660,9 +7857,11 @@ x → 0
                         -0.5
 #+end_src
 
-    =procedure:= (truncate real)
-    =returns:= the integer closest to real toward zero
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (truncate real)
+    *returns:* the integer closest to real toward zero
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If real is an infinity or NaN, truncate returns real.
 
@@ -7674,9 +7873,11 @@ x → 0
 (truncate -17/2) → -8
 #+end_src
 
-    =procedure:= (floor real)
-    =returns:= the integer closest to real toward →
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (floor real)
+    *returns:* the integer closest to real toward →
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If real is an infinity or NaN, floor returns real.
 
@@ -7688,9 +7889,11 @@ x → 0
 (floor -17/2) → -9
 #+end_src
 
-    =procedure:= (ceiling real)
-    =returns:= the integer closest to real toward →
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (ceiling real)
+    *returns:* the integer closest to real toward →
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If real is an infinity or NaN, ceiling returns real.
 
@@ -7702,9 +7905,11 @@ x → 0
 (ceiling -17/2) → -8
 #+end_src
 
-    =procedure:= (round real)
-    =returns:= the integer closest to real
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (round real)
+    *returns:* the integer closest to real
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If real is exactly between two integers, the closest even integer is returned. If real is an infinity or NaN, round
     returns real.
@@ -7719,9 +7924,11 @@ x → 0
 (round 3.5) → 4.0
 #+end_src
 
-    =procedure:= (abs real)
-    =returns:= the absolute value of real
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (abs real)
+    *returns:* the absolute value of real
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     abs is equivalent to (lambda (x) (if (< x 0) (- x) x)). abs and magnitude (see page 183) are identical for real
     inputs.
@@ -7733,9 +7940,11 @@ x → 0
 (abs -0.093) → 0.093
 #+end_src
 
-    =procedure:= (max real1 real2 ...)
-    =returns:= the maximum of real1 real2 ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (max real1 real2 ...)
+    *returns:* the maximum of real1 real2 ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (max 4 -7 2 0 -6) → 4
@@ -7747,9 +7956,11 @@ x → 0
   (apply max ls)) → 9
 #+end_src
 
-    =procedure:= (min real1 real2 ...)
-    =returns:= the minimum of real1 real2 ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (min real1 real2 ...)
+    *returns:* the minimum of real1 real2 ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (min 4 -7 2 0 -6) → -7
@@ -7761,9 +7972,11 @@ x → 0
   (apply min ls)) → 2
 #+end_src
 
-    =procedure:= (gcd int ...)
-    =returns:= the greatest common divisor of its arguments int ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (gcd int ...)
+    *returns:* the greatest common divisor of its arguments int ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The result is always nonnegative, i.e., factors of -1 are ignored. When called with no arguments, gcd returns 0.
 
@@ -7774,9 +7987,11 @@ x → 0
 (gcd 70 -42 28) → 14
 #+end_src
 
-    =procedure:= (lcm int ...)
-    =returns:= the least common multiple of its arguments int ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (lcm int ...)
+    *returns:* the least common multiple of its arguments int ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The result is always nonnegative, i.e., common multiples of -1 are ignored. Although lcm should probably return
     → when called with no arguments, it is defined to return 1. If one or more of the arguments is 0, lcm
@@ -7790,9 +8005,11 @@ x → 0
 (lcm 17.0 0) → 0.0
 #+end_src
 
-    =procedure:= (expt num1 num2)
-    =returns:= num1 raised to the num2 power
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (expt num1 num2)
+    *returns:* num1 raised to the num2 power
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If both arguments are 0, expt returns 1.
 
@@ -7805,9 +8022,11 @@ x → 0
 (expt +i 2) → -1
 #+end_src
 
-    =procedure:= (inexact num)
-    =returns:= an inexact representation of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (inexact num)
+    *returns:* an inexact representation of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If num is already inexact, it is returned unchanged. If no inexact representation for num is supported by the
     implementation, an exception with condition type &implementation-violation may be raised. inexact may also return
@@ -7822,9 +8041,11 @@ x → 0
 (inexact (expt 10 20)) → 1e20
 #+end_src
 
-    =procedure:= (exact num)
-    =returns:= an exact representation of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (exact num)
+    *returns:* an exact representation of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If num is already exact, it is returned unchanged. If no exact representation for num is supported by the
     implementation, an exception with condition type &implementation-violation may be raised.
@@ -7837,17 +8058,21 @@ x → 0
 (exact 1e20) → 100000000000000000000
 #+end_src
 
-    =procedure:= (exact->inexact num)
-    =returns:= an inexact representation of num
-    =procedure:= (inexact->exact num)
-    =returns:= an exact representation of num
-    =libraries:= (rnrs r5rs)
+#+BEGIN_VERSE
+    *procedure:* (exact->inexact num)
+    *returns:* an inexact representation of num
+    *procedure:* (inexact->exact num)
+    *returns:* an exact representation of num
+    *libraries:* (rnrs r5rs)
+#+END_VERSE
 
     These are alternative names for inexact and exact, supported for compatibility with the Revised5 Report.
 
-    =procedure:= (rationalize real1 real2)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (rationalize real1 real2)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     rationalize returns the simplest rational number that differs from real1 by no more than real2. A rational number q1
     = n1/m1 is simpler than another rational number q2 = n2/m2 if |n1| ≤ |n2| and |m1| ≤ |m2| and either |n1| < |n2|
@@ -7859,9 +8084,11 @@ x → 0
 (eqv? (rationalize .3 1/10) #i1/3) → #t
 #+end_src
 
-    =procedure:= (numerator rat)
-    =returns:= the numerator of rat
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (numerator rat)
+    *returns:* the numerator of rat
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If rat is an integer, the numerator is rat.
 
@@ -7874,9 +8101,11 @@ x → 0
 (numerator -2.25) → -9.0
 #+end_src
 
-    =procedure:= (denominator rat)
-    =returns:= the denominator of rat
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (denominator rat)
+    *returns:* the denominator of rat
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If rat is an integer, including zero, the denominator is one.
 
@@ -7890,9 +8119,11 @@ x → 0
 (denominator -2.25) → 4.0
 #+end_src
 
-    =procedure:= (real-part num)
-    =returns:= the real component of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (real-part num)
+    *returns:* the real component of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If num is real, real-part returns num.
 
@@ -7904,9 +8135,11 @@ x → 0
 (real-part -17/100) → -17/100
 #+end_src
 
-    =procedure:= (imag-part num)
-    =returns:= the imaginary component of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (imag-part num)
+    *returns:* the imaginary component of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If num is real, imag-part returns exact zero.
 
@@ -7918,9 +8151,11 @@ x → 0
 (imag-part -17/100) → 0
 #+end_src
 
-    =procedure:= (make-rectangular real1 real2)
-    =returns:= a complex number with real component real1 and imaginary component real2
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-rectangular real1 real2)
+    *returns:* a complex number with real component real1 and imaginary component real2
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (make-rectangular -2 7) → -2+7i
@@ -7928,9 +8163,11 @@ x → 0
 (make-rectangular 3.2 5.3) → 3.2+5.3i
 #+end_src
 
-    =procedure:= (make-polar real1 real2)
-    =returns:= a complex number with magnitude real1 and angle real2
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-polar real1 real2)
+    *returns:* a complex number with magnitude real1 and angle real2
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (make-polar 2 0) → 2
@@ -7939,9 +8176,11 @@ x → 0
 (eqv? (make-polar 7.2 -0.588) 7.2@-0.588) → #t
 #+end_src
 
-    =procedure:= (angle num)
-    =returns:= the angle part of the polar representation of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (angle num)
+    *returns:* the angle part of the polar representation of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The range of the result is → (exclusive) to → (inclusive).
 
@@ -7950,9 +8189,11 @@ x → 0
 (angle 5.2) → 0.0
 #+end_src
 
-    =procedure:= (magnitude num)
-    =returns:= the magnitude of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (magnitude num)
+    *returns:* the magnitude of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     magnitude and abs (see page 178) are identical for real arguments. The magnitude of a complex number x + yi is
     →.
@@ -7966,9 +8207,11 @@ x → 0
 (magnitude 7.25@1.5708) → 7.25
 #+end_src
 
-    =procedure:= (sqrt num)
-    =returns:= the principal square root of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (sqrt num)
+    *returns:* the principal square root of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     Implementations are encouraged, but not required, to return exact results for exact inputs to sqrt whenever
     feasible.
@@ -7982,9 +8225,11 @@ x → 0
 (sqrt -3.0-4.0i) → 1.0-2.0i
 #+end_src
 
-    =procedure:= (exact-integer-sqrt n)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (exact-integer-sqrt n)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     This procedure returns two nonnegative exact integers s and r where n = s2 + r and n < (s + 1)2.
 
@@ -7997,9 +8242,11 @@ x → 0
                         → 3
 #+end_src
 
-    =procedure:= (exp num)
-    =returns:= e to the num power
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (exp num)
+    *returns:* e to the num power
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (exp 0.0) → 1.0
@@ -8007,11 +8254,13 @@ x → 0
 (exp -.5) → 0.6065306597126334
 #+end_src
 
-    =procedure:= (log num)
-    =returns:= the natural logarithm of num
-    =procedure:= (log num1 num2)
-    =returns:= the base-num2 logarithm of num1
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (log num)
+    *returns:* the natural logarithm of num
+    *procedure:* (log num1 num2)
+    *returns:* the base-num2 logarithm of num1
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (log 1.0) → 0.0
@@ -8023,11 +8272,13 @@ x → 0
 (log .125 2.0) → -3.0
 #+end_src
 
-    =procedure:= (sin num)
-    =procedure:= (cos num)
-    =procedure:= (tan num)
-    =returns:= the sine, cosine, or tangent of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (sin num)
+    *procedure:* (cos num)
+    *procedure:* (tan num)
+    *returns:* the sine, cosine, or tangent of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The argument is specified in radians.
 
@@ -8037,16 +8288,18 @@ x → 0
 (tan 0.0) → 0.0
 #+end_src
 
-    =procedure:= (asin num)
-    =procedure:= (acos num)
-    =returns:= the arc sine or the arc cosine of num
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (asin num)
+    *procedure:* (acos num)
+    *returns:* the arc sine or the arc cosine of num
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The result is in radians. The arc sine and arc cosine of a complex number z are defined as follows.
 
-[[./images/ch17.png]]
+[[./images/17.png]]
 
-[[./images/ch18.png]]
+[[./images/18.png]]
 
 #+begin_src scheme
 (define pi (* (asin 1) 2))
@@ -8054,15 +8307,17 @@ x → 0
 
 #+end_src
 
-    =procedure:= (atan num)
-    =procedure:= (atan real1 real2)
-    =returns:= see below
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (atan num)
+    *procedure:* (atan real1 real2)
+    *returns:* see below
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     When passed a single complex argument num (the first form), atan returns the arc tangent of num. The arc tangent of
     a complex number z is defined as follows.
 
-[[./images/ch19.png]]
+[[./images/19.png]]
 
     When passed two real arguments (the second form), atan is equivalent to (lambda (y x) (angle (make-rectangular x
     y))).
@@ -8072,15 +8327,17 @@ x → 0
 (= (* (atan 1.0 0.0) 2) pi) → #t
 #+end_src
 
-    =procedure:= (bitwise-not exint)
-    =returns:= the bitwise not of exint
-    =procedure:= (bitwise-and exint ...)
-    =returns:= the bitwise and of exint ...
-    =procedure:= (bitwise-ior exint ...)
-    =returns:= the bitwise inclusive or of exint ...
-    =procedure:= (bitwise-xor exint ...)
-    =returns:= the bitwise exclusive or of exint ...
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-not exint)
+    *returns:* the bitwise not of exint
+    *procedure:* (bitwise-and exint ...)
+    *returns:* the bitwise and of exint ...
+    *procedure:* (bitwise-ior exint ...)
+    *returns:* the bitwise inclusive or of exint ...
+    *procedure:* (bitwise-xor exint ...)
+    *returns:* the bitwise exclusive or of exint ...
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     The inputs are treated as if represented in two's complement, even if they are not represented that way internally.
 
@@ -8093,9 +8350,11 @@ x → 0
 (bitwise-xor #b01101 #b00111) → #b01010
 #+end_src
 
-    =procedure:= (bitwise-if exint1 exint2 exint3)
-    =returns:= the bitwise "if" of its arguments
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-if exint1 exint2 exint3)
+    *returns:* the bitwise "if" of its arguments
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     The inputs are treated as if represented in two's complement, even if they are not represented that way internally.
 
@@ -8116,9 +8375,11 @@ x → 0
       (bitwise-and (bitwise-not exint1) exint3))))
 #+end_src
 
-    =procedure:= (bitwise-bit-count exint)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-bit-count exint)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     For nonnegative inputs, bitwise-bit-count returns the number of bits set in the two's complement representation of
     exint. For negative inputs, it returns a negative number whose magnitude is one greater than the number of bits not
@@ -8136,9 +8397,11 @@ x → 0
 (bitwise-bit-count -4) → -3
 #+end_src
 
-    =procedure:= (bitwise-length exint)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-length exint)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     This procedure returns the number of bits of the smallest two's complement representation of exint, not including
     the sign bit for negative numbers. For 0 bitwise-length returns 0.
@@ -8154,9 +8417,11 @@ x → 0
 (bitwise-length -9) → 4
 #+end_src
 
-    =procedure:= (bitwise-first-bit-set exint)
-    =returns:= the index of the least significant bit set in exint
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-first-bit-set exint)
+    *returns:* the index of the least significant bit set in exint
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     The input is treated as if represented in two's complement, even if it is not represented that way internally.
 
@@ -8172,9 +8437,11 @@ x → 0
 (bitwise-first-bit-set -3) → 0
 #+end_src
 
-    =procedure:= (bitwise-bit-set? exint1 exint2)
-    =returns:= #t if bit exint2 of exint1 is set, #f otherwise
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-bit-set? exint1 exint2)
+    *returns:* #t if bit exint2 of exint1 is set, #f otherwise
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. The two's
     complement representation of a nonnegative number conceptually extends to the left (toward more significant bits)
@@ -8194,9 +8461,11 @@ x → 0
 (bitwise-bit-set? -1 5000) → #t
 #+end_src
 
-    =procedure:= (bitwise-copy-bit exint1 exint2 exint3)
-    =returns:= exint1 with bit exint2 replaced by exint3
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-copy-bit exint1 exint2 exint3)
+    *returns:* exint1 with bit exint2 replaced by exint3
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. exint3 must be
     0 or 1. This procedure effectively clears or sets the specified bit depending on the value of exint3. exint1 is
@@ -8207,9 +8476,11 @@ x → 0
 (bitwise-copy-bit #b01110 2 0) → #b01010
 #+end_src
 
-    =procedure:= (bitwise-bit-field exint1 exint2 exint3)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-bit-field exint1 exint2 exint3)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the number
     represented by extracting from exint1 the sequence of bits from exint2 (inclusive) to exint3 (exclusive). exint1 is
@@ -8222,9 +8493,11 @@ x → 0
 (bitwise-bit-field #b10110 3 3) → #b00000
 #+end_src
 
-    =procedure:= (bitwise-copy-bit-field exint1 exint2 exint3 exint4)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-copy-bit-field exint1 exint2 exint3 exint4)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns exint1
     with the n bits from exint2 (inclusive) to exint3 (exclusive) replaced by the low-order n bits of exint4. exint1 and
@@ -8237,11 +8510,13 @@ x → 0
 (bitwise-copy-bit-field #b10000 3 3 #b10101) → #b10000
 #+end_src
 
-    =procedure:= (bitwise-arithmetic-shift-right exint1 exint2)
-    =returns:= exint1 arithmetically shifted right by exint2 bits
-    =procedure:= (bitwise-arithmetic-shift-left exint1 exint2)
-    =returns:= exint1 shifted left by exint2 bits
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-arithmetic-shift-right exint1 exint2)
+    *returns:* exint1 arithmetically shifted right by exint2 bits
+    *procedure:* (bitwise-arithmetic-shift-left exint1 exint2)
+    *returns:* exint1 shifted left by exint2 bits
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     exint2 must be nonnegative. exint1 is treated as if represented in two's complement, even if it is not represented
     that way internally.
@@ -8255,9 +8530,11 @@ x → 0
 (bitwise-arithmetic-shift-left -1 2) → -4
 #+end_src
 
-    =procedure:= (bitwise-arithmetic-shift exint1 exint2)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-arithmetic-shift exint1 exint2)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     If exint2 is negative, bitwise-arithmetic-shift returns the result of arithmetically shifting exint1 right by
     -exint2 bits. Otherwise, bitwise-arithmetic-shift returns the result of shifting exint1 left by exint2 bits. exint1
@@ -8281,9 +8558,11 @@ x → 0
         (bitwise-arithmetic-shift-left exint1 exint2))))
 #+end_src
 
-    =procedure:= (bitwise-rotate-bit-field exint1 exint2 exint3 exint4)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-rotate-bit-field exint1 exint2 exint3 exint4)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     exint2, exint3, and exint4 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns
     the result of shifting the bits of exint1 from bit exint2 (inclusive) through bit exint3 (exclusive) left by (mod
@@ -8295,9 +8574,11 @@ x → 0
 (bitwise-rotate-bit-field #b01101011 2 7 3) → #b01011011
 #+end_src
 
-    =procedure:= (bitwise-reverse-bit-field exint1 exint2 exint3)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic bitwise), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bitwise-reverse-bit-field exint1 exint2 exint3)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic bitwise), (rnrs)
+#+END_VERSE
 
     exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the result
     of reversing the bits of exint1 from bit exint2 (inclusive) through bit exint3 (exclusive). exint1 is treated as if
@@ -8308,10 +8589,12 @@ x → 0
 (bitwise-reverse-bit-field #b01101011 2 7) → #b00101111
 #+end_src
 
-    =procedure:= (string->number string)
-    =procedure:= (string->number string radix)
-    =returns:= the number represented by string, or #f
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string->number string)
+    *procedure:* (string->number string radix)
+    *returns:* the number represented by string, or #f
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     If string is a valid representation of a number, that number is returned, otherwise #f is returned. The number is
     interpreted in radix radix, which must be an exact integer in the set {2,8,10,16}. If not specified, radix defaults
@@ -8326,11 +8609,13 @@ x → 0
 (string->number "10" 16) → 16
 #+end_src
 
-    =procedure:= (number->string num)
-    =procedure:= (number->string num radix)
-    =procedure:= (number->string num radix precision)
-    =returns:= an external representation of num as a string
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (number->string num)
+    *procedure:* (number->string num radix)
+    *procedure:* (number->string num radix precision)
+    *returns:* an external representation of num as a string
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The num is expressed in radix radix, which must be an exact integer in the set {2,8,10,16}. If not specified, radix
     defaults to 10. In any case, no radix specifier appears in the resulting string.
@@ -8381,9 +8666,11 @@ x → 0
     Bit and shift operations on fixnums assume that fixnums are represented in two's complement, even if they are not
     represented that way internally.
 
-    =procedure:= (fixnum? obj)
-    =returns:= #t if obj is a fixnum, #f otherwise
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fixnum? obj)
+    *returns:* #t if obj is a fixnum, #f otherwise
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fixnum? 0) → #t
@@ -8392,11 +8679,13 @@ x → 0
 (fixnum? (- (expt 2 23) 1)) → #t
 #+end_src
 
-    =procedure:= (least-fixnum)
-    =returns:= the least (most negative) fixnum supported by the implementation
-    =procedure:= (greatest-fixnum)
-    =returns:= the greatest (most positive) fixnum supported by the implementation
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (least-fixnum)
+    *returns:* the least (most negative) fixnum supported by the implementation
+    *procedure:* (greatest-fixnum)
+    *returns:* the greatest (most positive) fixnum supported by the implementation
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fixnum? (- (least-fixnum) 1)) → #f
@@ -8405,9 +8694,11 @@ x → 0
 (fixnum? (+ (greatest-fixnum) 1)) → #f
 #+end_src
 
-    =procedure:= (fixnum-width)
-    =returns:= the implementation-dependent fixnum width
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fixnum-width)
+    *returns:* the implementation-dependent fixnum width
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     As described in the lead-in to this section, the fixnum width determines the size of the fixnum range and must be at
     least 24.
@@ -8419,13 +8710,15 @@ x → 0
 (>= w 24) → #t
 #+end_src
 
-    =procedure:= (fx=? fx1 fx2 fx3 ...)
-    =procedure:= (fx<? fx1 fx2 fx3 ...)
-    =procedure:= (fx>? fx1 fx2 fx3 ...)
-    =procedure:= (fx<=? fx1 fx2 fx3 ...)
-    =procedure:= (fx>=? fx1 fx2 fx3 ...)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fx=? fx1 fx2 fx3 ...)
+    *procedure:* (fx<? fx1 fx2 fx3 ...)
+    *procedure:* (fx>? fx1 fx2 fx3 ...)
+    *procedure:* (fx<=? fx1 fx2 fx3 ...)
+    *procedure:* (fx>=? fx1 fx2 fx3 ...)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     The predicate fx=? returns #t if its arguments are equal. The predicate fx<? returns #t if its arguments are
     monotonically increasing, i.e., each argument is greater than the preceding ones, while fx>? returns #t if its
@@ -8443,13 +8736,15 @@ x → 0
 (fx>=? 0 0 (least-fixnum)) → #t
 #+end_src
 
-    =procedure:= (fxzero? fx)
-    =returns:= #t if fx is zero, #f otherwise
-    =procedure:= (fxpositive? fx)
-    =returns:= #t if fx is greater than zero, #f otherwise
-    =procedure:= (fxnegative? fx)
-    =returns:= #t if fx is less than zero, #f otherwise
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxzero? fx)
+    *returns:* #t if fx is zero, #f otherwise
+    *procedure:* (fxpositive? fx)
+    *returns:* #t if fx is greater than zero, #f otherwise
+    *procedure:* (fxnegative? fx)
+    *returns:* #t if fx is less than zero, #f otherwise
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fxzero? is equivalent to (lambda (x) (fx=? x 0)), fxpositive? is equivalent to (lambda (x) (fx>? x 0)), and
     fxnegative? to (lambda (x) (fx<? x 0)).
@@ -8465,13 +8760,17 @@ x → 0
 (fxnegative? -65) → #t
 (fxnegative? 0) → #f
 (fxnegative? 1) → #f
+#+end_src
 
-=procedure:= (fxeven? fx)
-=returns:= #t if fx is even, #f otherwise
-=procedure:= (fxodd? fx)
-=returns:= #t if fx is odd, #f otherwise
-=libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+*procedure:* (fxeven? fx)
+*returns:* #t if fx is even, #f otherwise
+*procedure:* (fxodd? fx)
+*returns:* #t if fx is odd, #f otherwise
+*libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
+#+begin_src scheme
 (fxeven? 0) → #t
 (fxeven? 1) → #f
 (fxeven? -1) → #f
@@ -8483,11 +8782,13 @@ x → 0
 (fxodd? -10) → #f
 #+end_src
 
-    =procedure:= (fxmin fx1 fx2 ...)
-    =returns:= the minimum of fx1 fx2 ...
-    =procedure:= (fxmax fx1 fx2 ...)
-    =returns:= the maximum of fx1 fx2 ...
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxmin fx1 fx2 ...)
+    *returns:* the minimum of fx1 fx2 ...
+    *procedure:* (fxmax fx1 fx2 ...)
+    *returns:* the maximum of fx1 fx2 ...
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fxmin 4 -7 2 0 -6) → -7
@@ -8501,38 +8802,46 @@ x → 0
   (apply fxmax ls)) → 9
 #+end_src
 
-    =procedure:= (fx+ fx1 fx2)
-    =returns:= the sum of fx1 and fx2
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fx+ fx1 fx2)
+    *returns:* the sum of fx1 and fx2
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fx+ -3 4) → 1
 #+end_src
 
-    =procedure:= (fx- fx)
-    =returns:= the additive inverse of fx
-    =procedure:= (fx- fx1 fx2)
-    =returns:= the difference between fx1 and fx2
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fx- fx)
+    *returns:* the additive inverse of fx
+    *procedure:* (fx- fx1 fx2)
+    *returns:* the difference between fx1 and fx2
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fx- 3) → -3
 (fx- -3 4) → -7
 #+end_src
 
-    =procedure:= (fx* fx1 fx2)
-    =returns:= the product of fx1 and fx2
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fx* fx1 fx2)
+    *returns:* the product of fx1 and fx2
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fx* -3 4) → -12
 #+end_src
 
-    =procedure:= (fxdiv fx1 fx2)
-    =procedure:= (fxmod fx1 fx2)
-    =procedure:= (fxdiv-and-mod fx1 fx2)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxdiv fx1 fx2)
+    *procedure:* (fxmod fx1 fx2)
+    *procedure:* (fxdiv-and-mod fx1 fx2)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 must not be zero. These are fixnum-specific versions of the generic div, mod, and div-and-mod.
 
@@ -8550,11 +8859,13 @@ x → 0
                                2
 #+end_src
 
-    =procedure:= (fxdiv0 fx1 fx2)
-    =procedure:= (fxmod0 fx1 fx2)
-    =procedure:= (fxdiv0-and-mod0 fx1 fx2)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxdiv0 fx1 fx2)
+    *procedure:* (fxmod0 fx1 fx2)
+    *procedure:* (fxdiv0-and-mod0 fx1 fx2)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 must not be zero. These are fixnum-specific versions of the generic div0, mod0, and div0-and-mod0.
 
@@ -8572,11 +8883,13 @@ x → 0
                                  -1
 #+end_src
 
-    =procedure:= (fx+/carry fx1 fx2 fx3)
-    =procedure:= (fx-/carry fx1 fx2 fx3)
-    =procedure:= (fx*/carry fx1 fx2 fx3)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fx+/carry fx1 fx2 fx3)
+    *procedure:* (fx-/carry fx1 fx2 fx3)
+    *procedure:* (fx*/carry fx1 fx2 fx3)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     When an ordinary fixnum addition, subtraction, or multiplication operation overflows, an exception is raised. These
     alternative procedures instead return a carry and also allow the carry to be propagated to the next operation. They
@@ -8609,15 +8922,17 @@ x → 0
   (values s0 s1))
 #+end_src
 
-    =procedure:= (fxnot fx)
-    =returns:= the bitwise not of fx
-    =procedure:= (fxand fx ...)
-    =returns:= the bitwise and of fx ...
-    =procedure:= (fxior fx ...)
-    =returns:= the bitwise inclusive or of fx ...
-    =procedure:= (fxxor fx ...)
-    =returns:= the bitwise exclusive or of fx ...
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxnot fx)
+    *returns:* the bitwise not of fx
+    *procedure:* (fxand fx ...)
+    *returns:* the bitwise and of fx ...
+    *procedure:* (fxior fx ...)
+    *returns:* the bitwise inclusive or of fx ...
+    *procedure:* (fxxor fx ...)
+    *returns:* the bitwise exclusive or of fx ...
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fxnot 0) → -1
@@ -8628,9 +8943,11 @@ x → 0
 (fxxor #b01101 #b00111) → #b01010
 #+end_src
 
-    =procedure:= (fxif fx1 fx2 fx3)
-    =returns:= the bitwise "if" of its arguments
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxif fx1 fx2 fx3)
+    *returns:* the bitwise "if" of its arguments
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     For each bit set in fx1, the corresponding bit of the result is taken from fx2, and for each bit not set in fx1, the
     corresponding bit of the result is taken from x3.
@@ -8648,9 +8965,11 @@ x → 0
            (fxand (fxnot fx1) fx3))))
 #+end_src
 
-    =procedure:= (fxbit-count fx)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxbit-count fx)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     For nonnegative inputs, fxbit-count returns the number of bits set in the two's complement representation of fx. For
     negative inputs, it returns a negative number whose magnitude is one greater than the number of bits not set in fx,
@@ -8667,9 +8986,11 @@ x → 0
 (fxbit-count -4) → -3
 #+end_src
 
-    =procedure:= (fxlength fx)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxlength fx)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     This procedure returns the number of bits of the smallest two's complement representation of fx, not including the
     sign bit for negative numbers. For 0 fxlength returns 0.
@@ -8685,9 +9006,11 @@ x → 0
 (fxlength -9) → 4
 #+end_src
 
-    =procedure:= (fxfirst-bit-set fx)
-    =returns:= the index of the least significant bit set in fx
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxfirst-bit-set fx)
+    *returns:* the index of the least significant bit set in fx
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     If fx is 0, fxfirst-bit-set returns -1.
 
@@ -8701,9 +9024,11 @@ x → 0
 (fxfirst-bit-set -3) → 0
 #+end_src
 
-    =procedure:= (fxbit-set? fx1 fx2)
-    =returns:= #t if bit fx2 of fx1 is set, #f otherwise
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxbit-set? fx1 fx2)
+    *returns:* #t if bit fx2 of fx1 is set, #f otherwise
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 must be nonnegative. It is taken as a zero-based index for the bits in the two's complement representation of
     fx1, with the sign bit virtually replicated an infinite number of positions to the left.
@@ -8719,9 +9044,11 @@ x → 0
 (fxbit-set? -1 (- (fixnum-width) 1)) → #t
 #+end_src
 
-    =procedure:= (fxcopy-bit fx1 fx2 fx3)
-    =returns:= fx1 with bit fx2 replaced by fx3
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxcopy-bit fx1 fx2 fx3)
+    *returns:* fx1 with bit fx2 replaced by fx3
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 must be nonnegative and less than the value of (- (fixnum-width) 1). fx3 must be 0 or 1. This procedure
     effectively clears or sets the specified bit depending on the value of fx3.
@@ -8731,9 +9058,11 @@ x → 0
 (fxcopy-bit #b01110 2 0) → #b01010
 #+end_src
 
-    =procedure:= (fxbit-field fx1 fx2 fx3)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxbit-field fx1 fx2 fx3)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
     fx3. This procedure returns the number represented by extracting from fx1 the sequence of bits from fx2 (inclusive)
@@ -8746,9 +9075,11 @@ x → 0
 (fxbit-field #b10110 3 3) → #b00000
 #+end_src
 
-    =procedure:= (fxcopy-bit-field fx1 fx2 fx3 fx4)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxcopy-bit-field fx1 fx2 fx3 fx4)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
     fx3. This procedure returns fx1 with n bits from fx2 (inclusive) to fx3 (exclusive) replaced by the low-order n bits
@@ -8761,11 +9092,13 @@ x → 0
 (fxcopy-bit-field #b10000 3 3 #b10101) → #b10000
 #+end_src
 
-    =procedure:= (fxarithmetic-shift-right fx1 fx2)
-    =returns:= fx1 arithmetically shifted right by fx2 bits
-    =procedure:= (fxarithmetic-shift-left fx1 fx2)
-    =returns:= fx1 shifted left by fx2 bits
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxarithmetic-shift-right fx1 fx2)
+    *returns:* fx1 arithmetically shifted right by fx2 bits
+    *procedure:* (fxarithmetic-shift-left fx1 fx2)
+    *returns:* fx1 shifted left by fx2 bits
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 must be nonnegative and less than the value of (fixnum-width).
 
@@ -8778,9 +9111,11 @@ x → 0
 (fxarithmetic-shift-left -1 2) → -4
 #+end_src
 
-    =procedure:= (fxarithmetic-shift fx1 fx2)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxarithmetic-shift fx1 fx2)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     The absolute value of fx2 must be less than the value of (fixnum-width). If fx2 is negative, fxarithmetic-shift
     returns the result of arithmetically shifting fx1 right by fx2 bits. Otherwise, fxarithmetic-shift returns the
@@ -8804,9 +9139,11 @@ x → 0
         (fxarithmetic-shift-left fx1 fx2))))
 #+end_src
 
-    =procedure:= (fxrotate-bit-field fx1 fx2 fx3 fx4)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxrotate-bit-field fx1 fx2 fx3 fx4)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2, fx3, and fx4 must be nonnegative and less than the value of (fixnum-width), fx2 must not be greater than fx3,
     and fx4 must not be greater than the difference between fx3 and fx2.
@@ -8819,9 +9156,11 @@ x → 0
 (fxrotate-bit-field #b01101011 2 7 3) → #b01011011
 #+end_src
 
-    =procedure:= (fxreverse-bit-field fx1 fx2 fx3)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic fixnums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fxreverse-bit-field fx1 fx2 fx3)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic fixnums), (rnrs)
+#+END_VERSE
 
     fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
     fx3. This procedure returns the result of reversing the bits of fx1 from bit fx2 (inclusive) through bit fx3
@@ -8848,9 +9187,11 @@ x → 0
     Procedure arguments required to be flonums are named fl, possibly with suffix, e.g., fl2. Unless otherwise
     specified, the numeric values of flonum-specific procedures are flonums.
 
-    =procedure:= (flonum? obj)
-    =returns:= #t if obj is a flonum, otherwise #f
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flonum? obj)
+    *returns:* #t if obj is a flonum, otherwise #f
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (flonum? 0) → #f
@@ -8861,13 +9202,15 @@ x → 0
 (flonum? 3.0+0.0i) → #f
 #+end_src
 
-    =procedure:= (fl=? fl1 fl2 fl3 ...)
-    =procedure:= (fl<? fl1 fl2 fl3 ...)
-    =procedure:= (fl>? fl1 fl2 fl3 ...)
-    =procedure:= (fl<=? fl1 fl2 fl3 ...)
-    =procedure:= (fl>=? fl1 fl2 fl3 ...)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fl=? fl1 fl2 fl3 ...)
+    *procedure:* (fl<? fl1 fl2 fl3 ...)
+    *procedure:* (fl>? fl1 fl2 fl3 ...)
+    *procedure:* (fl<=? fl1 fl2 fl3 ...)
+    *procedure:* (fl>=? fl1 fl2 fl3 ...)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     The predicate fl=? returns #t if its arguments are equal. The predicate fl<? returns #t if its arguments are
     monotonically increasing, i.e., each argument is greater than the preceding ones, while fl>? returns #t if its
@@ -8891,13 +9234,15 @@ x → 0
 (fl>=? +nan.0 +inf.0) → #f
 #+end_src
 
-    =procedure:= (flzero? fl)
-    =returns:= #t if fl is zero, #f otherwise
-    =procedure:= (flpositive? fl)
-    =returns:= #t if fl is greater than zero, #f otherwise
-    =procedure:= (flnegative? fl)
-    =returns:= #t if fl is less than zero, #f otherwise
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flzero? fl)
+    *returns:* #t if fl is zero, #f otherwise
+    *procedure:* (flpositive? fl)
+    *returns:* #t if fl is greater than zero, #f otherwise
+    *procedure:* (flnegative? fl)
+    *returns:* #t if fl is less than zero, #f otherwise
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     flzero? is equivalent to (lambda (x) (fl=? x 0.0)), flpositive? is equivalent to (lambda (x) (fl>? x 0.0)), and
     flnegative? to (lambda (x) (fl<? x 0.0)).
@@ -8927,9 +9272,11 @@ x → 0
 (flnegative? -inf.0) → #t
 #+end_src
 
-    =procedure:= (flinteger? fl)
-    =returns:= #t if fl is integer, #f otherwise
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flinteger? fl)
+    *returns:* #t if fl is integer, #f otherwise
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (flinteger? 0.0) → #t
@@ -8938,13 +9285,15 @@ x → 0
 (flinteger? +inf.0) → #f
 #+end_src
 
-    =procedure:= (flfinite? fl)
-    =returns:= #t if fl is finite, #f otherwise
-    =procedure:= (flinfinite? fl)
-    =returns:= #t if fl is infinite, #f otherwise
-    =procedure:= (flnan? fl)
-    =returns:= #t if fl is a NaN, #f otherwise
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flfinite? fl)
+    *returns:* #t if fl is finite, #f otherwise
+    *procedure:* (flinfinite? fl)
+    *returns:* #t if fl is infinite, #f otherwise
+    *procedure:* (flnan? fl)
+    *returns:* #t if fl is a NaN, #f otherwise
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (flfinite? 3.1415) → #t
@@ -8960,11 +9309,13 @@ x → 0
 (flnan? +nan.0) → #t
 #+end_src
 
-    =procedure:= (fleven? fl-int)
-    =returns:= #t if fl-int is even, #f otherwise
-    =procedure:= (flodd? fl-int)
-    =returns:= #t if fl-int is odd, #f otherwise
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fleven? fl-int)
+    *returns:* #t if fl-int is even, #f otherwise
+    *procedure:* (flodd? fl-int)
+    *returns:* #t if fl-int is odd, #f otherwise
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     fl-int must be an integer-valued flonum.
 
@@ -8980,11 +9331,13 @@ x → 0
 (flodd? -10.0) → #f
 #+end_src
 
-    =procedure:= (flmin fl1 fl2 ...)
-    =returns:= the minimum of fl1 fl2 ...
-    =procedure:= (flmax fl1 fl2 ...)
-    =returns:= the maximum of fl1 fl2 ...
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flmin fl1 fl2 ...)
+    *returns:* the minimum of fl1 fl2 ...
+    *procedure:* (flmax fl1 fl2 ...)
+    *returns:* the maximum of fl1 fl2 ...
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (flmin 4.2 -7.5 2.0 0.0 -6.4) → -7.5
@@ -8998,9 +9351,11 @@ x → 0
   (apply flmax ls)) → 8.0
 #+end_src
 
-    =procedure:= (fl+ fl ...)
-    =returns:= the sum of the arguments fl ...
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fl+ fl ...)
+    *returns:* the sum of the arguments fl ...
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     When called with no arguments, fl+ returns 0.0.
 
@@ -9011,11 +9366,13 @@ x → 0
 (apply fl+ '(1.0 2.0 3.0 4.0 5.0)) → 15.0
 #+end_src
 
-    =procedure:= (fl- fl)
-    =returns:= the additive inverse of fl
-    =procedure:= (fl- fl1 fl2 fl3 ...)
-    =returns:= the difference between fl1 and the sum of fl2 fl3 ...
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fl- fl)
+    *returns:* the additive inverse of fl
+    *procedure:* (fl- fl1 fl2 fl3 ...)
+    *returns:* the difference between fl1 and the sum of fl2 fl3 ...
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     With an IEEE floating-point representation of flonums, the single-argument fl- is equivalent to
 
@@ -9044,9 +9401,11 @@ x → 0
 (fl- 4.0 3.0 2.0 1.0) → -2.0
 #+end_src
 
-    =procedure:= (fl* fl ...)
-    =returns:= the product of the arguments fl ...
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fl* fl ...)
+    *returns:* the product of the arguments fl ...
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     When called with no arguments, fl* returns 1.0.
 
@@ -9057,11 +9416,13 @@ x → 0
 (apply fl* '(1.0 -2.0 3.0 -4.0 5.0)) → 120.0
 #+end_src
 
-    =procedure:= (fl/ fl)
-    =returns:= the multiplicative inverse of fl
-    =procedure:= (fl/ fl1 fl2 fl3 ...)
-    =returns:= the result of dividing fl1 by the product of fl2 fl3 ...
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fl/ fl)
+    *returns:* the multiplicative inverse of fl
+    *procedure:* (fl/ fl1 fl2 fl3 ...)
+    *returns:* the result of dividing fl1 by the product of fl2 fl3 ...
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (fl/ -4.0) → -0.25
@@ -9070,11 +9431,13 @@ x → 0
 (fl/ 60.0 5.0 3.0 2.0) → 2.0
 #+end_src
 
-    =procedure:= (fldiv fl1 fl2)
-    =procedure:= (flmod fl1 fl2)
-    =procedure:= (fldiv-and-mod fl1 fl2)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fldiv fl1 fl2)
+    *procedure:* (flmod fl1 fl2)
+    *procedure:* (fldiv-and-mod fl1 fl2)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     These are flonum-specific versions of the generic div, mod, and div-and-mod.
 
@@ -9092,11 +9455,13 @@ x → 0
                                     2.5
 #+end_src
 
-    =procedure:= (fldiv0 fl1 fl2)
-    =procedure:= (flmod0 fl1 fl2)
-    =procedure:= (fldiv0-and-mod0 fl1 fl2)
-    =returns:= see below
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fldiv0 fl1 fl2)
+    *procedure:* (flmod0 fl1 fl2)
+    *procedure:* (fldiv0-and-mod0 fl1 fl2)
+    *returns:* see below
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     These are flonum-specific versions of the generic div0, mod0, and div0-and-mod0.
 
@@ -9114,15 +9479,17 @@ x → 0
                                       -1.25
 #+end_src
 
-    =procedure:= (flround fl)
-    =returns:= the integer closest to fl
-    =procedure:= (fltruncate fl)
-    =returns:= the integer closest to fl toward zero
-    =procedure:= (flfloor fl)
-    =returns:= the integer closest to fl toward →
-    =procedure:= (flceiling fl)
-    =returns:= the integer closest to fl toward →
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flround fl)
+    *returns:* the integer closest to fl
+    *procedure:* (fltruncate fl)
+    *returns:* the integer closest to fl toward zero
+    *procedure:* (flfloor fl)
+    *returns:* the integer closest to fl toward →
+    *procedure:* (flceiling fl)
+    *returns:* the integer closest to fl toward →
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     If fl is an integer, NaN, or infinity, each of these procedures returns fl. If fl is exactly between two integers,
     flround returns the closest even integer.
@@ -9143,11 +9510,13 @@ x → 0
 (flceiling -17.3) → -17.0
 #+end_src
 
-    =procedure:= (flnumerator fl)
-    =returns:= the numerator of fl
-    =procedure:= (fldenominator fl)
-    =returns:= the denominator of fl
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flnumerator fl)
+    *returns:* the numerator of fl
+    *procedure:* (fldenominator fl)
+    *returns:* the denominator of fl
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     If fl is an integer, including 0.0, or infinity, the numerator is fl and the denominator is 1.0.
 
@@ -9167,22 +9536,26 @@ x → 0
 (fldenominator 3.5) → 2.0
 #+end_src
 
-    =procedure:= (flabs fl)
-    =returns:= absolute value of fl
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flabs fl)
+    *returns:* absolute value of fl
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (flabs 3.2) → 3.2
 (flabs -2e-20) → 2e-20
 #+end_src
 
-    =procedure:= (flexp fl)
-    =returns:= e to the fl power
-    =procedure:= (fllog fl)
-    =returns:= the natural logarithm of fl
-    =procedure:= (fllog fl1 fl2)
-    =returns:= the base-fl2 logarithm of fl1
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flexp fl)
+    *returns:* e to the fl power
+    *procedure:* (fllog fl)
+    *returns:* the natural logarithm of fl
+    *procedure:* (fllog fl1 fl2)
+    *returns:* the base-fl2 logarithm of fl1
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (flexp 0.0) → 1.0
@@ -9196,27 +9569,30 @@ x → 0
 (fllog .125 2.0) → -3.0
 #+end_src
 
-    =procedure:= (flsin fl)
-    =returns:= the sine of fl
-    =procedure:= (flcos fl)
-    =returns:= the cosine of fl
-    =procedure:= (fltan fl)
-    =returns:= the tangent of fl
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flsin fl)
+    *returns:* the sine of fl
+    *procedure:* (flcos fl)
+    *returns:* the cosine of fl
+    *procedure:* (fltan fl)
+    *returns:* the tangent of fl
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
 
-    =procedure:= (flasin fl)
-    =returns:= the arc sine of fl
-    =procedure:= (flacos fl)
-    =returns:= the arc cosine of fl
-    =procedure:= (flatan fl)
-    =returns:= the arc tangent of fl
-    =procedure:= (flatan fl1 fl2)
-    =returns:= the arc tangent of fl1/fl2
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
 
-    =procedure:= (flsqrt fl)
-    =returns:= the principal square root of fl
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+    *procedure:* (flasin fl)
+    *returns:* the arc sine of fl
+    *procedure:* (flacos fl)
+    *returns:* the arc cosine of fl
+    *procedure:* (flatan fl)
+    *returns:* the arc tangent of fl
+    *procedure:* (flatan fl1 fl2)
+    *returns:* the arc tangent of fl1/fl2
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+
+    *procedure:* (flsqrt fl)
+    *returns:* the principal square root of fl
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     Returns the principal square root of fl. The square root of -0.0 should be -0.0. The result for other negative
     numbers may be a NaN or some other unspecified flonum.
@@ -9227,9 +9603,11 @@ x → 0
 (flsqrt -0.0) → -0.0
 #+end_src
 
-    =procedure:= (flexpt fl1 fl2)
-    =returns:= fl1 raised to the fl2 power
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (flexpt fl1 fl2)
+    *returns:* fl1 raised to the fl2 power
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     If fl1 is negative and fl2 is not an integer, the result may be a NaN or some other unspecified flonum. If fl1 and
     fl2 are both zero, the result is 1.0. If fl1 is zero and fl2 is positive, the result is zero. In other cases where
@@ -9240,11 +9618,13 @@ x → 0
 (flexpt 0.0 +inf.0) → 0.0
 #+end_src
 
-    =procedure:= (fixnum->flonum fx)
-    =returns:= the flonum representation closest to fx
-    =procedure:= (real->flonum real)
-    =returns:= the flonum representation closest to real
-    =libraries:= (rnrs arithmetic flonums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (fixnum->flonum fx)
+    *returns:* the flonum representation closest to fx
+    *procedure:* (real->flonum real)
+    *returns:* the flonum representation closest to real
+    *libraries:* (rnrs arithmetic flonums), (rnrs)
+#+END_VERSE
 
     fixnum->flonum is a restricted variant of inexact. real->flonum is a restricted variant of inexact when the input is
     an exact real; when it is an inexact non-flonum real, it coverts the inexact non-flonum real into the closest
@@ -9271,13 +9651,15 @@ x → 0
     This section describes the operations that deal primarily with characters. See also the following section on strings
     and Chapter 7 on input and output for other operations relating to characters.
 
-    =procedure:= (char=? char1 char2 char3 ...)
-    =procedure:= (char<? char1 char2 char3 ...)
-    =procedure:= (char>? char1 char2 char3 ...)
-    =procedure:= (char<=? char1 char2 char3 ...)
-    =procedure:= (char>=? char1 char2 char3 ...)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char=? char1 char2 char3 ...)
+    *procedure:* (char<? char1 char2 char3 ...)
+    *procedure:* (char>? char1 char2 char3 ...)
+    *procedure:* (char<=? char1 char2 char3 ...)
+    *procedure:* (char>=? char1 char2 char3 ...)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     These predicates behave in a similar manner to the numeric predicates =, <, >, <=, and >=. For example, char=?
     returns #t when its arguments are equivalent characters, and char<? returns #t when its arguments are monotonically
@@ -9293,13 +9675,15 @@ x → 0
 (char=? #\+ #\+) → #t
 #+end_src
 
-    =procedure:= (char-ci=? char1 char2 char3 ...)
-    =procedure:= (char-ci<? char1 char2 char3 ...)
-    =procedure:= (char-ci>? char1 char2 char3 ...)
-    =procedure:= (char-ci<=? char1 char2 char3 ...)
-    =procedure:= (char-ci>=? char1 char2 char3 ...)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-ci=? char1 char2 char3 ...)
+    *procedure:* (char-ci<? char1 char2 char3 ...)
+    *procedure:* (char-ci>? char1 char2 char3 ...)
+    *procedure:* (char-ci<=? char1 char2 char3 ...)
+    *procedure:* (char-ci>=? char1 char2 char3 ...)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     These predicates are identical to the predicates char=?, char<?, char>?, char<=?, and char>=? except that they are
     case-insensitive, i.e., compare the case-folded versions of their arguments. For example, char=? considers #\a and
@@ -9314,13 +9698,15 @@ x → 0
         (char-ci<=? #\a c #\z))) → (#f #t)
 #+end_src
 
-    =procedure:= (char-alphabetic? char)
-    =returns:= #t if char is a letter, #f otherwise
-    =procedure:= (char-numeric? char)
-    =returns:= #t if char is a digit, #f otherwise
-    =procedure:= (char-whitespace? char)
-    =returns:= #t if char is whitespace, #f otherwise
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-alphabetic? char)
+    *returns:* #t if char is a letter, #f otherwise
+    *procedure:* (char-numeric? char)
+    *returns:* #t if char is a digit, #f otherwise
+    *procedure:* (char-whitespace? char)
+    *returns:* #t if char is whitespace, #f otherwise
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     A character is alphabetic if it has the Unicode "Alphabetic" property, numeric if it has the Unicode "Numeric"
     property, and whitespace if has the Unicode "White_Space" property.
@@ -9341,13 +9727,15 @@ x → 0
 (char-whitespace? #\Z) → #f
 #+end_src
 
-    =procedure:= (char-lower-case? char)
-    =returns:= #t if char is lower case, #f otherwise
-    =procedure:= (char-upper-case? char)
-    =returns:= #t if char is upper case, #f otherwise
-    =procedure:= (char-title-case? char)
-    =returns:= #t if char is title case, #f otherwise
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-lower-case? char)
+    *returns:* #t if char is lower case, #f otherwise
+    *procedure:* (char-upper-case? char)
+    *returns:* #t if char is upper case, #f otherwise
+    *procedure:* (char-title-case? char)
+    *returns:* #t if char is title case, #f otherwise
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     A character is upper-case if it has the Unicode "Uppercase" property, lower-case if it has the "Lowercase" property,
     and title-case if it is in the Lt general category.
@@ -9363,9 +9751,11 @@ x → 0
 (char-title-case? #\x01C5) → #t
 #+end_src
 
-    =procedure:= (char-general-category char)
-    =returns:= a symbol representing the Unicode general category of char
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-general-category char)
+    *returns:* a symbol representing the Unicode general category of char
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     The return value is one of the symbols Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Ps, Pe, Pi, Pf, Pd, Pc, Po, Sc,
     Sm, Sk, So, Zs, Zp, Zl, Cc, Cf, Cs, Co, or Cn.
@@ -9376,9 +9766,11 @@ x → 0
 (char-general-category #\x10FFFF) → Cn
 #+end_src
 
-    =procedure:= (char-upcase char)
-    =returns:= the upper-case character counterpart of char
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-upcase char)
+    *returns:* the upper-case character counterpart of char
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     If char is a lower- or title-case character and has a single upper-case counterpart, char-upcase returns the
     upper-case counterpart. Otherwise char-upcase returns char.
@@ -9387,12 +9779,14 @@ x → 0
 (char-upcase #\g) → #\G
 (char-upcase #\G) → #\G
 (char-upcase #\7) → #\7
-(char-upcase #\[[./images/ch20.png]]) → #\[[./images/ch21.png]]
+(char-upcase #\[[./images/20.png]]) → #\[[./images/21.png]]
 #+end_src
 
-    =procedure:= (char-downcase char)
-    =returns:= the lower-case character equivalent of char
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-downcase char)
+    *returns:* the lower-case character equivalent of char
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     If char is an upper- or title-case character and has a single lower-case counterpart, char-downcase returns the
     lower-case counterpart. Otherwise char-downcase returns char.
@@ -9401,12 +9795,14 @@ x → 0
 (char-downcase #\g) → #\g
 (char-downcase #\G) → #\g
 (char-downcase #\7) → #\7
-(char-downcase #\[[./images/ch20.png]]) → #\[[./images/ch20.png]]
+(char-downcase #\[[./images/20.png]]) → #\[[./images/20.png]]
 #+end_src
 
-    =procedure:= (char-titlecase char)
-    =returns:= the title-case character equivalent of char
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-titlecase char)
+    *returns:* the title-case character equivalent of char
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     If char is an upper- or lower-case character and has a single title-case counterpart, char-titlecase returns the
     title-case counterpart. Otherwise, if it is not a title-case character, has no single title-case counterpart, but
@@ -9417,12 +9813,14 @@ x → 0
 (char-titlecase #\g) → #\G
 (char-titlecase #\G) → #\G
 (char-titlecase #\7) → #\7
-(char-titlecase #\[[./images/ch20.png]]) → #\[[./images/ch21.png]]
+(char-titlecase #\[[./images/20.png]]) → #\[[./images/21.png]]
 #+end_src
 
-    =procedure:= (char-foldcase char)
-    =returns:= the case-folded character equivalent of char
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char-foldcase char)
+    *returns:* the case-folded character equivalent of char
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     If char has a case-folded counterpart, char-foldcase returns the case-folded counterpart. Otherwise, char-foldcase
     returns char. For most characters, (char-foldcase char) is equivalent to (char-downcase (char-upcase char)), but for
@@ -9432,12 +9830,14 @@ x → 0
 (char-foldcase #\g) → #\g
 (char-foldcase #\G) → #\g
 (char-foldcase #\7) → #\7
-(char-foldcase #\ [[./images/ch20.png]]) → #\[[./images/ch22.png]]
+(char-foldcase #\ [[./images/20.png]]) → #\[[./images/22.png]]
 #+end_src
 
-    =procedure:= (char->integer char)
-    =returns:= the Unicode scalar value of char as an exact integer
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (char->integer char)
+    *returns:* the Unicode scalar value of char as an exact integer
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (char->integer #\newline) → 10
@@ -9445,11 +9845,13 @@ x → 0
 (- (char->integer #\Z) (char->integer #\A)) → 25
 #+end_src
 
-    =procedure:= (integer->char n)
-    =returns:= the character corresponding to the Unicode scalar value n
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (integer->char n)
+    *returns:* the character corresponding to the Unicode scalar value n
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
-    n must be an exact integer and a valid Unicode scalar value, i.e., [[./images/ch23.png]] or [[./images/ch24.png]].
+    n must be an exact integer and a valid Unicode scalar value, i.e., [[./images/23.png]] or [[./images/24.png]].
 
 #+begin_src scheme
 (integer->char 48) → #\0
@@ -9472,13 +9874,15 @@ x → 0
     Strings are indexed by exact nonnegative integers, and the index of the first element of any string is 0. The
     highest valid index for a given string is one less than its length.
 
-    =procedure:= (string=? string1 string2 string3 ...)
-    =procedure:= (string<? string1 string2 string3 ...)
-    =procedure:= (string>? string1 string2 string3 ...)
-    =procedure:= (string<=? string1 string2 string3 ...)
-    =procedure:= (string>=? string1 string2 string3 ...)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string=? string1 string2 string3 ...)
+    *procedure:* (string<? string1 string2 string3 ...)
+    *procedure:* (string>? string1 string2 string3 ...)
+    *procedure:* (string<=? string1 string2 string3 ...)
+    *procedure:* (string>=? string1 string2 string3 ...)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     As with =, <, >, <=, and >=, these predicates express relationships among all of the arguments. For example,
     string>? determines if the lexicographic ordering of its arguments is monotonically decreasing.
@@ -9528,13 +9932,15 @@ x → 0
 (string<? "a" "b" "c") → #t
 #+end_src
 
-    =procedure:= (string-ci=? string1 string2 string3 ...)
-    =procedure:= (string-ci<? string1 string2 string3 ...)
-    =procedure:= (string-ci>? string1 string2 string3 ...)
-    =procedure:= (string-ci<=? string1 string2 string3 ...)
-    =procedure:= (string-ci>=? string1 string2 string3 ...)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-ci=? string1 string2 string3 ...)
+    *procedure:* (string-ci<? string1 string2 string3 ...)
+    *procedure:* (string-ci>? string1 string2 string3 ...)
+    *procedure:* (string-ci<=? string1 string2 string3 ...)
+    *procedure:* (string-ci>=? string1 string2 string3 ...)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     These predicates are identical to string=?, string<?, string>?, string<=?, and string>=? except that they are
     case-insensitive, i.e., compare the case-folded versions of their arguments.
@@ -9546,9 +9952,11 @@ x → 0
 (string-ci=? "Straße" "Strasse") → #t
 #+end_src
 
-    =procedure:= (string char ...)
-    =returns:= a string containing the characters char ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string char ...)
+    *returns:* a string containing the characters char ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (string) → ""
@@ -9556,10 +9964,12 @@ x → 0
 (string #\H #\E #\Y #\!) → "HEY!"
 #+end_src
 
-    =procedure:= (make-string n)
-    =procedure:= (make-string n char)
-    =returns:= a string of length n
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-string n)
+    *procedure:* (make-string n char)
+    *returns:* a string of length n
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer. If char is supplied, the string is filled with n occurrences of char,
     otherwise the characters contained in the string are unspecified.
@@ -9570,9 +9980,11 @@ x → 0
 (make-string 5 #\x) → "xxxxx"
 #+end_src
 
-    =procedure:= (string-length string)
-    =returns:= the number of characters in string
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-length string)
+    *returns:* the number of characters in string
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The length of a string is always an exact nonnegative integer.
 
@@ -9583,9 +9995,11 @@ x → 0
 (string-length (make-string 1000000)) → 1000000
 #+end_src
 
-    =procedure:= (string-ref string n)
-    =returns:= the nth character (zero-based) of string
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-ref string n)
+    *returns:* the nth character (zero-based) of string
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of string.
 
@@ -9594,9 +10008,11 @@ x → 0
 (string-ref "hi there" 5) → #\e
 #+end_src
 
-    =procedure:= (string-set! string n char)
-    =returns:= unspecified
-    =libraries:= (rnrs mutable-strings)
+#+BEGIN_VERSE
+    *procedure:* (string-set! string n char)
+    *returns:* unspecified
+    *libraries:* (rnrs mutable-strings)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of string. string-set! changes the nth element of string
     to char.
@@ -9608,9 +10024,11 @@ x → 0
   str) → "hi there"
 #+end_src
 
-    =procedure:= (string-copy string)
-    =returns:= a new copy of string
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-copy string)
+    *returns:* a new copy of string
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     This procedure creates a new string with the same length and contents as string.
 
@@ -9621,9 +10039,11 @@ x → 0
   (eq? str (string-copy str))) → #f
 #+end_src
 
-    =procedure:= (string-append string ...)
-    =returns:= a new string formed by concatenating the strings string ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-append string ...)
+    *returns:* a new string formed by concatenating the strings string ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (string-append) → ""
@@ -9648,9 +10068,11 @@ x → 0
               (string-set! s2 j (string-ref s1 i))))))))
 #+end_src
 
-    =procedure:= (substring string start end)
-    =returns:= a copy of string from start (inclusive) to end (exclusive)
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (substring string start end)
+    *returns:* a copy of string from start (inclusive) to end (exclusive)
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     start and end must be exact nonnegative integers; start must be less than or equal to end, while end must be less
     than or equal to the length of string. If end = start, a string of length zero is returned. substring may be defined
@@ -9675,9 +10097,11 @@ x → 0
     (substring str 0 end))) → "hi there"
 #+end_src
 
-    =procedure:= (string-fill! string char)
-    =returns:= unspecified
-    =libraries:= (rnrs mutable-strings)
+#+BEGIN_VERSE
+    *procedure:* (string-fill! string char)
+    *returns:* unspecified
+    *libraries:* (rnrs mutable-strings)
+#+END_VERSE
 
     string-fill! sets every character in string to char.
 
@@ -9700,15 +10124,17 @@ x → 0
 
     An alternative definition is given on page 276.
 
-    =procedure:= (string-upcase string)
-    =returns:= the upper-case equivalent of string
-    =procedure:= (string-downcase string)
-    =returns:= the lower-case equivalent of string
-    =procedure:= (string-foldcase string)
-    =returns:= the case-folded equivalent of string
-    =procedure:= (string-titlecase string)
-    =returns:= the title-case equivalent of string
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-upcase string)
+    *returns:* the upper-case equivalent of string
+    *procedure:* (string-downcase string)
+    *returns:* the lower-case equivalent of string
+    *procedure:* (string-foldcase string)
+    *returns:* the case-folded equivalent of string
+    *procedure:* (string-titlecase string)
+    *returns:* the title-case equivalent of string
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     These procedures implement Unicode's locale-independent case mappings from scalar-value sequences to scalar-value
     sequences. These mappings do not always map single characters to single characters, so the length of the result
@@ -9738,15 +10164,17 @@ x → 0
 (string-titlecase "R6RS") → "R6rs"
 #+end_src
 
-    =procedure:= (string-normalize-nfd string)
-    =returns:= the Unicode normalized form D of string
-    =procedure:= (string-normalize-nfkd string)
-    =returns:= the Unicode normalized form KD of string
-    =procedure:= (string-normalize-nfc string)
-    =returns:= the Unicode normalized form C of string
-    =procedure:= (string-normalize-nfkc string)
-    =returns:= the Unicode normalized form KC of string
-    =libraries:= (rnrs unicode), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string-normalize-nfd string)
+    *returns:* the Unicode normalized form D of string
+    *procedure:* (string-normalize-nfkd string)
+    *returns:* the Unicode normalized form KD of string
+    *procedure:* (string-normalize-nfc string)
+    *returns:* the Unicode normalized form C of string
+    *procedure:* (string-normalize-nfkc string)
+    *returns:* the Unicode normalized form KC of string
+    *libraries:* (rnrs unicode), (rnrs)
+#+END_VERSE
 
     If the result string is the same as string (by string=?), string or a copy of string may be returned. Otherwise, the
     result string is newly allocated.
@@ -9758,9 +10186,11 @@ x → 0
 (string-normalize-nfc "\x65;\x301;") → "\xE9;"
 #+end_src
 
-    =procedure:= (string->list string)
-    =returns:= a list of the characters in string
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string->list string)
+    *returns:* a list of the characters in string
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     string->list allows a string to be converted into a list, so that Scheme's list-processing operations may be applied
     to the processing of strings. string->list may be defined without error checks as follows.
@@ -9780,9 +10210,11 @@ x → 0
 (map char-upcase (string->list "abc")) → (#\A #\B #\C)
 #+end_src
 
-    =procedure:= (list->string list)
-    =returns:= a string of the characters in list
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (list->string list)
+    *returns:* a string of the characters in list
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     list must consist entirely of characters.
 
@@ -9821,19 +10253,23 @@ x → 0
     A vector is written as a sequence of objects separated by whitespace, preceded by the prefix #( and followed by
     ). For example, a vector consisting of the elements a, b, and c would be written #(a b c).
 
-    =procedure:= (vector obj ...)
-    =returns:= a vector of the objects obj ...
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector obj ...)
+    *returns:* a vector of the objects obj ...
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (vector) → #()
 (vector 'a 'b 'c) → #(a b c)
 #+end_src
 
-    =procedure:= (make-vector n)
-    =procedure:= (make-vector n obj)
-    =returns:= a vector of length n
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-vector n)
+    *procedure:* (make-vector n obj)
+    *returns:* a vector of length n
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer. If obj is supplied, each element of the vector is filled with obj;
     otherwise, the elements are unspecified.
@@ -9844,9 +10280,11 @@ x → 0
 (make-vector 5 '#(a)) → #(#(a) #(a) #(a) #(a) #(a))
 #+end_src
 
-    =procedure:= (vector-length vector)
-    =returns:= the number of elements in vector
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector-length vector)
+    *returns:* the number of elements in vector
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The length of a vector is always an exact nonnegative integer.
 
@@ -9857,9 +10295,11 @@ x → 0
 (vector-length (make-vector 300)) → 300
 #+end_src
 
-    =procedure:= (vector-ref vector n)
-    =returns:= the nth element (zero-based) of vector
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector-ref vector n)
+    *returns:* the nth element (zero-based) of vector
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of vector.
 
@@ -9869,9 +10309,11 @@ x → 0
 (vector-ref '#(x y z w) 3) → w
 #+end_src
 
-    =procedure:= (vector-set! vector n obj)
-    =returns:= unspecified
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector-set! vector n obj)
+    *returns:* unspecified
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of vector. vector-set! changes the nth element of vector
     to obj.
@@ -9882,9 +10324,11 @@ x → 0
   v) → #(a b x d e)
 #+end_src
 
-    =procedure:= (vector-fill! vector obj)
-    =returns:= unspecified
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector-fill! vector obj)
+    *returns:* unspecified
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     vector-fill! replaces each element of vector with obj. It may be defined without error checks as follows.
 
@@ -9901,9 +10345,11 @@ x → 0
   v) → #(0 0 0)
 #+end_src
 
-    =procedure:= (vector->list vector)
-    =returns:= a list of the elements of vector
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector->list vector)
+    *returns:* a list of the elements of vector
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     vector->list provides a convenient method for applying list-processing operations to vectors. It may be defined
     without error checks as follows.
@@ -9922,9 +10368,11 @@ x → 0
   (apply * (vector->list v))) → 120
 #+end_src
 
-    =procedure:= (list->vector list)
-    =returns:= a vector of the elements of list
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (list->vector list)
+    *returns:* a vector of the elements of list
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     list->vector is the functional inverse of vector->list. The two procedures are often used in combination to take
     advantage of a list-processing operation. A vector may be converted to a list with vector->list, this list processed
@@ -9948,11 +10396,13 @@ x → 0
     (list->vector (map * ls ls)))) → #(1 4 9 16 25)
 #+end_src
 
-    =procedure:= (vector-sort predicate vector)
-    =returns:= a vector containing the elements of vector, sorted according to predicate
-    =procedure:= (vector-sort! predicate vector)
-    =returns:= unspecified
-    =libraries:= (rnrs sorting), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (vector-sort predicate vector)
+    *returns:* a vector containing the elements of vector, sorted according to predicate
+    *procedure:* (vector-sort! predicate vector)
+    *returns:* unspecified
+    *libraries:* (rnrs sorting), (rnrs)
+#+END_VERSE
 
     predicate should be a procedure that expects two arguments and returns #t if its first argument must precede its
     second in the sorted vector. That is, if predicate is applied to two elements x and y, where x appears after y in
@@ -10007,9 +10457,11 @@ x → 0
 #vu8(#x3f #x7f #xbf #xff) → #vu8(63 127 191 255)
 #+end_src
 
-    =syntax:= (endianness symbol)
-    =returns:= symbol
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *syntax:* (endianness symbol)
+    *returns:* symbol
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     symbol must be the symbol little, the symbol big, or some other symbol recognized by the implementation as an
     endianness symbol. It is a syntax violation if symbol is not a symbol or if it is not recognized by the
@@ -10021,9 +10473,11 @@ x → 0
 (endianness "spam") → exception
 #+end_src
 
-    =procedure:= (native-endianness)
-    =returns:= a symbol naming the implementation's native endianness
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (native-endianness)
+    *returns:* a symbol naming the implementation's native endianness
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     The return value is the symbol little, the symbol big, or some other endianness symbol recognized by the
     implementation. It typically reflects the endianness of the underlying hardware.
@@ -10032,10 +10486,12 @@ x → 0
 (symbol? (native-endianness)) → #t
 #+end_src
 
-    =procedure:= (make-bytevector n)
-    =procedure:= (make-bytevector n fill)
-    =returns:= a new bytevector of length n
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-bytevector n)
+    *procedure:* (make-bytevector n fill)
+    *returns:* a new bytevector of length n
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     If fill is supplied, each element of the bytevector is initialized to fill; otherwise, the elements are
     unspecified. The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255
@@ -10048,9 +10504,11 @@ x → 0
 (make-bytevector 5 -7) → #vu8(249 249 249 249 249)
 #+end_src
 
-    =procedure:= (bytevector-length bytevector)
-    =returns:= the length of bytevector in 8-bit bytes
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-length bytevector)
+    *returns:* the length of bytevector in 8-bit bytes
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (bytevector-length #vu8()) → 0
@@ -10058,9 +10516,11 @@ x → 0
 (bytevector-length (make-bytevector 300)) → 300
 #+end_src
 
-    =procedure:= (bytevector=? bytevector1 bytevector2)
-    =returns:= #t if the relation holds, #f otherwise
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector=? bytevector1 bytevector2)
+    *returns:* #t if the relation holds, #f otherwise
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     Two bytevectors are equal by bytevector=? if and only if they have the same length and same contents.
 
@@ -10071,9 +10531,11 @@ x → 0
 (bytevector=? #vu8(1 127 128 255) #vu8(255 128 127 1)) → #f
 #+end_src
 
-    =procedure:= (bytevector-fill! bytevector fill)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-fill! bytevector fill)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255 inclusive. A
     negative fill value is treated as its two's complement equivalent.
@@ -10090,9 +10552,11 @@ x → 0
   v) → #vu8(128 128 128 128 128 128)
 #+end_src
 
-    =procedure:= (bytevector-copy bytevector)
-    =returns:= a new bytevector that is a copy of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-copy bytevector)
+    *returns:* a new bytevector that is a copy of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     bytevector-copy creates a new bytevector with the same length and contents as bytevector.
 
@@ -10103,9 +10567,11 @@ x → 0
   (eq? v (bytevector-copy v))) → #f
 #+end_src
 
-    =procedure:= (bytevector-copy! src src-start dst dst-start n)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-copy! src src-start dst dst-start n)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     src and dst must be bytevectors. src-start, dst-start, and n must be exact nonnegative integers. The sum of
     src-start and n must not exceed the length of src, and the sum of dst-start and n must not exceed the length of
@@ -10132,9 +10598,11 @@ v2 → #vu8(159 191 0 0 191 223 0 191 223 255)
 v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 #+end_src
 
-    =procedure:= (bytevector-u8-ref bytevector n)
-    =returns:= the 8-bit unsigned byte at index n (zero-based) of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-u8-ref bytevector n)
+    *returns:* the 8-bit unsigned byte at index n (zero-based) of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector.
 
@@ -10146,9 +10614,11 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 (bytevector-u8-ref #vu8(1 127 128 255) 3) → 255
 #+end_src
 
-    =procedure:= (bytevector-s8-ref bytevector n)
-    =returns:= the 8-bit signed byte at index n (zero-based) of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-s8-ref bytevector n)
+    *returns:* the 8-bit signed byte at index n (zero-based) of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector.
 
@@ -10162,9 +10632,11 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
 (bytevector-s8-ref #vu8(1 127 128 255) 3) → -1
 #+end_src
 
-    =procedure:= (bytevector-u8-set! bytevector n u8)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-u8-set! bytevector n u8)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector. u8 must be an 8-bit unsigned value, i.e.,
     a value in the range 0 to 255 inclusive.
@@ -10177,9 +10649,11 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
   v) → #vu8(255 255 128 255 255)
 #+end_src
 
-    =procedure:= (bytevector-s8-set! bytevector n s8)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-s8-set! bytevector n s8)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer less than the length of bytevector. s8 must be an 8-bit signed value, i.e., a
     value in the range -128 to 127 inclusive.
@@ -10194,9 +10668,11 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
   v) → #vu8(0 100 156 0)
 #+end_src
 
-    =procedure:= (bytevector->u8-list bytevector)
-    =returns:= a list of the 8-bit unsigned elements of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector->u8-list bytevector)
+    *returns:* a list of the 8-bit unsigned elements of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (bytevector->u8-list (make-bytevector 0)) → ()
@@ -10206,9 +10682,11 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
   (apply * (bytevector->u8-list v))) → 1530
 #+end_src
 
-    =procedure:= (u8-list->bytevector list)
-    =returns:= a new bytevector of the elements of list
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (u8-list->bytevector list)
+    *returns:* a new bytevector of the elements of list
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     list must consist entirely of exact 8-bit unsigned integers, i.e., values in the range 0 to 255 inclusive.
 
@@ -10221,19 +10699,21 @@ v2 → #vu8(159 159 191 0 0 191 223 0 191 223)
     (u8-list->bytevector (map * ls ls)))) → #vu8(1 4 9 16 25)
 #+end_src
 
-    =procedure:= (bytevector-u16-native-ref bytevector n)
-    =returns:= the 16-bit unsigned integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-s16-native-ref bytevector n)
-    =returns:= the 16-bit signed integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-u32-native-ref bytevector n)
-    =returns:= the 32-bit unsigned integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-s32-native-ref bytevector n)
-    =returns:= the 32-bit signed integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-u64-native-ref bytevector n)
-    =returns:= the 64-bit unsigned integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-s64-native-ref bytevector n)
-    =returns:= the 64-bit signed integer at index n (zero-based) of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-u16-native-ref bytevector n)
+    *returns:* the 16-bit unsigned integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-s16-native-ref bytevector n)
+    *returns:* the 16-bit signed integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-u32-native-ref bytevector n)
+    *returns:* the 32-bit unsigned integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-s32-native-ref bytevector n)
+    *returns:* the 32-bit signed integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-u64-native-ref bytevector n)
+    *returns:* the 64-bit unsigned integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-s64-native-ref bytevector n)
+    *returns:* the 64-bit signed integer at index n (zero-based) of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
     number of bytes occupied by the value: 2 for 16-bit values, 4 for 32-bit values, and 8 for 64-bit values. The sum of
@@ -10275,14 +10755,16 @@ If native endianness is little:
 (bytevector-s64-native-ref v 0) → #x-67874523a901cbee
 #+end_src
 
-    =procedure:= (bytevector-u16-native-set! bytevector n u16)
-    =procedure:= (bytevector-s16-native-set! bytevector n s16)
-    =procedure:= (bytevector-u32-native-set! bytevector n u32)
-    =procedure:= (bytevector-s32-native-set! bytevector n s32)
-    =procedure:= (bytevector-u64-native-set! bytevector n u64)
-    =procedure:= (bytevector-s64-native-set! bytevector n s64)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-u16-native-set! bytevector n u16)
+    *procedure:* (bytevector-s16-native-set! bytevector n s16)
+    *procedure:* (bytevector-u32-native-set! bytevector n u32)
+    *procedure:* (bytevector-s32-native-set! bytevector n s32)
+    *procedure:* (bytevector-u64-native-set! bytevector n u64)
+    *procedure:* (bytevector-s64-native-set! bytevector n s64)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
     number of bytes occupied by the value: 2 for 16-bit values, 4 for 32-bit values, and 8 for 64-bit values. The sum of
@@ -10359,19 +10841,21 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
         #x12 #x34 #xfe #x56 #xdc #xba #x78 #x98)
 #+end_src
 
-    =procedure:= (bytevector-u16-ref bytevector n eness)
-    =returns:= the 16-bit unsigned integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-s16-ref bytevector n eness)
-    =returns:= the 16-bit signed integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-u32-ref bytevector n eness)
-    =returns:= the 32-bit unsigned integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-s32-ref bytevector n eness)
-    =returns:= the 32-bit signed integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-u64-ref bytevector n eness)
-    =returns:= the 64-bit unsigned integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-s64-ref bytevector n eness)
-    =returns:= the 64-bit signed integer at index n (zero-based) of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-u16-ref bytevector n eness)
+    *returns:* the 16-bit unsigned integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-s16-ref bytevector n eness)
+    *returns:* the 16-bit signed integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-u32-ref bytevector n eness)
+    *returns:* the 32-bit unsigned integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-s32-ref bytevector n eness)
+    *returns:* the 32-bit signed integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-u64-ref bytevector n eness)
+    *returns:* the 64-bit unsigned integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-s64-ref bytevector n eness)
+    *returns:* the 64-bit signed integer at index n (zero-based) of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
     bytes occupied by the value (2 for 16-bit values, 4 for 32-bit values, and 8 for 32-bit values) must not exceed the
@@ -10406,14 +10890,16 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
 (bytevector-s64-ref v 1 'little) → #x-6567874523a901cc
 #+end_src
 
-    =procedure:= (bytevector-u16-set! bytevector n u16 eness)
-    =procedure:= (bytevector-s16-set! bytevector n s16 eness)
-    =procedure:= (bytevector-u32-set! bytevector n u32 eness)
-    =procedure:= (bytevector-s32-set! bytevector n s32 eness)
-    =procedure:= (bytevector-u64-set! bytevector n u64 eness)
-    =procedure:= (bytevector-s64-set! bytevector n s64 eness)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-u16-set! bytevector n u16 eness)
+    *procedure:* (bytevector-s16-set! bytevector n s16 eness)
+    *procedure:* (bytevector-u32-set! bytevector n u32 eness)
+    *procedure:* (bytevector-s32-set! bytevector n s32 eness)
+    *procedure:* (bytevector-u64-set! bytevector n u64 eness)
+    *procedure:* (bytevector-s64-set! bytevector n s64 eness)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
     bytes occupied by the value must not exceed the length of bytevector. n need not be a multiple of the number of
@@ -10451,11 +10937,13 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0 #x0
         #x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0)
 #+end_src
 
-    =procedure:= (bytevector-uint-ref bytevector n eness size)
-    =returns:= the size-byte unsigned integer at index n (zero-based) of bytevector
-    =procedure:= (bytevector-sint-ref bytevector n eness size)
-    =returns:= the size-byte signed integer at index n (zero-based) of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-uint-ref bytevector n eness size)
+    *returns:* the size-byte unsigned integer at index n (zero-based) of bytevector
+    *procedure:* (bytevector-sint-ref bytevector n eness size)
+    *returns:* the size-byte signed integer at index n (zero-based) of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive
     integer and specifies the number of bytes occupied by the value. The sum of n and size must not exceed the length of
@@ -10480,10 +10968,12 @@ v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0 #x0
 (bytevector-sint-ref (make-bytevector 1000 -1) 0 'big 1000) → -1
 #+end_src
 
-    =procedure:= (bytevector-uint-set! bytevector n uint eness size)
-    =procedure:= (bytevector-sint-set! bytevector n sint eness size)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-uint-set! bytevector n uint eness size)
+    *procedure:* (bytevector-sint-set! bytevector n sint eness size)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive
     integer and specifies the number of bytes occupied by the value. The sum of n and size must not exceed the length of
@@ -10504,11 +10994,13 @@ v → #vu8(0 #x12 #x34 #x56 0)
 v → #vu8(#xff 0 0 0 0 #x80 #xff)
 #+end_src
 
-    =procedure:= (bytevector->uint-list bytevector eness size)
-    =returns:= a new list of the size-byte unsigned elements of bytevector
-    =procedure:= (bytevector->sint-list bytevector eness size)
-    =returns:= a new list of the size-byte signed elements of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector->uint-list bytevector eness size)
+    *returns:* a new list of the size-byte unsigned elements of bytevector
+    *procedure:* (bytevector->sint-list bytevector eness size)
+    *returns:* a new list of the size-byte signed elements of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies
     the number of bytes occupied by the value. It must be a value that evenly divides the length of bytevector.
@@ -10523,10 +11015,12 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
   (bytevector->sint-list v 'big 20)) → (-1 -1 -1 -1)
 #+end_src
 
-    =procedure:= (uint-list->bytevector list eness size)
-    =procedure:= (sint-list->bytevector list eness size)
-    =returns:= a new bytevector of the elements of list
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (uint-list->bytevector list eness size)
+    *procedure:* (sint-list->bytevector list eness size)
+    *returns:* a new bytevector of the elements of list
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies
     the number of bytes occupied by the value. For uint-list->bytevector, list must consist entirely of size-byte exact
@@ -10547,11 +11041,13 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
             #xff #xff #xff #xff #xff #x7f)
 #+end_src
 
-    =procedure:= (bytevector-ieee-single-native-ref bytevector n)
-    =returns:= the single floating-point value at index n (zero-based) of bytevector
-    =procedure:= (bytevector-ieee-double-native-ref bytevector n)
-    =returns:= the double floating-point value at index n (zero-based) of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-ieee-single-native-ref bytevector n)
+    *returns:* the single floating-point value at index n (zero-based) of bytevector
+    *procedure:* (bytevector-ieee-double-native-ref bytevector n)
+    *returns:* the double floating-point value at index n (zero-based) of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
     number of bytes occupied by the value: 4 for single floats, 8 for double. The sum of n and the number of bytes
@@ -10559,10 +11055,12 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
 
     The return value is an inexact real number. Examples appear after the mutation operators below.
 
-    =procedure:= (bytevector-ieee-single-native-set! bytevector n x)
-    =procedure:= (bytevector-ieee-double-native-set! bytevector n x)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-ieee-single-native-set! bytevector n x)
+    *procedure:* (bytevector-ieee-double-native-set! bytevector n x)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
     number of bytes occupied by the value: 4 for single floats, 8 for double. The sum of n and the number of bytes
@@ -10583,11 +11081,13 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
 (bytevector-ieee-double-native-ref v 0) → 1e23
 #+end_src
 
-    =procedure:= (bytevector-ieee-single-ref bytevector n eness)
-    =returns:= the single floating-point value at index n (zero-based) of bytevector
-    =procedure:= (bytevector-ieee-double-ref bytevector n eness)
-    =returns:= the double floating-point value at index n (zero-based) of bytevector
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-ieee-single-ref bytevector n eness)
+    *returns:* the single floating-point value at index n (zero-based) of bytevector
+    *procedure:* (bytevector-ieee-double-ref bytevector n eness)
+    *returns:* the double floating-point value at index n (zero-based) of bytevector
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
     bytes occupied by the value (4 for a single float, 8 for a double) must not exceed the length of bytevector. n need
@@ -10596,10 +11096,12 @@ v → #vu8(#xff 0 0 0 0 #x80 #xff)
 
     The return value is an inexact real number. Examples appear after the mutation operators below.
 
-    =procedure:= (bytevector-ieee-single-set! bytevector n x eness)
-    =procedure:= (bytevector-ieee-double-set! bytevector n x eness)
-    =returns:= unspecified
-    =libraries:= (rnrs bytevectors), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (bytevector-ieee-single-set! bytevector n x eness)
+    *procedure:* (bytevector-ieee-double-set! bytevector n x eness)
+    *returns:* unspecified
+    *libraries:* (rnrs bytevectors), (rnrs)
+#+END_VERSE
 
     n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
     bytes occupied by the value (4 for a single float, 8 for a double) must not exceed the length of bytevector. n need
@@ -10645,9 +11147,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 
     The grammar for symbols on page 458 gives a precise definition of the syntax of symbols.
 
-    =procedure:= (symbol=? symbol1 symbol2)
-    =returns:= #t if the two symbols are the same, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (symbol=? symbol1 symbol2)
+    *returns:* #t if the two symbols are the same, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     Symbols can also be compared with eq?, which is typically more efficient than symbol=?.
 
@@ -10657,9 +11161,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (symbol=? 'a 'b) → #f
 #+end_src
 
-    =procedure:= (string->symbol string)
-    =returns:= a symbol whose name is string
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (string->symbol string)
+    *returns:* a symbol whose name is string
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     string->symbol records all symbols it creates in an internal table that it shares with the system reader. If a
     symbol whose name is equivalent to string (according to the predicate string=?) already exists in the table, this
@@ -10680,9 +11186,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (string->symbol "()") → \x28;\x29;
 #+end_src
 
-    =procedure:= (symbol->string symbol)
-    =returns:= a string, the name of symbol
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (symbol->string symbol)
+    *returns:* a string, the name of symbol
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The string returned by symbol->string should be treated as immutable. Unpredictable behavior can result if a string
     passed to string->symbol is altered with string-set! or by any other means.
@@ -10699,9 +11207,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     true, Scheme provides the dedicated true value #t for use when a value of an expression should convey nothing more
     than that it is true.
 
-    =procedure:= (boolean=? boolean1 boolean2)
-    =returns:= #t if the two booleans are the same, #f otherwise
-    =libraries:= (rnrs base), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (boolean=? boolean1 boolean2)
+    *returns:* #t if the two booleans are the same, #f otherwise
+    *libraries:* (rnrs base), (rnrs)
+#+END_VERSE
 
     The boolean values #t and #f may also be compared with eq?, which is typically more efficient than boolean=?.
 
@@ -10716,10 +11226,12 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     Hashtables represent sets of associations between arbitrary Scheme values. They serve essentially the same purpose
     as association lists (see page  165) but are typically much faster when large numbers of associations are involved.
 
-    =procedure:= (make-eq-hashtable)
-    =procedure:= (make-eq-hashtable size)
-    =returns:= a new mutable eq hashtable
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-eq-hashtable)
+    *procedure:* (make-eq-hashtable size)
+    *returns:* a new mutable eq hashtable
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable
     should initially hold. Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the
@@ -10734,10 +11246,12 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (define ht2 (make-eq-hashtable 32))
 #+end_src
 
-    =procedure:= (make-eqv-hashtable)
-    =procedure:= (make-eqv-hashtable size)
-    =returns:= a new mutable eqv hashtable
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-eqv-hashtable)
+    *procedure:* (make-eqv-hashtable size)
+    *returns:* a new mutable eqv hashtable
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable
     should initially hold. Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the
@@ -10748,10 +11262,12 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     addresses for objects that are identifiable with eq?. Its hash and equivalence functions are suitable for any Scheme
     object.
 
-    =procedure:= (make-hashtable hash equiv?)
-    =procedure:= (make-hashtable hash equiv? size)
-    =returns:= a new mutable hashtable
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-hashtable hash equiv?)
+    *procedure:* (make-hashtable hash equiv? size)
+    *returns:* a new mutable hashtable
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     hash and equiv? must be procedures. If size is provided, it must be a nonnegative exact integer indicating
     approximately how many elements the hashtable should initially hold. Hashtables grow as needed, but when the
@@ -10770,9 +11286,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (define ht (make-hashtable string-hash string=?))
 #+end_src
 
-    =procedure:= (hashtable-mutable? hashtable)
-    =returns:= #t if hashtable is mutable, #f otherwise
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-mutable? hashtable)
+    *returns:* #t if hashtable is mutable, #f otherwise
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     Hashtables returned by one of the hashtable creation procedures above are mutable, but those created by
     hashtable-copy may be immutable. Immutable hashtables cannot be altered by any of the procedures hashtable-set!,
@@ -10783,11 +11301,13 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-mutable? (hashtable-copy (make-eq-hashtable))) → #f
 #+end_src
 
-    =procedure:= (hashtable-hash-function hashtable)
-    =returns:= the hash function associated with hashtable
-    =procedure:= (hashtable-equivalence-function hashtable)
-    =returns:= the equivalence function associated with hashtable
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-hash-function hashtable)
+    *returns:* the hash function associated with hashtable
+    *procedure:* (hashtable-equivalence-function hashtable)
+    *returns:* the equivalence function associated with hashtable
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     hashtable-hash-function returns #f for eq and eqv hashtables.
 
@@ -10801,12 +11321,14 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (eq? (hashtable-equivalence-function ht) string=?) → #t
 #+end_src
 
-    =procedure:= (equal-hash obj)
-    =procedure:= (string-hash string)
-    =procedure:= (string-ci-hash string)
-    =procedure:= (symbol-hash symbol)
-    =returns:= an exact nonnegative integer hash value
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (equal-hash obj)
+    *procedure:* (string-hash string)
+    *procedure:* (string-ci-hash string)
+    *procedure:* (symbol-hash symbol)
+    *returns:* an exact nonnegative integer hash value
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     These procedures are hash functions suitable for use with the appropriate Scheme predicate: equal? for equal-hash,
     string=? for string-hash, string-ci=? for string-ci-hash, and symbol=? (or eq?) for symbol-hash. The hash values
@@ -10814,9 +11336,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     contents of the input values and are thus unsuitable if keys are modified while they have associations in a
     hashtable.
 
-    =procedure:= (hashtable-set! hashtable key obj)
-    =returns:= unspecified
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-set! hashtable key obj)
+    *returns:* unspecified
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
     functions. obj may be any Scheme object.
@@ -10828,9 +11352,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-set! ht 'a 73)
 #+end_src
 
-    =procedure:= (hashtable-ref hashtable key default)
-    =returns:= see below
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-ref hashtable key default)
+    *returns:* see below
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     key should be an appropriate key for the hashtable's hash and equivalence functions. default may be any Scheme
     object.
@@ -10853,9 +11379,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-ref equalht p2 55) → 73
 #+end_src
 
-    =procedure:= (hashtable-contains? hashtable key)
-    =returns:= #t if an association for key exists in hashtable, #f otherwise
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-contains? hashtable key)
+    *returns:* #t if an association for key exists in hashtable, #f otherwise
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     key should be an appropriate key for the hashtable's hash and equivalence functions.
 
@@ -10868,9 +11396,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-contains? ht p2) → #f
 #+end_src
 
-    =procedure:= (hashtable-update! hashtable key procedure default)
-    =returns:= unspecified
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-update! hashtable key procedure default)
+    *returns:* unspecified
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
     functions. default may be any Scheme object. procedure should accept one argument, should return one value, and
@@ -10905,9 +11435,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-ref ht 'a 0) → 220
 #+end_src
 
-    =procedure:= (hashtable-delete! hashtable key)
-    =returns:= unspecified
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-delete! hashtable key)
+    *returns:* unspecified
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
     functions.
@@ -10926,9 +11458,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-delete! ht p2)
 #+end_src
 
-    =procedure:= (hashtable-size hashtable)
-    =returns:= number of entries in hashtable
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-size hashtable)
+    *returns:* number of entries in hashtable
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -10941,10 +11475,12 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-size ht) → 0
 #+end_src
 
-    =procedure:= (hashtable-copy hashtable)
-    =procedure:= (hashtable-copy hashtable mutable?)
-    =returns:= a new hashtable containing the same entries as hashtable
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-copy hashtable)
+    *procedure:* (hashtable-copy hashtable mutable?)
+    *returns:* a new hashtable containing the same entries as hashtable
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     If mutable? is present and not false, the copy is mutable; otherwise, the copy is immutable.
 
@@ -10960,10 +11496,12 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-ref ht-copy p1 #f) → "c"
 #+end_src
 
-    =procedure:= (hashtable-clear! hashtable)
-    =procedure:= (hashtable-clear! hashtable size)
-    =returns:= unspecified
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-clear! hashtable)
+    *procedure:* (hashtable-clear! hashtable size)
+    *returns:* unspecified
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     hashtable must be a mutable hashtable. If size is provided, it must be a nonnegative exact integer.
 
@@ -10982,9 +11520,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-ref ht p1 #f) → #f
 #+end_src
 
-    =procedure:= (hashtable-keys hashtable)
-    =returns:= a vector containing the keys in hashtable
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-keys hashtable)
+    *returns:* a vector containing the keys in hashtable
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     The keys may appear in any order in the returned vector.
 
@@ -10998,9 +11538,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (hashtable-keys ht) → #((a . b) q (a . b))
 #+end_src
 
-    =procedure:= (hashtable-entries hashtable)
-    =returns:= two vectors: one of keys and a second of values
-    =libraries:= (rnrs hashtables), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (hashtable-entries hashtable)
+    *returns:* two vectors: one of keys and a second of values
+    *libraries:* (rnrs hashtables), (rnrs)
+#+END_VERSE
 
     hashtable-entries returns two values. The first is a vector containing the keys in hashtable, and the second is a
     vector containing the corresponding values. The keys and values may appear in any order, but the order is the same
@@ -11022,8 +11564,8 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     Enumerations are ordered sets of symbols, typically used to name and manipulate options, as with the buffer modes
     and file options that may be specified when files are created.
 
-    =syntax:= (define-enumeration name (symbol ...) constructor)
-    =libraries:= (rnrs enums), (rnrs)
+    *syntax:* (define-enumeration name (symbol ...) constructor)
+    *libraries:* (rnrs enums), (rnrs)
 
     A define-enumeration form is a definition and can appear anywhere any other definition can appear.
 
@@ -11048,9 +11590,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set->list (weather rainy cold rainy)) → (cold rainy)
 #+end_src
 
-    =procedure:= (make-enumeration symbol-list)
-    =returns:= an enumeration set
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (make-enumeration symbol-list)
+    *returns:* an enumeration set
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     This procedure creates a new enumeration type whose universe comprises the elements of symbol-list, which must be a
     list of symbols, in the order of their first appearance in the list. It returns the universe of the new enumeration
@@ -11061,9 +11605,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set->list positions) → (top bottom above beside)
 #+end_src
 
-    =procedure:= (enum-set-constructor enum-set)
-    =returns:= an enumeration-set construction procedure
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-constructor enum-set)
+    *returns:* an enumeration-set construction procedure
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     This procedure returns a procedure p that may be used to create subsets of the universe of enum-set. p must be
     passed a list of symbols, and each element of the list must be an element of the universe of enum-set. The
@@ -11080,9 +11626,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set->list e3) → (one two four)
 #+end_src
 
-    =procedure:= (enum-set-universe enum-set)
-    =returns:= the universe of enum-set, as an enumeration set
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-universe enum-set)
+    *returns:* the universe of enum-set, as an enumeration set
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c a b c d)))
@@ -11091,9 +11639,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set->list (enum-set-universe e2)) → (a b c d)
 #+end_src
 
-    =procedure:= (enum-set->list enum-set)
-    =returns:= a list of the elements of enum-set
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set->list enum-set)
+    *returns:* a list of the elements of enum-set
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     The symbols in the resulting list appear in the order given to them when the enumeration type of enum-set was
     created.
@@ -11105,9 +11655,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set->list e2) → (a b c d)
 #+end_src
 
-    =procedure:= (enum-set-subset? enum-set1 enum-set2)
-    =returns:= #t if enum-set1 is a subset of enum-set2, #f otherwise
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-subset? enum-set1 enum-set2)
+    *returns:* #t if enum-set1 is a subset of enum-set2, #f otherwise
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     An enumeration set enum-set1 is a subset of an enumeration set enum-set2 if and only if the universe of enum-set1 is
     a subset of the universe of enum-set2 and each element of enum-set1 is an element of enum-set2.
@@ -11122,9 +11674,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set-subset? e3 e2) → #t
 #+end_src
 
-    =procedure:= (enum-set=? enum-set1 enum-set2)
-    =returns:= #t if enum-set1 and enum-set2 are equivalent, #f otherwise
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set=? enum-set1 enum-set2)
+    *returns:* #t if enum-set1 and enum-set2 are equivalent, #f otherwise
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     Two enumeration sets enum-set1 and enum-set2 are equivalent if each is a subset of the other.
 
@@ -11146,9 +11700,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     (and (enum-set-subset? e1 e2) (enum-set-subset? e2 e1))))
 #+end_src
 
-    =procedure:= (enum-set-member? symbol enum-set)
-    =returns:= #t if symbol is an element of enum-set, #f otherwise
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-member? symbol enum-set)
+    *returns:* #t if symbol is an element of enum-set, #f otherwise
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c d e)))
@@ -11157,13 +11713,15 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set-member? 'c e2) → #f
 #+end_src
 
-    =procedure:= (enum-set-union enum-set1 enum-set2)
-    =returns:= the union of enum-set1 and enum-set2
-    =procedure:= (enum-set-intersection enum-set1 enum-set2)
-    =returns:= the intersection of enum-set1 and enum-set2
-    =procedure:= (enum-set-difference enum-set1 enum-set2)
-    =returns:= the difference of enum-set1 and enum-set2
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-union enum-set1 enum-set2)
+    *returns:* the union of enum-set1 and enum-set2
+    *procedure:* (enum-set-intersection enum-set1 enum-set2)
+    *returns:* the intersection of enum-set1 and enum-set2
+    *procedure:* (enum-set-difference enum-set1 enum-set2)
+    *returns:* the difference of enum-set1 and enum-set2
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     enum-set1 and enum-set2 must have the same enumeration type. Each procedure returns a new enumeration set
     representing the union, intersection, or difference of the two sets.
@@ -11180,9 +11738,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set-union e1 e4) → exception: different enumeration types
 #+end_src
 
-    =procedure:= (enum-set-complement enum-set)
-    =returns:= the complement of enum-set relative to its universe
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-complement enum-set)
+    *returns:* the complement of enum-set relative to its universe
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c d)))
@@ -11191,9 +11751,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (enum-set->list (enum-set-complement e2)) → (b d)
 #+end_src
 
-    =procedure:= (enum-set-projection enum-set1 enum-set2)
-    =returns:= the projection of enum-set1 into the universe of enum-set2
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-projection enum-set1 enum-set2)
+    *returns:* the projection of enum-set1 into the universe of enum-set2
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     Any elements of enum-set1 not in the universe of enum-set2 are dropped. The result is of the same enumeration type
     as enum-set2.
@@ -11209,9 +11771,11 @@ v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
     (enum-set-projection e4 e3))) → (a c d)
 #+end_src
 
-    =procedure:= (enum-set-indexer enum-set)
-    =returns:= a procedure that returns the index of a symbol in the universe of enum-set
-    =libraries:= (rnrs enums), (rnrs)
+#+BEGIN_VERSE
+    *procedure:* (enum-set-indexer enum-set)
+    *returns:* a procedure that returns the index of a symbol in the universe of enum-set
+    *libraries:* (rnrs enums), (rnrs)
+#+END_VERSE
 
     enum-set-indexer returns a procedure p that, when applied to a symbol in the universe of enum-set, returns the index
     of the symbol (zero-based) in the ordered set of symbols that form the universe. If applied to a symbol not in the
