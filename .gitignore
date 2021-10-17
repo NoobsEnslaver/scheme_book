@@ -7,3 +7,5 @@
 *.tex
 *.aux
 _minted-index/
+_build/
+TODO.*

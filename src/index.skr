@@ -1,0 +1,47 @@
+(use-modules (skribilo engine))
+
+;; Конфигурируем ядро latex
+(let ((le (find-engine 'latex)))
+    (engine-custom-set! le 'documentclass "\\documentclass[11pt,fleqn,oneside]{book}\n")
+    (engine-custom-set! le 'class-has-chapters? #t)
+    ;; (engine-custom-set! le maketitle #t)
+    (engine-custom-set! le 'hyperref-usepackage "\\usepackage[unicode]{hyperref}\n")
+    (engine-custom-set! le 'usepackage "
+\\usepackage[T1,T2A]{fontenc}
+\\usepackage{epsfig}
+\\usepackage[margin=0.8in]{geometry}
+\\usepackage[english,russian]{babel}
+\\usepackage[unicode]{hyperref}\n"))
+
+;; Конфигурируем ядро html
+(let ((he (find-engine 'html)))
+   (engine-custom-set! he 'charset "UTF-8"))
+
+(bibliography "src/bibliography.sbib")
+
+(document
+   :title "Язык программирования Scheme, 4-е издание"
+   :html-title "Язык программирования Scheme, 4-е издание"
+   :author "R. Kent Dybvig"
+   :keywords '("Scheme" "язык программирования")
+   (p (image :file "images/cover.png" :width 100.0))
+   (toc :chapter #t :section #t :subsection #t)
+
+   (include "src/chapters/preface.skb")
+   (include "src/chapters/introduction.skb")
+   (include "src/chapters/getting_started.skb")
+   (include "src/chapters/going_further.skb")
+   (include "src/chapters/procedures_and_variable_bindings.skb")
+   (include "src/chapters/control_operations.skb")
+   (include "src/chapters/operations_on_objects.skb")
+   (include "src/chapters/input_and_output.skb")
+   (include "src/chapters/syntactic_extension.skb")
+   (include "src/chapters/records.skb")
+   (include "src/chapters/libraries_and_top-level_programs.skb")
+   (include "src/chapters/exceptions_and_conditions.skb")
+   (include "src/chapters/extended_examples.skb")
+   (include "src/chapters/references.skb")
+   (include "src/chapters/answers_to_selected_exercises.skb")
+   (include "src/chapters/formal_syntax.skb")
+   (include "src/chapters/summary_of_forms.skb")
+   (include "src/chapters/index.skb"))
