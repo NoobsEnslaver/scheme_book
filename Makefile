@@ -1,6 +1,6 @@
 .PHONY: pdf html latex clean all
 
-all: pdf html latex
+all: pdf html
 
 latex:
 	mkdir -p _build/latex
@@ -8,7 +8,7 @@ latex:
 
 pdf:	latex
 	mkdir -p _build/pdf
-	pdflatex --output-directory=_build/pdf _build/latex/index.tex
+	pdflatex -interaction nonstopmode --output-directory=_build/pdf _build/latex/index.tex
 	# rm _build/pdf/index.{aux,log,out}
 
 html:

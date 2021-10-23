@@ -1,17 +1,50 @@
-(use-modules (skribilo engine))
+;; -*- coding: utf-8; -*-
+(use-modules (skribilo engine)
+             (skribilo source lisp))
+
+;; TODO: вынести
+(define* (src-lite :key (line #f) . body)
+  (prog :line line
+     (source :language scheme body)))
+
+(define* (src :key (line 1) . body)
+    (blockquote
+       (frame :width 100.0 :margin 0
+          (src-lite :line line body))))
+
+(define (include-src path from to)
+    (blockquote
+       (frame :width 100.0
+          (prog :line from
+             (source :language scheme :file path :start from :stop to)))))
+
+(define (chapter-image path)
+    (flush :side 'left (image :file path :width 25.0)))
 
 ;; Конфигурируем ядро latex
 (let ((le (find-engine 'latex)))
     (engine-custom-set! le 'documentclass "\\documentclass[11pt,fleqn,oneside]{book}\n")
     (engine-custom-set! le 'class-has-chapters? #t)
-    ;; (engine-custom-set! le maketitle #t)
-    (engine-custom-set! le 'hyperref-usepackage "\\usepackage[unicode]{hyperref}\n")
+    (engine-custom-set! le 'source-color #t)    ;;FIXME: временно #f, в skribilo баг
+    ;; (engine-custom-set! le 'image-format '("png")) ;FIXME: в skribilo баг, поддерживает только esp
+    (engine-custom-set! le 'hyperref-usepackage "\\usepackage[unicode,setpagesize=false]{hyperref}\n")
+    (engine-custom-set! le 'predocument "
+\\newdimen\\oldframetabcolsep
+\\newdimen\\oldcolortabcolsep
+\\newdimen\\oldpretabcolsep
+\\setcounter{tocdepth}{1}
+\\DeclareUnicodeCharacter{00A0}{~}
+\\DeclareUnicodeCharacter{2192}{\\begin{math}\\rightarrow\\end{math}}
+\\DeclareUnicodeCharacter{00D7}{\\begin{math}\\times\\end{math}}
+\\DeclareUnicodeCharacter{00F7}{\\begin{math}\\div\\end{math}}
+\\DeclareUnicodeCharacter{2260}{\\begin{math}\\ne\\end{math}}
+\\DeclareUnicodeCharacter{2261}{\\begin{math}\\equiv\\end{math}}\n")
     (engine-custom-set! le 'usepackage "
+\\usepackage{graphicx}
 \\usepackage[T1,T2A]{fontenc}
 \\usepackage{epsfig}
 \\usepackage[margin=0.8in]{geometry}
-\\usepackage[english,russian]{babel}
-\\usepackage[unicode]{hyperref}\n"))
+\\usepackage[russian]{babel}\n"))
 
 ;; Конфигурируем ядро html
 (let ((he (find-engine 'html)))
@@ -25,7 +58,7 @@
    :author "R. Kent Dybvig"
    :keywords '("Scheme" "язык программирования")
    (p (image :file "images/cover.png" :width 100.0))
-   (toc :chapter #t :section #t :subsection #t)
+   (toc :chapter #t :section #t :subsection #f)           ;TODO: `\\setcounter{tocdepth}{1}' определяет глубину оглавления, вынести в опции ядра latex
 
    (include "src/chapters/preface.skb")
    (include "src/chapters/introduction.skb")
