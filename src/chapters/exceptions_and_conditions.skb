@@ -1,2 +1,11 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Исключения и продолжения"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch11.png")
+   (p [TODO])
+   (section :title [Raising and Handling Exceptions]
+      (p [TODO]))
+   (section :title [Defining Condition Types]
+      (p [TODO]))
+   (section :title [Standard Condition Types]
+      (p [TODO])))

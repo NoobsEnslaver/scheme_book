@@ -1,2 +1,23 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Управляющие структуры"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch5.png")
+   (p [TODO])
+   (section :title [Procedure Application]
+      (p [TODO]))
+   (section :title [Sequencing]
+      (p [TODO]))
+   (section :title [Conditionals]
+      (p [TODO]))
+   (section :title [Recursion and Iteration]
+      (p [TODO]))
+   (section :title [Mapping and Folding]
+      (p [TODO]))
+   (section :title [Continuations]
+      (p [TODO]))
+   (section :title [Delayed Evaluation]
+      (p [TODO]))
+   (section :title [Multiple Values]
+      (p [TODO]))
+   (section :title [Eval]
+      (p [TODO])))

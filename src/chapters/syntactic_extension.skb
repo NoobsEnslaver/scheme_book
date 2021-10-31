@@ -1,2 +1,13 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Расширение синтаксиса"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch8.png")
+   (p [TODO])
+   (section :title [Keyword Bindings]
+      (p [TODO]))
+   (section :title [Syntax-Rules Transformers]
+      (p [TODO]))
+   (section :title [Syntax-Case Transformers]
+      (p [TODO]))
+   (section :title [Examples]
+      (p [TODO])))

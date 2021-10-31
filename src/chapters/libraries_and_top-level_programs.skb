@@ -1,2 +1,13 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Библиотеки и программы верхнего уровня"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch10.png")
+   (p [TODO])
+   (section :title [Standard Libraries]
+      (p [TODO]))
+   (section :title [Defining New Libraries]
+      (p [TODO]))
+   (section :title [Top-Level Programs]
+      (p [TODO]))
+   (section :title [Examples]
+      (p [TODO])))

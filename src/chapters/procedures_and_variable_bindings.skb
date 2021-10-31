@@ -1,2 +1,19 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Связывания процедур и переменных"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch4.png")
+   (p [TODO])
+   (section :title [Ссылки на переменные]
+      (p [TODO]))
+   (section :title [Lambda]
+      (p [TODO]))
+   (section :title [Case-Lambda]
+      (p [TODO]))
+   (section :title [Локальные связывания]
+      (p [TODO]))
+   (section :title [Множественные значения]
+      (p [TODO]))
+   (section :title [Объявление переменных]
+      (p [TODO]))
+   (section :title [Присваивания]
+      (p [TODO])))

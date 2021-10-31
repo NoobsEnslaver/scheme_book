@@ -1,4 +1,4 @@
-;; -*- fill-column: 120; coding: utf-8 -*-
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
 (chapter :title [Введение]
    (chapter-image "images/ch1.png")
    (p [Scheme - это язык программирования общего назначения. Он является высокоуровневым, поддерживает операции над сложными

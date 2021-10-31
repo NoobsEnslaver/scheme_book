@@ -1,50 +1,48 @@
-;; -*- coding: utf-8; -*-
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; -*-
 (use-modules (skribilo engine)
-             (skribilo source lisp))
+             (skribilo package polyglossia-russian)
+             (skribilo package minted)
+             (skribilo writer)
+             (ice-9 string-fun))
 
 ;; TODO: вынести
-(define* (src-lite :key (line #f) . body)
+(define* (src-lite :key line . body)
   (prog :line line
-     (source :language scheme body)))
+        (source :language scheme body)))
 
-(define* (src :key (line 1) . body)
-    (blockquote
-       (frame :width 100.0 :margin 0
-          (src-lite :line line body))))
+(define* (src . body)
+  (frame :width 100.0 :margin 0 :minted-frame-type 'leftline
+         (src-lite :line #t body)))
 
-(define (include-src path from to)
-    (blockquote
-       (frame :width 100.0
-          (prog :line from
-             (source :language scheme :file path :start from :stop to)))))
+(define* (include-src path
+                      :optional (from #f)
+                                (to* #f)
+                      :key (definition #f))
+  (let ((to (cond
+             (to* to*)
+             ((string? from) (string-replace-substring from "#|+" "#|-"))
+             (else from))))
+    (frame :width 100.0 :minted-frame-type 'leftline
+           (prog :line #t
+            (source :language scheme :file path :start from :stop to :definition definition)))))
 
 (define (chapter-image path)
     (flush :side 'left (image :file path :width 25.0)))
 
 ;; Конфигурируем ядро latex
 (let ((le (find-engine 'latex)))
-    (engine-custom-set! le 'documentclass "\\documentclass[11pt,fleqn,oneside]{book}\n")
+  (define (opt-append key val)
+    (if (string? (engine-custom le key))
+        (engine-custom-set! le key (string-append "\n" val (engine-custom le key) "\n"))
+        (engine-custom-set! le key val)))
+
     (engine-custom-set! le 'class-has-chapters? #t)
-    (engine-custom-set! le 'source-color #t)    ;;FIXME: временно #f, в skribilo баг
-    ;; (engine-custom-set! le 'image-format '("png")) ;FIXME: в skribilo баг, поддерживает только esp
-    (engine-custom-set! le 'hyperref-usepackage "\\usepackage[unicode,setpagesize=false]{hyperref}\n")
-    (engine-custom-set! le 'predocument "
-\\newdimen\\oldframetabcolsep
-\\newdimen\\oldcolortabcolsep
-\\newdimen\\oldpretabcolsep
-\\setcounter{tocdepth}{1}
-\\DeclareUnicodeCharacter{00A0}{~}
-\\DeclareUnicodeCharacter{2192}{\\begin{math}\\rightarrow\\end{math}}
-\\DeclareUnicodeCharacter{00D7}{\\begin{math}\\times\\end{math}}
-\\DeclareUnicodeCharacter{00F7}{\\begin{math}\\div\\end{math}}
-\\DeclareUnicodeCharacter{2260}{\\begin{math}\\ne\\end{math}}
-\\DeclareUnicodeCharacter{2261}{\\begin{math}\\equiv\\end{math}}\n")
-    (engine-custom-set! le 'usepackage "
-\\usepackage{graphicx}
-\\usepackage[T1,T2A]{fontenc}
-\\usepackage{epsfig}
-\\usepackage[margin=0.8in]{geometry}
-\\usepackage[russian]{babel}\n"))
+    (engine-custom-set! le 'image-engine 'graphicx)
+    (engine-custom-set! le 'toc-depth 'section)
+    (engine-custom-set! le 'documentclass "\\documentclass[12pt,fleqn,oneside]{book}\n")
+    (opt-append 'usepackage "\\usepackage[margin=0.8in]{geometry}")
+    (opt-append 'predocument "\\usemintedstyle{default}"))
+
 
 ;; Конфигурируем ядро html
 (let ((he (find-engine 'html)))
@@ -58,7 +56,7 @@
    :author "R. Kent Dybvig"
    :keywords '("Scheme" "язык программирования")
    (p (image :file "images/cover.png" :width 100.0))
-   (toc :chapter #t :section #t :subsection #f)           ;TODO: `\\setcounter{tocdepth}{1}' определяет глубину оглавления, вынести в опции ядра latex
+   (toc :chapter #t :section #t :subsection #f)
 
    (include "src/chapters/preface.skb")
    (include "src/chapters/introduction.skb")

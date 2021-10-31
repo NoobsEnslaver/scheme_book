@@ -1,2 +1,27 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Расширенные примеры"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch12.png")
+   (p [TODO])
+   (section :title [Matrix and Vector Multiplication]
+      (p [TODO]))
+   (section :title [Sorting]
+      (p [TODO]))
+   (section :title [A Set Constructor]
+      (p [TODO]))
+   (section :title [Word Frequency Counting]
+      (p [TODO]))
+   (section :title [Scheme Printer]
+      (p [TODO]))
+   (section :title [Formatted Output]
+      (p [TODO]))
+   (section :title [A Meta-Circular Interpreter for Scheme]
+      (p [TODO]))
+   (section :title [Defining Abstract Objects]
+      (p [TODO]))
+   (section :title [Fast Fourier Transform]
+      (p [TODO]))
+   (section :title [A Unification Algorithm]
+      (p [TODO]))
+   (section :title [Multitasking with Engines]
+      (p [TODO])))

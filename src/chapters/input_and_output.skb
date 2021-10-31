@@ -1,2 +1,27 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Ввод и вывод"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch7.png")
+   (p [TODO])
+   (section :title [Transcoders]
+      (p [TODO]))
+   (section :title [Opening Files]
+      (p [TODO]))
+   (section :title [Standard Ports]
+      (p [TODO]))
+   (section :title [String and Bytevector Ports]
+      (p [TODO]))
+   (section :title [Opening Custom Ports]
+      (p [TODO]))
+   (section :title [Port Operations]
+      (p [TODO]))
+   (section :title [Input Operations]
+      (p [TODO]))
+   (section :title [Output Operations]
+      (p [TODO]))
+   (section :title [Convenience I/O]
+      (p [TODO]))
+   (section :title [Filesystem Operations]
+      (p [TODO]))
+   (section :title [Bytevector/String Conversions]
+      (p [TODO])))

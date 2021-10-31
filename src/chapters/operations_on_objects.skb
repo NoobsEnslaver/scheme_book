@@ -1,2 +1,33 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
 (chapter :title "Операции над объектами"
-   [Здесь мог бы быть Ваш перевод.])
+   (chapter-image "images/ch6.png")
+   (p [TODO])
+   (section :title [Constants and Quotation]
+      (p [TODO]))
+   (section :title [Generic Equivalence and Type Predicates]
+      (p [TODO]))
+   (section :title [Lists and Pairs]
+      (p [TODO]))
+   (section :title [Numbers]
+      (p [TODO]))
+   (section :title [Fixnums]
+      (p [TODO]))
+   (section :title [Flonums]
+      (p [TODO]))
+   (section :title [Characters]
+      (p [TODO]))
+   (section :title [Strings]
+      (p [TODO]))
+   (section :title [Vectors]
+      (p [TODO]))
+   (section :title [Bytevectors]
+      (p [TODO]))
+   (section :title [Symbols]
+      (p [TODO]))
+   (section :title [Booleans]
+      (p [TODO]))
+   (section :title [Hashtables]
+      (p [TODO]))
+   (section :title [Enumerations]
+      (p [TODO])))
