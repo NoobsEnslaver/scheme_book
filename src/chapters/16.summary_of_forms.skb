@@ -1,4 +1,4 @@
 ;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
 
 (chapter :title "Таблица синтаксических форм" :number #f
-   (p [TODO]))
+   (the-index *forms*))

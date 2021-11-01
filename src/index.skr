@@ -6,13 +6,20 @@
              (ice-9 string-fun))
 
 ;; TODO: вынести
-(define* (src-lite :key line . body)
-  (prog :line line
+(define* (src-lite :key line inline . body)
+  (prog :line line :inline inline
+        (source :language scheme body)))
+
+(define* (src-inline :key line . body)
+  (prog :line line :inline #t
         (source :language scheme body)))
 
 (define* (src . body)
   (frame :width 100.0 :margin 0 :minted-frame-type 'leftline
          (src-lite :line #t body)))
+
+(define (code . body)
+  (src-lite :inline #t body))
 
 (define* (include-src path
                       :optional (from #f)
@@ -29,6 +36,34 @@
 (define (chapter-image path)
     (flush :side 'left (image :file path :width 25.0)))
 
+(define *forms* (make-index "List of forms"))
+
+(define* (formdef :key (syntax '()) (returns '()) (libraries '()))
+  (p
+   (map (lambda (s)
+          (index :index *forms* :shape (code s) s))
+        (if (list? syntax) syntax (list syntax)))
+   (flush :side 'left
+    (color :bg "#eeeeee"
+     (frame :border 0
+      (table
+       (append
+        (map (lambda (s)
+               (tr
+                (td :align 'left "синтаксис:")
+                (td :align 'left (code s))))
+             (if (list? syntax) syntax (list syntax)))
+        (map (lambda (r)
+               (tr
+                (td :align 'left "возвращает:")
+                (td :align 'left r)))
+             (if (list? returns) returns (list returns)))
+        (map (lambda (l)
+               (tr
+                (td :align 'left "библиотеки:")
+                (td :align 'left l)))
+             (if (list? libraries) libraries (list libraries))))))))))
+
 ;; Конфигурируем ядро latex
 (let ((le (find-engine 'latex)))
   (define (opt-append key val)
@@ -39,9 +74,27 @@
     (engine-custom-set! le 'class-has-chapters? #t)
     (engine-custom-set! le 'image-engine 'graphicx)
     (engine-custom-set! le 'toc-depth 'section)
+    (engine-custom-set! le 'toc-depth 'section)
     (engine-custom-set! le 'documentclass "\\documentclass[12pt,fleqn,oneside]{book}\n")
     (opt-append 'usepackage "\\usepackage[margin=0.8in]{geometry}")
-    (opt-append 'predocument "\\usemintedstyle{default}"))
+    (opt-append 'predocument "\\usemintedstyle{default}
+\\hypersetup{
+colorlinks=true,
+linkcolor=blue,
+pdfhighlight=/I,
+pdfborder={0 0 0}
+}
+\\makeatletter
+\\AtBeginEnvironment{minted}{\\dontdofcolorbox}
+\\def\\dontdofcolorbox{\\renewcommand\\fcolorbox[4][]{##4}}
+\\xpatchcmd{\\inputminted}{\\minted@fvset}{\\minted@fvset\\dontdofcolorbox}{}{}
+\\xpatchcmd{\\mintinline}{\\minted@fvset}{\\minted@fvset\\dontdofcolorbox}{}{}
+\\makeatother
+\\setminted[scheme]{
+    breaklines=true,
+    encoding=utf8,
+    fontsize=\\footnotesize}
+"))
 
 
 ;; Конфигурируем ядро html
@@ -58,21 +111,20 @@
    (p (image :file "images/cover.png" :width 100.0))
    (toc :chapter #t :section #t :subsection #f)
 
-   (include "src/chapters/preface.skb")
-   (include "src/chapters/introduction.skb")
-   (include "src/chapters/getting_started.skb")
-   (include "src/chapters/going_further.skb")
-   (include "src/chapters/procedures_and_variable_bindings.skb")
-   (include "src/chapters/control_operations.skb")
-   (include "src/chapters/operations_on_objects.skb")
-   (include "src/chapters/input_and_output.skb")
-   (include "src/chapters/syntactic_extension.skb")
-   (include "src/chapters/records.skb")
-   (include "src/chapters/libraries_and_top-level_programs.skb")
-   (include "src/chapters/exceptions_and_conditions.skb")
-   (include "src/chapters/extended_examples.skb")
-   (include "src/chapters/references.skb")
-   (include "src/chapters/answers_to_selected_exercises.skb")
-   (include "src/chapters/formal_syntax.skb")
-   (include "src/chapters/summary_of_forms.skb")
-   (include "src/chapters/index.skb"))
+   (include "src/chapters/0.preface.skb")
+   (include "src/chapters/1.introduction.skb")
+   (include "src/chapters/2.getting_started.skb")
+   (include "src/chapters/3.going_further.skb")
+   (include "src/chapters/4.procedures_and_variable_bindings.skb")
+   (include "src/chapters/5.control_operations.skb")
+   (include "src/chapters/6.operations_on_objects.skb")
+   (include "src/chapters/7.input_and_output.skb")
+   (include "src/chapters/8.syntactic_extension.skb")
+   (include "src/chapters/9.records.skb")
+   (include "src/chapters/10.libraries_and_top-level_programs.skb")
+   (include "src/chapters/11.exceptions_and_conditions.skb")
+   (include "src/chapters/12.extended_examples.skb")
+   (include "src/chapters/13.references.skb")
+   (include "src/chapters/14.answers_to_selected_exercises.skb")
+   (include "src/chapters/15.formal_syntax.skb")
+   (include "src/chapters/16.summary_of_forms.skb"))

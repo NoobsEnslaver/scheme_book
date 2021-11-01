@@ -1,0 +1,560 @@
+;;; -*- coding: utf-8; tab-width: 4; c-basic-offset: 2; indent-tabs-mode: nil; fill-column: 120; -*-
+
+(chapter :title "Управляющие структуры"
+   (chapter-image "images/ch5.png")
+   (p [This chapter introduces the syntactic forms and procedures that serve as control structures for Scheme programs, The
+       first section covers the most basic control structure, procedure application, and the remaining sections cover
+       sequencing, conditional evaluation, recursion, mapping, continuations, delayed evaluation, multiple values, and
+       evaluation of programs constructed at run time.])
+   (section :title [Procedure Application]
+      (formdef
+      :syntax "(expr0 expr1 ...)"
+      :returns "values of applying the value of expr0 to the values of expr1 ...")
+      (p [Procedure application is the most basic Scheme control structure. Any structured form without a syntax keyword in
+          the first position is a procedure application. The expressions expr0 and expr1 ... are evaluated; each should
+          evaluate to a single value. After each of these expressions has been evaluated, the value of expr0 is applied to the
+          values of expr1 .... If expr0 does not evaluate to a procedure, or if the procedure does not accept the number of
+          arguments provided, an exception with condition type &assertion is raised.])
+      (p [The order in which the procedure and argument expressions are evaluated is unspecified. It may be left to right,
+          right to left, or any other order. The evaluation is guaranteed to be sequential, however: whatever order is chosen,
+          each expression is fully evaluated before evaluation of the next is started.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+procedure-application-1|#")
+
+      (formdef
+      :syntax "(apply procedure obj ... list)"
+      :returns "the values of applying procedure to obj ... and the elements of list"
+      :libraries "(rnrs base), (rnrs)")
+      (p [apply invokes procedure, passing the first obj as the first argument, the second obj as the second argument, and so
+          on for each object in obj ..., and passing the elements of list in order as the remaining arguments. Thus, procedure
+          is called with as many arguments as there are objs plus elements of list.])
+      (p [apply is useful when some or all of the arguments to be passed to a procedure are in a list, since it frees the
+          programmer from explicitly destructuring the list.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+procedure-application-2|#"))
+
+   (section :title [Sequencing]
+      (formdef
+      :syntax "(begin expr1 expr2 ...)"
+      :returns "the values of the last subexpression"
+      :libraries "(rnrs base), (rnrs)")
+      (p [The expressions expr1 expr2 ... are evaluated in sequence from left to right. begin is used to sequence assignments,
+          input/output, or other operations that cause side effects.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+sequencing-1|#")
+      (p [A begin form may contain zero or more definitions in place of the expressions expr1 expr2 ..., in which case it is
+          considered to be a definition and may appear only where definitions are valid.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+sequencing-2|#")
+      (p [This form of begin is primarily used by syntactic extensions that must expand into multiple definitions. (See page 101.)])
+      (p [The bodies of many syntactic forms, including lambda, case-lambda, let, let*, letrec, and letrec*, as well as the
+          result clauses of cond, case, and do, are treated as if they were inside an implicit begin; i.e., the expressions
+          making up the body or result clause are executed in sequence, with the values of the last expression being
+          returned.]))
+
+   (section :title [Conditionals]
+      (formdef
+      :syntax '("(if test consequent alternative)"
+                "(if test consequent)")
+      :returns "the values of consequent or alternative depending on the value of test"
+      :libraries "(rnrs base), (rnrs)")
+      (p [The test, consequent, and alternative subforms must be expressions. If test evaluates to a true value (anything
+          other than #f), consequent is evaluated and its values are returned. Otherwise, alternative is evaluated and its
+          values are returned. With the second, "one-armed," form, which has no alternative, the result is unspecified if test
+          evaluates to false.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-1|#")
+
+      (formdef
+      :syntax "(not obj)"
+      :returns "#t if obj is false, #f otherwise"
+      :libraries "(rnrs base), (rnrs)")
+      (p [,(var "not") is equivalent to ,(code "(lambda (x) (if x #f #t))").])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-2|#")
+
+      (formdef
+      :syntax "(and expr ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [If no subexpressions are present, the and form evaluates to #t. Otherwise, and evaluates each subexpression in
+          sequence from left to right until only one subexpression remains or a subexpression returns #f. If one subexpression
+          remains, it is evaluated and its values are returned. If a subexpression returns #f, and returns #f without
+          evaluating the remaining subexpressions. A syntax definition of and appears on page 62.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-3|#")
+
+      (formdef
+      :syntax "(or expr ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [If no subexpressions are present, the or form evaluates to #f. Otherwise, or evaluates each subexpression in
+          sequence from left to right until only one subexpression remains or a subexpression returns a value other than
+          #f. If one subexpression remains, it is evaluated and its values are returned. If a subexpression returns a value
+          other than #f, or returns that value without evaluating the remaining subexpressions. A syntax definition of or
+          appears on page 63.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-4|#")
+
+      (formdef
+      :syntax "(cond clause1 clause2 ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [Each clause but the last must take one of the forms below.])
+
+      (src-lite "(test)
+(test expr1 expr2 ...)
+(test => expr)")
+
+      (p [The last clause may be in any of the above forms, or it may be an "else clause" of the form])
+      (src-lite "(else expr1 expr2 ...)")
+      (p [Each test is evaluated in order until one evaluates to a true value or until all of the tests have been
+          evaluated. If the first clause whose test evaluates to a true value is in the first form given above, the value of
+          test is returned.])
+      (p [If the first clause whose test evaluates to a true value is in the second form given above, the expressions expr1
+          expr2... are evaluated in sequence and the values of the last expression are returned.])
+      (p [If the first clause whose test evaluates to a true value is in the third form given above, the expression expr is
+          evaluated. The value should be a procedure of one argument, which is applied to the value of test. The values of
+          this application are returned.])
+      (p [If none of the tests evaluates to a true value and an else clause is present, the expressions expr1 expr2 ... of the
+          else clause are evaluated in sequence and the values of the last expression are returned.])
+      (p [If none of the tests evaluates to a true value and no else clause is present, the value or values are unspecified.])
+      (p [See page 305 for a syntax definition of cond.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-5|#")
+
+      (formdef
+      :syntax '("else"
+                "=>")
+      :returns ""
+      :libraries "(rnrs base), (rnrs)")
+      (p [These identifiers are auxiliary keywords for cond. Both also serve as auxiliary keywords for guard, and else also
+          serves as an auxiliary keyword for case. It is a syntax violation to reference these identifiers except in contexts
+          where they are recognized as auxiliary keywords.])
+
+      (formdef
+      :syntax '("(when test-expr expr1 expr2 ...)"
+                "(unless test-expr expr1 expr2 ...)")
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [For when, if test-expr evaluates to a true value, the expressions expr1 expr2 ... are evaluated in sequence, and the
+          values of the last expression are returned. If test-expr evaluates to false, none of the other expressions are
+          evaluated, and the value or values of when are unspecified.])
+      (p [For unless, if test-expr evaluates to false, the expressions expr1 expr2 ... are evaluated in sequence, and the
+          values of the last expression are returned. If test-expr evaluates to a true value, none of the other expressions
+          are evaluated, and the value or values of unless are unspecified.])
+      (p [A when or unless expression is usually clearer than the corresponding "one-armed" if expression.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-6|#")
+      (p [when may be defined as follows:])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'when)
+      (p [unless may be defined as follows:])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'unless)
+      (p [or in terms of when as follows:])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-7|#")
+
+      (formdef
+      :syntax "(case expr0 clause1 clause2 ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [Each clause but the last must take the form])
+      (src-lite "((key ...) expr1 expr2 ...)")
+      (p [where each key is a datum distinct from the other keys. The last clause may be in the above form or it may be an
+          else clause of the form])
+      (src-lite "(else expr1 expr2 ...)")
+      (p [expr0 is evaluated and the result is compared (using eqv?) against the keys of each clause in order. If a clause
+          containing a matching key is found, the expressions expr1 expr2 ... are evaluated in sequence and the values of the
+          last expression are returned.])
+      (p [If none of the clauses contains a matching key and an else clause is present, the expressions expr1 expr2 ... of the
+          else clause are evaluated in sequence and the values of the last expression are returned.])
+      (p [If none of the clauses contains a matching key and no else clause is present, the value or values are unspecified.])
+      (p [See page 306 for a syntax definition of case.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-8|#"))
+
+   (section :title [Recursion and Iteration]
+      (formdef
+      :syntax "(let name ((var expr) ...) body1 body2 ...)"
+      :returns "values of the final body expression"
+      :libraries "(rnrs base), (rnrs)")
+      (p [This form of let, called named let, is a general-purpose iteration and recursion construct. It is similar to the
+          more common form of let (see Section 4.4) in the binding of the variables var ... to the values of expr ... within
+          the body body1 body2 ..., which is processed and evaluated like a lambda body. In addition, the variable name is
+          bound within the body to a procedure that may be called to recur or iterate\; the arguments to the procedure become
+          the new values of the variables var ....])
+      (p [A named let expression of the form])
+      (src-lite "(let name ((var expr) ...)
+  body1 body2 ...)")
+      (p [can be rewritten with letrec as follows.])
+      (src-lite "((letrec ((name (lambda (var ...) body1 body2 ...)))
+   name)
+ expr ...)")
+      (p [A syntax definition of let that implements this transformation and handles unnamed let as well can be found on
+          page 312.])
+      (p [The procedure divisors defined below uses named let to compute the nontrivial divisors of a nonnegative integer.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+iterations-1|#")
+      (p [The version above is non-tail-recursive when a divisor is found and tail-recursive when a divisor is not found. The
+          version below is fully tail-recursive. It builds up the list in reverse order, but this is easy to remedy, if
+          desired, by reversing the list on exit.])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'divisors)
+
+      (formdef
+      :syntax "(do ((var init update) ...) (test result ...) expr ...)"
+      :returns "the values of the last result expression"
+      :libraries "(rnrs base), (rnrs)")
+      (p [do allows a common restricted form of iteration to be expressed succinctly. The variables var ... are bound
+          initially to the values of init ... and are rebound on each subsequent iteration to the values of update .... The
+          expressions test, update ..., expr ..., and result ... are all within the scope of the bindings established for var
+          ....])
+      (p [On each step, the test expression test is evaluated. If the value of test is true, iteration ceases, the expressions
+          result ... are evaluated in sequence, and the values of the last expression are returned. If no result expressions
+          are present, the value or values of the do expression are unspecified.])
+      (p [If the value of test is false, the expressions expr ... are evaluated in sequence, the expressions update ... are
+          evaluated, new bindings for var ... to the values of update ... are created, and iteration continues.])
+      (p [The expressions expr ... are evaluated only for effect and are often omitted entirely. Any update expression may be
+          omitted, in which case the effect is the same as if the update were simply the corresponding var.])
+      (p [Although looping constructs in most languages require that the loop iterands be updated via assignment, do requires
+          the loop iterands var ... to be updated via rebinding. In fact, no side effects are involved in the evaluation of a
+          do expression unless they are performed explicitly by its subexpressions.])
+      (p [See page 313 for a syntax definition of do.])
+      (p [The definitions of factorial and fibonacci below are straightforward translations of the tail-recursive named-let
+          versions given in Section 3.2.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+iterations-2|#")
+      (p [The definition of divisors below is similar to the tail-recursive definition of divisors given with the description
+          of named let above.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+iterations-3|#")
+      (p [The definition of scale-vector! below, which scales each element of a vector v by a constant k, demonstrates a
+          nonempty do body.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+iterations-4|#"))
+
+   (section :title [Mapping and Folding]
+      (p [When a program must recur or iterate over the elements of a list, a mapping or folding operator is often more
+          convenient. These operators abstract away from null checks and explicit recursion by applying a procedure to the
+          elements of the list one by one. A few mapping operators are also available for vectors and strings.])
+
+      (formdef
+      :syntax "(map procedure list1 list2 ...)"
+      :returns "list of results"
+      :libraries "(rnrs base), (rnrs)")
+      (p [map applies procedure to corresponding elements of the lists list1 list2 ... and returns a list of the resulting
+          values. The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are
+          lists, should return a single value, and should not mutate the list arguments.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-1|#")
+      (p [While the order in which the applications themselves occur is not specified, the order of the values in the output
+          list is the same as that of the corresponding values in the input lists.])
+      (p [map might be defined as follows.])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'map)
+      (p [No error checking is done by this version of map\; f is assumed to be a procedure and the other arguments are assumed
+          to be proper lists of the same length. An interesting feature of this definition is that map uses itself to pull out
+          the cars and cdrs of the list of input lists this works because of the special treatment of the single-list case.])
+
+      (formdef
+      :syntax "(for-each procedure list1 list2 ...)"
+      :returns "unspecified"
+      :libraries "(rnrs base), (rnrs)")
+      (p [for-each is similar to map except that for-each does not create and return a list of the resulting values, and
+          for-each guarantees to perform the applications in sequence over the elements from left to right. procedure should
+          accept as many arguments as there are lists and should not mutate the list arguments. for-each may be defined
+          without error checks as follows.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-2|#")
+
+      (formdef
+      :syntax "(exists procedure list1 list2 ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
+          and should not mutate the list arguments. If the lists are empty, exists returns #f. Otherwise, exists applies
+          procedure to corresponding elements of the lists list1 list2 ... in sequence until either the lists each have only
+          one element or procedure returns a true value t. In the former case, exists tail-calls procedure, applying it to the
+          remaining element of each list. In the latter case, exists returns t.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-3|#")
+      (p [exists may be defined (somewhat inefficiently and without error checks) as follows:])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'exists)
+
+      (formdef
+      :syntax "(for-all procedure list1 list2 ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
+          and should not mutate the list arguments. If the lists are empty, for-all returns #t. Otherwise, for-all applies
+          procedure to corresponding elements of the lists list1 list2 ... in sequence until either the lists each have only
+          one element left or procedure returns #f. In the former case, for-all tail-calls procedure, applying it to the
+          remaining element of each list. In the latter case, for-all returns #f.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-4|#")
+      (p [for-all may be defined (somewhat inefficiently and without error checks) as follows:])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'for-all)
+
+      (formdef
+      :syntax "(fold-left procedure obj list1 list2 ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [The list arguments should all have the same length. procedure should accept one more argument than the number of
+          list arguments and return a single value. It should not mutate the list arguments.])
+      (p [fold-left returns obj if the list arguments are empty. If they are not empty, fold-left applies procedure to obj and
+          the cars of list1 list2 ..., then recurs with the value returned by procedure in place of obj and the cdr of each
+          list in place of the list.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-5|#")
+
+      (formdef
+      :syntax "(fold-right procedure obj list1 list2 ...)"
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [The list arguments should all have the same length. procedure should accept one more argument than the number of
+          list arguments and return a single value. It should not mutate the list arguments.])
+      (p [fold-right returns obj if the list arguments are empty. If they are not empty, fold-right recurs with the cdr of
+          each list replacing the list, then applies procedure to the cars of list1 list2 ... and the result returned by the
+          recursion.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-6|#")
+
+      (formdef
+      :syntax "(vector-map procedure vector1 vector1 ...)"
+      :returns "vector of results"
+      :libraries "(rnrs base), (rnrs)")
+      (p [vector-map applies procedure to corresponding elements of vector1 vector2 ... and returns a vector of the resulting
+          values. The vectors vector1 vector2 ... must be of the same length, and procedure should accept as many arguments as
+          there are vectors and return a single value.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-7|#")
+      (p [While the order in which the applications themselves occur is not specified, the order of the values in the output
+          vector is the same as that of the corresponding values in the input vectors.])
+
+      (formdef
+      :syntax "(vector-for-each procedure vector1 vector2 ...)"
+      :returns "unspecified"
+      :libraries "(rnrs base), (rnrs)")
+      (p [vector-for-each is similar to vector-map except that vector-for-each does not create and return a vector of the
+          resulting values, and vector-for-each guarantees to perform the applications in sequence over the elements from left
+          to right.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-8|#")
+
+      (formdef
+      :syntax "(string-for-each procedure string1 string2 ...)"
+      :returns "unspecified"
+      :libraries "(rnrs base), (rnrs)")
+      (p [string-for-each is similar to for-each and vector-for-each except that the inputs are strings rather than lists or
+          vectors.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+mapping-9|#"))
+
+   (section :title [Continuations]
+      (p [Continuations in Scheme are procedures that represent the remainder of a computation from a given point in the
+          computation. They may be obtained with call-with-current-continuation, which can be abbreviated to call/cc.])
+
+      (formdef
+      :syntax '("(call/cc procedure)"
+                "(call-with-current-continuation procedure)")
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
+      (p [These procedures are the same. The shorter name is often used for the obvious reason that it requires fewer
+          keystrokes to type.])
+      (p [call/cc obtains its continuation and passes it to procedure, which should accept one argument. The continuation
+          itself is represented by a procedure. Each time this procedure is applied to zero or more values, it returns the
+          values to the continuation of the call/cc application. That is, when the continuation procedure is called, it
+          returns its arguments as the values of the application of call/cc.])
+      (p [If procedure returns normally when passed the continuation procedure, the values returned by call/cc are the values
+          returned by procedure.])
+      (p [Continuations allow the implementation of nonlocal exits, backtracking ,(ref :bib '(b14 b29)), coroutines ,(ref :bib 'b16), and multitasking
+          ,(ref :bib '(b10 b32)).])
+      (p [The example below illustrates the use of a continuation to perform a nonlocal exit from a loop.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+continuations-1|#")
+      (p [Additional examples are given in Sections 3.3 and 12.11.])
+      (p [The current continuation is typically represented internally as a stack of procedure activation records, and
+          obtaining the continuation involves encapsulating the stack within a procedural object. Since an encapsulated stack
+          has indefinite extent, some mechanism must be used to preserve the stack contents indefinitely. This can be done
+          with surprising ease and efficiency and with no impact on programs that do not use continuations ,(ref :bib 'b17).])
+
+      (formdef
+      :syntax "(dynamic-wind in body out)"
+      :returns "values resulting from the application of body"
+      :libraries "(rnrs base), (rnrs)")
+      (p [dynamic-wind offers "protection" from continuation invocation. It is useful for performing tasks that must be
+          performed whenever control enters or leaves body, either normally or by continuation application.])
+      (p [The three arguments in, body, and out must be procedures and should accept zero arguments, i.e., they should be
+          thunks. Before applying body, and each time body is entered subsequently by the application of a continuation
+          created within body, the in thunk is applied. Upon normal exit from body and each time body is exited by the
+          application of a continuation created outside body, the out thunk is applied.])
+      (p [Thus, it is guaranteed that in is invoked at least once. In addition, if body ever returns, out is invoked at least
+          once.])
+      (p [The following example demonstrates the use of dynamic-wind to be sure that an input port is closed after processing,
+          regardless of whether the processing completes normally.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+continuations-2|#")
+      (p [Common Lisp provides a similar facility (unwind-protect) for protection from nonlocal exits. This is often
+          sufficient. unwind-protect provides only the equivalent to out, however, since Common Lisp does not support fully
+          general continuations. Here is how unwind-protect might be specified with dynamic-wind.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+continuations-3|#")
+      (p [Some Scheme implementations support a controlled form of assignment known as fluid binding, in which a variable
+          takes on a temporary value during a given computation and reverts to the old value after the computation has
+          completed. The syntactic form fluid-let defined below in terms of dynamic-wind permits the fluid binding of a single
+          variable x to the value of an expression e within a the body b1 b2 ....])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'fluid-let)
+      (p [Implementations that support fluid-let typically extend it to allow an indefinite number of ,(var "(x e)") pairs, as with
+          let.])
+      (p [If no continuations are invoked within the body of a fluid-let, the behavior is the same as if the variable were
+          simply assigned the new value on entry and assigned the old value on return.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+continuations-4|#")
+      (p [A fluid-bound variable also reverts to the old value if a continuation created outside of the fluid-let is invoked.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+continuations-5|#")
+      (p [If control has left a fluid-let body, either normally or by the invocation of a continuation, and control reenters
+          the body by the invocation of a continuation, the temporary value of the fluid-bound variable is
+          reinstated. Furthermore, any changes to the temporary value are maintained and reflected upon reentry.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+continuations-6|#")
+      (p [A library showing how dynamic-wind might be implemented were it not already built in is given below. In addition to
+          defining dynamic-wind, the code defines a version of call/cc that does its part to support dynamic-wind.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+continuations-7|#")
+      (p [Together, dynamic-wind and call/cc manage a list of winders. A winder is a pair of in and out thunks established by
+          a call to dynamic-wind. Whenever dynamic-wind is invoked, the in thunk is invoked, a new winder containing the in
+          and out thunks is placed on the winders list, the body thunk is invoked, the winder is removed from the winders
+          list, and the out thunk is invoked. This ordering ensures that the winder is on the winders list only when control
+          has passed through in and not yet entered out. Whenever a continuation is obtained, the winders list is saved, and
+          whenever the continuation is invoked, the saved winders list is reinstated. During reinstatement, the out thunk of
+          each winder on the current winders list that is not also on the saved winders list is invoked, followed by the in
+          thunk of each winder on the saved winders list that is not also on the current winders list. The winders list is
+          updated incrementally, again to ensure that a winder is on the current winders list only if control has passed
+          through its in thunk and not entered its out thunk.])
+      (p [The test (not (eq? save winders)) performed in call/cc is not strictly necessary but makes invoking a continuation
+          less costly whenever the saved winders list is the same as the current winders list.]))
+
+   (section :title [Delayed Evaluation]
+      (p [The syntactic form delay and the procedure force may be used in combination to implement lazy evaluation. An
+          expression subject to lazy evaluation is not evaluated until its value is required and, once evaluated, is never
+          reevaluated.])
+      (formdef
+       :syntax "(delay expr)"
+       :returns "a promise"
+       :libraries "(rnrs base), (rnrs)")
+      (formdef
+       :syntax "(force promise)"
+       :returns "result of forcing promise"
+       :libraries "(rnrs r5rs)")
+      (p [The first time a promise created by delay is forced (with force), it evaluates expr, "remembering" the resulting
+          value. Thereafter, each time the promise is forced, it returns the remembered value instead of reevaluating expr.])
+      (p [delay and force are typically used only in the absence of side effects, e.g., assignments, so that the order of
+          evaluation is unimportant.])
+      (p [The benefit of using delay and force is that some amount of computation might be avoided altogether if it is delayed
+          until absolutely required. Delayed evaluation may be used to construct conceptually infinite lists, or streams. The
+          example below shows how a stream abstraction may be built with delay and force. A stream is a promise that, when
+          forced, returns a pair whose cdr is a stream.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+delayed-evaluation-1|#")
+      (p [delay may be defined by])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'delay)
+      (p [where make-promise might be defined as follows.])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'make-promise)
+      (p [With this definition of delay, force simply invokes the promise to force evaluation or to retrieve the saved value.])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'force)
+      (p [The second test of the variable set? in make-promise is necessary in the event that, as a result of applying p, the
+          promise is recursively forced. Since a promise must always return the same value, the result of the first
+          application of p to complete is returned.])
+      (p [Whether delay and force handle multiple return values is unspecified\; the implementation given above does not, but
+          the following version does, with the help of call-with-values and apply.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+delayed-evaluation-2|#")
+      (p [Neither implementation is quite right, since force must raise an exception with condition type &assertion if its
+          argument is not a promise. Since distinguishing procedures created by make-promise from other procedures is
+          impossible, force cannot do so reliably. The following reimplementation of make-promise and force represents
+          promises as records of the type promise to allow force to make the required check.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+delayed-evaluation-3|#"))
+
+   (section :title [Multiple Values]
+      (p [While all Scheme primitives and most user-defined procedures return exactly one value, some programming problems are
+          best solved by returning zero values, more than one value, or even a variable number of values. For example, a
+          procedure that partitions a list of values into two sublists needs to return two values. While it is possible for
+          the producer of multiple values to package them into a data structure and for the consumer to extract them, it is
+          often cleaner to use the built-in multiple-values interface. This interface consists of two procedures: values and
+          call-with-values. The former produces multiple values and the latter links procedures that produce multiple-value
+          values with procedures that consume them.])
+
+      (formdef
+       :syntax "(values obj ...)"
+       :returns "obj ..."
+       :libraries "(rnrs base), (rnrs)")
+      (p [The procedure values accepts any number of arguments and simply passes (returns) the arguments to its continuation.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-1|#")
+      (formdef
+       :syntax "(call-with-values producer consumer)"
+       :returns "see below"
+       :libraries "(rnrs base), (rnrs)")
+      (p [producer and consumer must be procedures. call-with-values applies consumer to the values returned by invoking
+          producer without arguments.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-2|#")
+      (p [In the second example, values itself serves as the producer. It receives no arguments and thus returns no
+          values. list is thus applied to no arguments and so returns the empty list.])
+      (p [The procedure dxdy defined below computes the change in x and y coordinates for a pair of points whose coordinates
+          are represented by ,(var "(x . y)") pairs.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-3|#")
+      (p [dxdy can be used to compute the length and slope of a segment represented by two endpoints.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-4|#")
+      (p [We can of course combine these to form one procedure that returns two values.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-5|#")
+      (p [The example below employs multiple values to divide a list nondestructively into two sublists of alternating
+          elements.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-6|#")
+      (p [At each level of recursion, the procedure split returns two values: a list of the odd-numbered elements from the
+          argument list and a list of the even-numbered elements.])
+      (p [The continuation of a call to values need not be one established by a call to call-with-values, nor must only values
+          be used to return to a continuation established by call-with-values. In particular, (values e) and e are equivalent
+          expressions. For example:])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-7|#")
+      (p [Similarly, values may be used to pass any number of values to a continuation that ignores the values, as in the
+          following.])
+      (src-lite "(begin (values 1 2 3) 4) → 4")
+      (p [Because a continuation may accept zero or more than one value, continuations obtained via call/cc may accept zero or
+          more than one argument.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-8|#")
+      (p [The behavior is unspecified when a continuation expecting exactly one value receives zero values or more than one
+          value. For example, the behavior of each of the following expressions is unspecified. Some implementations raise an
+          exception, while others silently suppress additional values or supply defaults for missing values.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-9|#")
+      (p [Programs that wish to force extra values to be ignored in particular contexts can do so easily by calling
+          call-with-values explicitly. A syntactic form, which we might call first, can be defined to abstract the discarding
+          of more than one value when only one is desired.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-10|#")
+      (p [Since implementations are required to raise an exception with condition type &assertion if a procedure does not
+          accept the number of arguments passed to it, each of the following raises an exception.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-11|#")
+      (p [Since producer is most often a lambda expression, it is often convenient to use a syntactic extension that
+          suppresses the lambda expression in the interest of readability.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-12|#")
+      (p [If the consumer is also a lambda expression, the multiple-value variants of let and let* described in Section 4.5
+          are usually even more convenient.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-13|#")
+      (p [Many standard syntactic forms and procedures pass along multiple values. Most of these are "automatic," in the sense
+          that nothing special must be done by the implementation to make this happen. The usual expansion of let into a
+          direct lambda call automatically propagates multiple values produced by the body of the let. Other operators must be
+          coded specially to pass along multiple values. The call-with-port procedure (page 7.6), for example, calls its
+          procedure argument, then closes the port argument before returning the procedure's values, so it must save the
+          values temporarily. This is easily accomplished via let-values, apply, and values:])
+      (include-src "src/scheme/5.control_operations.scm" :definition 'call-with-port)
+      (p [If this seems like too much overhead when a single value is returned, the code can use call-with-values and
+          case-lambda to handle the single-value case more efficiently:])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-14|#")
+      (p [The definitions of values and call-with-values (and concomitant redefinition of call/cc) in the library below
+          demonstrate that the multiple-return-values interface could be implemented in Scheme if it were not already built
+          in. No error checking can be done, however, for the case in which more than one value is returned to a single-value
+          context, such as the test part of an if expression.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-15|#")
+      (p [Multiple values can be implemented more efficiently ,(ref :bib 'b2), but this code serves to illustrate the meanings of the
+          operators and may be used to provide multiple values in older, nonstandard implementations that do not support
+          them.]))
+
+   (section :title [Eval]
+      (p [Scheme's eval procedure allows programmers to write programs that construct and evaluate other programs. This
+          ability to do run-time meta programming should not be overused but is handy when needed.])
+
+      (formdef
+       :syntax "(eval obj environment)"
+       :returns "values of the Scheme expression represented by obj in environment"
+       :libraries "(rnrs eval)")
+      (p [If obj does not represent a syntactically valid expression, eval raises an exception with condition type
+          &syntax. The environments returned by environment, scheme-report-environment, and null-environment are
+          immutable. Thus, eval also raises an exception with condition type &syntax if an assignment to any of the variables
+          in the environment appears within the expression.])
+      (include-src "src/scheme/5.control_operations.scm" "#|+eval-1|#")
+      (formdef
+       :syntax "(environment import-spec ...)"
+       :returns "an environment"
+       :libraries "(rnrs eval)")
+      (p [environment returns an environment formed from the combined bindings of the given import specifiers. Each
+          import-spec must be an s-expression representing a valid import specifier (see Chapter 10).])
+      (include-src "src/scheme/5.control_operations.scm" "#|+eval-2|#")
+
+      (formdef
+       :syntax "(null-environment version)"
+       :syntax "(scheme-report-environment version)"
+       :returns "an R5RS compatibility environment"
+       :libraries "(rnrs r5rs)")
+      (p [version must be the exact integer 5.])
+      (p [null-environment returns an environment containing bindings for the keywords whose meanings are defined by the
+          Revised5 Report on Scheme, along with bindings for the auxiliary keywords else, =>, ..., and _.])
+      (p [scheme-report-environment returns an environment containing the same keyword bindings as the environment returned by
+          null-environment along with bindings for the variables whose meanings are defined by the Revised5 Report on Scheme,
+          except those not defined by the Revised6 Report: load, interaction-environment, transcript-on, transcript-off, and
+          char-ready?.])
+      (p [The bindings for each of the identifiers in the environments returned by these procedures are those of the
+          corresponding Revised6 Report library, so this does not provide full backward compatibility, even if the excepted
+          identifier bindings are not used.])))
