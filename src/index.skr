@@ -39,11 +39,10 @@
 (define *forms* (make-index "List of forms"))
 
 (define* (formdef :key (syntax '()) (returns '()) (libraries '()))
-  (p
-   (map (lambda (s)
+  (flush :side 'left
+    (map (lambda (s)
           (index :index *forms* :shape (code s) s))
         (if (list? syntax) syntax (list syntax)))
-   (flush :side 'left
     (color :bg "#eeeeee"
      (frame :border 0
       (table
@@ -62,7 +61,7 @@
                (tr
                 (td :align 'left "библиотеки:")
                 (td :align 'left l)))
-             (if (list? libraries) libraries (list libraries))))))))))
+             (if (list? libraries) libraries (list libraries)))))))))
 
 ;; Конфигурируем ядро latex
 (let ((le (find-engine 'latex)))

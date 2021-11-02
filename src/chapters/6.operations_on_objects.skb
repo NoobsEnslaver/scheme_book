@@ -2,32 +2,3331 @@
 
 (chapter :title "Операции над объектами"
    (chapter-image "images/ch6.png")
-   (p [TODO])
+   (p [This chapter describes the operations on objects, including lists, numbers, characters, strings, vectors,
+   bytevectors, symbols, booleans, hashtables, and enumerations. The first section covers constant objects and
+   quotation. The second section describes generic equivalence predicates for comparing two objects and predicates for
+   determining the type of an object. Later sections describe procedures that deal primarily with one of the object
+   types mentioned above. There is no section treating operations on procedures, since the only operation defined
+   specifically for procedures is application, and this is described in Chapter 5. Operations on ports are covered in
+   the more general discussion of input and output in Chapter 7. A mechanism for defining new data types is described in
+   Chapter 9.])
    (section :title [Constants and Quotation]
-      (p [TODO]))
+      (formdef
+    :syntax "constant"
+    :returns "constant")
+
+(p [constant is any self-evaluating constant, i.e., a number, boolean, character, string, or bytevector. Constants are
+    immutable; see the note in the description of quote below.])
+
+(src "
+3.2 → 3.2
+#f → #f
+#\\c → #\\c
+\"hi\" → \"hi\"
+#vu8(3 4 5) → #vu8(3 4 5)")
+
+(formdef
+    :syntax '("(quote obj)"
+              "'obj")
+    :returns "obj"
+    :libraries "(rnrs base), (rnrs)")
+
+(p ['obj is equivalent to (quote obj). The abbreviated form is converted into the longer form by the Scheme reader (see
+    read).])
+
+(p [quote inhibits the normal evaluation rule for obj, allowing obj to be employed as data. Although any Scheme object
+    may be quoted, quotation is not necessary for self-evaluating constants, i.e., numbers, booleans, characters,
+    strings, and bytevectors.])
+
+(p [Quoted and self-evaluating constants are immutable. That is, programs should not alter a constant via set-car!,
+    string-set!, etc., and implementations are permitted to raise an exception with condition type &assertion if such an
+    alteration is attempted. If an attempt to alter an immutable object is undetected, the behavior of the program is
+    unspecified. An implementation may choose to share storage among different constants to save space.])
+
+(src "
+(+ 2 3) → 5
+'(+ 2 3) → (+ 2 3)
+(quote (+ 2 3)) → (+ 2 3)
+'a → a
+'cons → cons
+'() → ()
+'7 → 7")
+
+(formdef
+    :syntax '("(quasiquote obj ...)"
+              "`obj"
+              "(unquote obj ...)"
+              ",obj"
+              "(unquote-splicing obj ...)"
+              ",@obj")
+    :returns "see below"
+    :libraries "(rnrs base), (rnrs)")
+
+ (p [,(var "`obj") is equivalent to ,(var "(quasiquote obj)"), ,(var ",obj") is equivalent to ,(var "(unquote obj)"), and ,(var ",@obj") is equivalent to
+    ,(var "(unquote-splicing obj)"). The abbreviated forms are converted into the longer forms by the Scheme reader (see read).])
+
+ (p [quasiquote is similar to quote, but it allows parts of the quoted text to be "unquoted." Within a quasiquote
+    expression, unquote and unquote-splicing subforms are evaluated, and everything else is quoted, i.e., left
+    unevaluated. The value of each unquote subform is inserted into the output in place of the ,(var "unquote") form, while the
+    value of each unquote-splicing subform is spliced into the surrounding list or vector structure. unquote and
+    unquote-splicing are valid only within quasiquote expressions.])
+
+ (p [quasiquote expressions may be nested, with each quasiquote introducing a new level of quotation and each unquote or
+    unquote-splicing taking away a level of quotation. An expression nested within n quasiquote expressions must be
+    within n unquote or unquote-splicing expressions to be evaluated.])
+
+(src "
+`(+ 2 3) → (+ 2 3)
+
+`(+ 2 ,(* 3 4)) → (+ 2 12)
+`(a b (,(+ 2 3) c) d) → (a b (5 c) d)
+`(a b ,(reverse '(c d e)) f g) → (a b (e d c) f g)
+(let ([a 1] [b 2])
+  `(,a . ,b)) → (1 . 2)
+
+`(+ ,@(cdr '(* 2 3))) → (+ 2 3)
+`(a b ,@(reverse '(c d e)) f g) → (a b e d c f g)
+(let ([a 1] [b 2])
+  `(,a ,@b)) → (1 . 2)
+`#(,@(list 1 2 3)) → #(1 2 3)
+
+'`,(cons 'a 'b) → `,(cons 'a 'b)
+`',(cons 'a 'b) → '(a . b)
+")
+
+(p [unquote and unquote-splicing forms with zero or more than one subform are valid only in splicing (list or vector)
+    contexts. ,(var "(unquote obj ...)") is equivalent to ,(var "(unquote obj) ..."), and ,(var "(unquote-splicing obj ...)") is equivalent to
+    ,(var "(unquote-splicing obj) ..."). These forms are primarily useful as intermediate forms in the output of the quasiquote
+    expander. They support certain useful nested quasiquotation idioms ,(ref :bib 'b3), such as ,(var ",@,@,") which has the effect of a
+    doubly indirect splicing when used within a doubly nested and doubly evaluated quasiquote expression.])
+
+(src "
+`(a (unquote) b) → (a b)
+`(a (unquote (+ 3 3)) b) → (a 6 b)
+`(a (unquote (+ 3 3) (* 3 3)) b) → (a 6 9 b)
+
+(let ([x '(m n)]) ``(a ,@,@x f)) → `(a (unquote-splicing m n) f)
+(let ([x '(m n)])
+  (eval `(let ([m '(b c)] [n '(d e)]) `(a ,@,@x f))
+        (environment '(rnrs)))) → (a b c d e f)")
+
+(p [unquote and unquote-splicing are auxiliary keywords for quasiquote. It is a syntax violation to reference these
+    identifiers except in contexts where they are recognized as auxiliary keywords.]))
+
    (section :title [Generic Equivalence and Type Predicates]
-      (p [TODO]))
+      (p [This section describes the basic Scheme predicates (procedures returning one of the boolean values ,(var "#t") or ,(var "#f")) for
+    determining the type of an object or the equivalence of two objects. The equivalence predicates ,(var "eq?"), ,(var "eqv?"), and
+    ,(var "equal?") are discussed first, followed by the type predicates.])
+
+(formdef
+    :syntax "(eq? obj1 obj2)"
+    :returns "#t if obj1 and obj2 are identical, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [In most Scheme systems, two objects are considered identical if they are represented internally by the same pointer
+    value and distinct (not identical) if they are represented internally by different pointer values, although other
+    criteria, such as time-stamping, are possible.])
+
+(p [Although the particular rules for object identity vary somewhat from system to system, the following rules always
+    hold.])
+
+      (itemize
+         (item [Two objects of different types (booleans, the empty list, pairs, numbers, characters, strings, vectors, symbols,
+      and procedures) are distinct.])
+         (item [Two objects of the same type with different contents or values are distinct.])
+         (item [The boolean object ,(var "#t") is identical to itself wherever it appears, and ,(var "#f") is identical to itself wherever it
+                appears, but ,(var "#t") and ,(var "#f") are distinct.])
+         (item [The empty list ,(var "()") is identical to itself wherever it appears.])
+         (item [Two symbols are identical if and only if they have the same name (by ,(var "string=?")).])
+         (item [A constant pair, vector, string, or bytevector is identical to itself, as is a pair, vector, string, or bytevector
+      created by an application of cons, vector, string, make-bytevector, etc. Two pairs, vectors, strings, or
+      bytevectors created by different applications of cons, vector, string, make-bytevector, etc., are distinct. One
+      consequence is that cons, for example, may be used to create a unique object distinct from all other objects.])
+         (item [Two procedures that may behave differently are distinct. A procedure created by an evaluation of a lambda
+      expression is identical to itself. Two procedures created by the same lambda expression at different times, or by
+      similar lambda expressions, may or may not be distinct.]))
+
+        (p [eq? cannot be used to compare numbers and characters reliably. Although every inexact number is distinct from every
+    exact number, two exact numbers, two inexact numbers, or two characters with the same value may or may not be
+    identical.])
+
+    (p [Since constant objects are immutable, i.e., programs should not modify them via ,(var "vector-set!"), ,(var "set-car!"), or any other
+    structure mutation operation, all or portions of different quoted constants or self-evaluating literals may be
+    represented internally by the same object. Thus, ,(var "eq?") may return ,(var "#t") when applied to equal parts of different
+    immutable constants.])
+
+    (p [,(var "eq?") is most often used to compare symbols or to check for pointer equivalence of allocated objects, e.g., pairs,
+    vectors, or record instances.])
+
+(src "
+(eq? 'a 3) → #f
+(eq? #t 't) → #f
+(eq? \"abc\" 'abc) → #f
+(eq? \"hi\" '(hi)) → #f
+(eq? #f '()) → #f
+
+(eq? 9/2 7/2) → #f
+(eq? 3.4 53344) → #f
+(eq? 3 3.0) → #f
+(eq? 1/3 #i1/3) → #f
+
+(eq? 9/2 9/2) → unspecified
+(eq? 3.4 (+ 3.0 .4)) → unspecified
+(let ([x (* 12345678987654321 2)])
+  (eq? x x)) → unspecified
+
+(eq? #\\a #\\b) → #f
+(eq? #\\a #\\a) → unspecified
+(let ([x (string-ref \"hi\" 0)])
+  (eq? x x)) → unspecified
+
+(eq? #t #t) → #t
+(eq? #f #f) → #t
+(eq? #t #f) → #f
+(eq? (null? '()) #t) → #t
+(eq? (null? '(a)) #f) → #t
+
+(eq? (cdr '(a)) '()) → #t
+
+(eq? 'a 'a) → #t
+(eq? 'a 'b) → #f
+(eq? 'a (string->symbol \"a\")) → #t
+
+(eq? '(a) '(b)) → #f
+(eq? '(a) '(a)) → unspecified
+(let ([x '(a . b)]) (eq? x x)) → #t
+(let ([x (cons 'a 'b)])
+  (eq? x x)) → #t
+(eq? (cons 'a 'b) (cons 'a 'b)) → #f
+
+(eq? \"abc\" \"cba\") → #f
+(eq? \"abc\" \"abc\") → unspecified
+(let ([x \"hi\"]) (eq? x x)) → #t
+(let ([x (string #\\h #\\i)]) (eq? x x)) → #t
+(eq? (string #\\h #\\i)
+     (string #\\h #\\i)) → #f
+
+(eq? '#vu8(1) '#vu8(1)) → unspecified
+(eq? '#vu8(1) '#vu8(2)) → #f
+(let ([x (make-bytevector 10 0)])
+  (eq? x x)) → #t
+(let ([x (make-bytevector 10 0)])
+  (eq? x (make-bytevector 10 0))) → #f
+
+(eq? '#(a) '#(b)) → #f
+(eq? '#(a) '#(a)) → unspecified
+(let ([x '#(a)]) (eq? x x)) → #t
+(let ([x (vector 'a)])
+  (eq? x x)) → #t
+(eq? (vector 'a) (vector 'a)) → #f
+
+(eq? car car) → #t
+(eq? car cdr) → #f
+(let ([f (lambda (x) x)])
+  (eq? f f)) → #t
+(let ([f (lambda () (lambda (x) x))])
+  (eq? (f) (f))) → unspecified
+(eq? (lambda (x) x) (lambda (y) y)) → unspecified
+
+(let ([f (lambda (x)
+           (lambda ()
+             (set! x (+ x 1))
+             x))])
+  (eq? (f 0) (f 0))) → #f")
+
+(formdef
+    :syntax "(eqv? obj1 obj2)"
+    :returns "#t if obj1 and obj2 are equivalent, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "eqv?") is similar to ,(var "eq?") except ,(var "eqv?") is guaranteed to return ,(var "#t") for two characters that are considered equal by ,(var "char=?")
+    and two numbers that are (a) considered equal by = and (b) cannot be distinguished by any other operation besides
+    eq? and eqv?. A consequence of ,(var "(b)") is that ,(var "(eqv? -0.0 +0.0)") is ,(var "#f") even though ,(var "(= -0.0 +0.0)") is ,(var "#t") in systems that
+    distinguish -0.0 and +0.0, such as those based on IEEE floating-point arithmetic. This is because operations such as
+    ,(var "/") can expose the difference:])
+
+(src "
+(/ 1.0 -0.0) → -inf.0
+(/ 1.0 +0.0) → +inf.0")
+
+(p [Similarly, although 3.0 and 3.0+0.0i are considered numerically equal, they are not considered equivalent by ,(var "eqv?") if
+    -0.0 and 0.0 have different representations.])
+
+(src-lite "
+(= 3.0+0.0i 3.0) → #t
+(eqv? 3.0+0.0i 3.0) → #f")
+
+(p [The boolean value returned by ,(var eqv?) is not specified when the arguments are NaNs.])
+
+(src-lite "(eqv? +nan.0 (/ 0.0 0.0)) → unspecified")
+
+(p [,(var "eqv?") is less implementation-dependent but generally more expensive than ,(var "eq?").])
+
+(src "
+(eqv? 'a 3) → #f
+(eqv? #t 't) → #f
+(eqv? \"abc\" 'abc) → #f
+(eqv? \"hi\" '(hi)) → #f
+(eqv? #f '()) → #f
+
+(eqv? 9/2 7/2) → #f
+(eqv? 3.4 53344) → #f
+(eqv? 3 3.0) → #f
+(eqv? 1/3 #i1/3) → #f
+
+(eqv? 9/2 9/2) → #t
+(eqv? 3.4 (+ 3.0 .4)) → #t
+(let ([x (* 12345678987654321 2)])
+  (eqv? x x)) → #t
+
+(eqv? #\\a #\\b) → #f
+(eqv? #\\a #\\a) → #t
+(let ([x (string-ref \"hi\" 0)])
+  (eqv? x x)) → #t
+
+(eqv? #t #t) → #t
+(eqv? #f #f) → #t
+(eqv? #t #f) → #f
+(eqv? (null? '()) #t) → #t
+(eqv? (null? '(a)) #f) → #t
+
+(eqv? (cdr '(a)) '()) → #t
+
+(eqv? 'a 'a) → #t
+(eqv? 'a 'b) → #f
+(eqv? 'a (string->symbol \"a\")) → #t
+
+(eqv? '(a) '(b)) → #f
+(eqv? '(a) '(a)) → unspecified
+(let ([x '(a . b)]) (eqv? x x)) → #t
+(let ([x (cons 'a 'b)])
+  (eqv? x x)) → #t
+(eqv? (cons 'a 'b) (cons 'a 'b)) → #f
+
+(eqv? \"abc\" \"cba\") → #f
+(eqv? \"abc\" \"abc\") → unspecified
+(let ([x \"hi\"]) (eqv? x x)) → #t
+(let ([x (string #\\h #\\i)]) (eqv? x x)) → #t
+(eqv? (string #\\h #\\i)
+      (string #\\h #\\i)) → #f
+
+(eqv? '#vu8(1) '#vu8(1)) → unspecified
+(eqv? '#vu8(1) '#vu8(2)) → #f
+(let ([x (make-bytevector 10 0)])
+  (eqv? x x)) → #t
+(let ([x (make-bytevector 10 0)])
+  (eqv? x (make-bytevector 10 0))) → #f
+
+(eqv? '#(a) '#(b)) → #f
+(eqv? '#(a) '#(a)) → unspecified
+(let ([x '#(a)]) (eqv? x x)) → #t
+(let ([x (vector 'a)])
+  (eqv? x x)) → #t
+(eqv? (vector 'a) (vector 'a)) → #f
+
+(eqv? car car) → #t
+(eqv? car cdr) → #f
+(let ([f (lambda (x) x)])
+  (eqv? f f)) → #t
+(let ([f (lambda () (lambda (x) x))])
+  (eqv? (f) (f))) → unspecified
+(eqv? (lambda (x) x) (lambda (y) y)) → unspecified
+
+(let ([f (lambda (x)
+           (lambda ()
+             (set! x (+ x 1))
+             x))])
+  (eqv? (f 0) (f 0))) → #f")
+
+(formdef
+    :syntax "(equal? obj1 obj2)"
+    :returns "#t if obj1 and obj2 have the same structure and contents, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [Two objects are equal if they are equivalent according to eqv?, strings that are string=?, bytevectors that are
+    bytevector=?, pairs whose cars and cdrs are equal, or vectors of the same length whose corresponding elements are
+    equal.])
+
+(p [equal? is required to terminate even for cyclic arguments and return #t "if and only if the (possibly infinite)
+    unfoldings of its arguments into regular trees are equal as ordered trees" ,(ref :bib 'b24). In essence, two values are
+    equivalent, in the sense of equal?, if the structure of the two objects cannot be distinguished by any composition
+    of pair and vector accessors along with the eqv?, string=?, and bytevector=? procedures for comparing data at the
+    leaves.])
+
+(p [Implementing equal? efficiently is tricky ,(ref :bib 'b1), and even with a good implementation, it is likely to be more
+    expensive than either eqv? or eq?.])
+
+(src "
+(equal? 'a 3) → #f
+(equal? #t 't) → #f
+(equal? \"abc\" 'abc) → #f
+(equal? \"hi\" '(hi)) → #f
+(equal? #f '()) → #f
+
+(equal? 9/2 7/2) → #f
+(equal? 3.4 53344) → #f
+(equal? 3 3.0) → #f
+(equal? 1/3 #i1/3) → #f
+
+(equal? 9/2 9/2) → #t
+(equal? 3.4 (+ 3.0 .4)) → #t
+(let ([x (* 12345678987654321 2)])
+  (equal? x x)) → #t
+
+(equal? #\\a #\\b) → #f
+(equal? #\\a #\\a) → #t
+(let ([x (string-ref \"hi\" 0)])
+  (equal? x x)) → #t
+
+(equal? #t #t) → #t
+(equal? #f #f) → #t
+(equal? #t #f) → #f
+(equal? (null? '()) #t) → #t
+(equal? (null? '(a)) #f) → #t
+
+(equal? (cdr '(a)) '()) → #t
+
+(equal? 'a 'a) → #t
+(equal? 'a 'b) → #f
+(equal? 'a (string->symbol \"a\")) → #t
+
+(equal? '(a) '(b)) → #f
+(equal? '(a) '(a)) → #t
+(let ([x '(a . b)]) (equal? x x)) → #t
+(let ([x (cons 'a 'b)])
+  (equal? x x)) → #t
+(equal? (cons 'a 'b) (cons 'a 'b)) → #t
+
+(equal? \"abc\" \"cba\") → #f
+(equal? \"abc\" \"abc\") → #t
+(let ([x \"hi\"]) (equal? x x)) → #t
+(let ([x (string #\\h #\\i)]) (equal? x x)) → #t
+(equal? (string #\\h #\\i)
+        (string #\\h #\\i)) → #t
+
+(equal? '#vu8(1) '#vu8(1)) → #t
+(equal? '#vu8(1) '#vu8(2)) → #f
+(let ([x (make-bytevector 10 0)])
+  (equal? x x)) → #t
+(let ([x (make-bytevector 10 0)])
+  (equal? x (make-bytevector 10 0))) → #t
+
+(equal? '#(a) '#(b)) → #f
+(equal? '#(a) '#(a)) → #t
+(let ([x '#(a)]) (equal? x x)) → #t
+(let ([x (vector 'a)])
+  (equal? x x)) → #t
+(equal? (vector 'a) (vector 'a)) → #t
+
+(equal? car car) → #t
+(equal? car cdr) → #f
+(let ([f (lambda (x) x)])
+  (equal? f f)) → #t
+(let ([f (lambda () (lambda (x) x))])
+  (equal? (f) (f))) → unspecified
+(equal? (lambda (x) x) (lambda (y) y)) → unspecified
+
+(let ([f (lambda (x)
+           (lambda ()
+             (set! x (+ x 1))
+             x))])
+  (equal? (f 0) (f 0))) → #f
+
+(equal?
+  (let ([x (cons 'x 'x)])
+    (set-car! x x)
+    (set-cdr! x x)
+    x)
+  (let ([x (cons 'x 'x)])
+    (set-car! x x)
+    (set-cdr! x x)
+    (cons x x))) → #t")
+
+(formdef
+    :syntax "(boolean? obj)"
+    :returns "#t if obj is either #t or #f, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "boolean?") is equivalent to ,(code "(lambda (x) (or (eq? x #t) (eq? x #f)))").])
+
+(src "
+(boolean? #t) → #t
+(boolean? #f) → #t
+(or (boolean? 't) (boolean? '())) → #f")
+
+(formdef
+    :syntax "(null? obj)"
+    :returns "#t if obj is the empty list, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "null?") is equivalent to ,(code "(lambda (x) (eq? x '()))").])
+
+(src "
+(null? '()) → #t
+(null? '(a)) → #f
+(null? (cdr '(a))) → #t
+(null? 3) → #f
+(null? #f) → #f")
+
+(formdef
+    :syntax "(pair? obj)"
+    :returns "#t if obj is a pair, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(pair? '(a b c)) → #t
+(pair? '(3 . 4)) → #t
+(pair? '()) → #f
+(pair? '#(a b)) → #f
+(pair? 3) → #f")
+
+(formdef
+    :syntax "(number? obj)"
+    :returns "#t if obj is a number object, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(complex? obj)"
+    :returns "#t if obj is a complex number object, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(real? obj)"
+    :returns "#t if obj is a real number object, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(rational? obj)"
+    :returns "#t if obj is a rational number object, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(integer? obj)"
+    :returns "#t if obj is an integer object, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [These predicates form a hierarchy: any integer is rational, any rational is real, any real is complex, and any
+    complex is numeric. Most implementations do not provide internal representations for irrational numbers, so all real
+    numbers are typically rational as well.])
+
+(p [The ,(var real?), ,(var rational?), and ,(var integer?) predicates do not recognize as real, rational, or integer complex numbers with
+    inexact zero imaginary parts.])
+
+(src "
+(integer? 1901) → #t
+(rational? 1901) → #t
+(real? 1901) → #t
+(complex? 1901) → #t
+(number? 1901) → #t
+
+(integer? -3.0) → #t
+(rational? -3.0) → #t
+(real? -3.0) → #t
+(complex? -3.0) → #t
+(number? -3.0) → #t
+
+(integer? 7+0i) → #t
+(rational? 7+0i) → #t
+(real? 7+0i) → #t
+(complex? 7+0i) → #t
+(number? 7+0i) → #t
+
+(integer? -2/3) → #f
+(rational? -2/3) → #t
+(real? -2/3) → #t
+(complex? -2/3) → #t
+(number? -2/3) → #t
+
+(integer? -2.345) → #f
+(rational? -2.345) → #t
+(real? -2.345) → #t
+(complex? -2.345) → #t
+(number? -2.345) → #t
+
+(integer? 7.0+0.0i) → #f
+(rational? 7.0+0.0i) → #f
+(real? 7.0+0.0i) → #f
+(complex? 7.0+0.0i) → #t
+(number? 7.0+0.0i) → #t
+
+(integer? 3.2-2.01i) → #f
+(rational? 3.2-2.01i) → #f
+(real? 3.2-2.01i) → #f
+(complex? 3.2-2.01i) → #t
+(number? 3.2-2.01i) → #t
+
+(integer? 'a) → #f
+(rational? '(a b c)) → #f
+(real? \"3\") → #f
+(complex? '#(1 2)) → #f
+(number? #\\a) → #f")
+
+(formdef
+    :syntax "(real-valued? obj)"
+    :returns "#t if obj is a real number, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(rational-valued? obj)"
+    :returns "#t if obj is a rational number, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(integer-valued? obj)"
+    :returns "#t if obj is an integer, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [These predicates are similar to ,(var "real?"), ,(var "rational?"), and ,(var "integer?"), but treat as real, rational, or integral complex
+    numbers with inexact zero imaginary parts.])
+
+(src "
+(integer-valued? 1901) → #t
+(rational-valued? 1901) → #t
+(real-valued? 1901) → #t
+
+(integer-valued? -3.0) → #t
+(rational-valued? -3.0) → #t
+(real-valued? -3.0) → #t
+
+(integer-valued? 7+0i) → #t
+(rational-valued? 7+0i) → #t
+(real-valued? 7+0i) → #t
+
+(integer-valued? -2/3) → #f
+(rational-valued? -2/3) → #t
+(real-valued? -2/3) → #t
+
+(integer-valued? -2.345) → #f
+(rational-valued? -2.345) → #t
+(real-valued? -2.345) → #t
+
+(integer-valued? 7.0+0.0i) → #t
+(rational-valued? 7.0+0.0i) → #t
+(real-valued? 7.0+0.0i) → #t
+
+(integer-valued? 3.2-2.01i) → #f
+(rational-valued? 3.2-2.01i) → #f
+(real-valued? 3.2-2.01i) → #f")
+
+(p [As with ,(var "real?"), ,(var "rational?"), and ,(var "integer?"), these predicates return ,(var "#f") for all non-numeric values.])
+
+(src "
+(integer-valued? 'a) → #f
+(rational-valued? '(a b c)) → #f
+(real-valued? \"3\") → #f")
+
+(formdef
+    :syntax "(char? obj)"
+    :returns "#t if obj is a character, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(char? 'a) → #f
+(char? 97) → #f
+(char? #\\a) → #t
+(char? \"a\") → #f
+(char? (string-ref (make-string 1) 0)) → #t")
+
+(formdef
+    :syntax "(string? obj)"
+    :returns "#t if obj is a string, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(string? \"hi\") → #t
+(string? 'hi) → #f
+(string? #\\h) → #f")
+
+(formdef
+    :syntax "(vector? obj)"
+    :returns "#t if obj is a vector, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(vector? '#()) → #t
+(vector? '#(a b c)) → #t
+(vector? (vector 'a 'b 'c)) → #t
+(vector? '()) → #f
+(vector? '(a b c)) → #f
+(vector? \"abc\") → #f")
+
+(formdef
+    :syntax "(symbol? obj)"
+    :returns "#t if obj is a symbol, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(symbol? 't) → #t
+(symbol? \"t\") → #f
+(symbol? '(t)) → #f
+(symbol? #\\t) → #f
+(symbol? 3) → #f
+(symbol? #t) → #f")
+
+(formdef
+    :syntax "(procedure? obj)"
+    :returns "#t if obj is a procedure, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(procedure? car) → #t
+(procedure? 'car) → #f
+(procedure? (lambda (x) x)) → #t
+(procedure? '(lambda (x) x)) → #f
+(call/cc procedure?) → #t")
+
+(formdef
+    :syntax "(bytevector? obj)"
+    :returns "#t if obj is a bytevector, #f otherwise"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(src "
+(bytevector? #vu8()) → #t
+(bytevector? '#()) → #f
+(bytevector? \"abc\") → #f")
+
+(formdef
+    :syntax "(hashtable? obj)"
+    :returns "#t if obj is a hashtable, #f otherwise"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(src "
+(hashtable? (make-eq-hashtable)) → #t
+(hashtable? '(not a hash table)) → #f"))
+
    (section :title [Lists and Pairs]
-      (p [TODO]))
-   (section :title [Numbers]
-      (p [TODO]))
+      (p [The pair, or cons cell, is the most fundamental of Scheme's structured object types. The most common use for pairs
+    is to build lists, which are ordered sequences of pairs linked one to the next by the cdr field. The elements of the
+    list occupy the car fields of the pairs. The cdr of the last pair in a proper list is the empty list, ,(var "()")\; the cdr of
+    the last pair in an improper list can be anything other than ,(var "()").])
+
+    (p [Pairs may be used to construct binary trees. Each pair in the tree structure is an internal node of the binary tree;
+    its car and cdr are the children of the node.])
+
+    (p [Proper lists are printed as sequences of objects separated by whitespace and enclosed in parentheses. Matching pairs
+    of brackets (\[ \]) may be used in place of parentheses. For example, ,(var "(1 2 3)") and ,(var "(a [nested list])") are proper
+    lists. The empty list is written as ,(var "()").])
+
+    (p [Improper lists and trees require a slightly more complex syntax. A single pair is written as two objects separated
+    by whitespace and a dot, e.g., ,(var "(a . b)"). This is referred to as dotted-pair notation. Improper lists and trees are
+    also written in dotted-pair notation; the dot appears wherever necessary, e.g., ,(var "(1 2 3 . 4)") or ,(var "((1 . 2) . 3)"). Proper
+    lists may be written in dotted-pair notation as well. For example, ,(var "(1 2 3)") may be written as ,(var "(1 . (2 . (3 . ())))").])
+
+    (p [It is possible to create a circular list or a cyclic graph by destructively altering the car or cdr field of a pair,
+    using ,(var "set-car!") or ,(var "set-cdr!"). Such lists are not considered proper lists.])
+
+    (p [Procedures that accept a list argument are required to detect that the list is improper only to the extent that they
+    actually traverse the list far enough either ,(var "(a)") to attempt to operate on a non-list tail or ,(var "(b)") to loop
+    indefinitely due to a circularity. For example, member need not detect that a list is improper if it actually finds
+    the element being sought, and ,(var "list-ref") need never detect circularities, because its recursion is bounded by the
+    index argument.])
+
+(formdef
+    :syntax "(cons obj1 obj2)"
+    :returns "a new pair whose car and cdr are obj1 and obj2"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "cons") is the pair constructor procedure. ,(var "obj1") becomes the ,(var "car") and ,(var "obj2") becomes the ,(var "cdr") of the new pair.])
+
+(src "
+(cons 'a '()) → (a)
+(cons 'a '(b c)) → (a b c)
+(cons 3 4) → (3 . 4)")
+
+(formdef
+    :syntax "(car pair)"
+    :returns "the car of pair"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The empty list is not a pair, so the argument must not be the empty list.])
+
+(src "
+(car '(a)) → a
+(car '(a b c)) → a
+(car (cons 3 4)) → 3")
+
+(formdef
+    :syntax "(cdr pair)"
+    :returns "the cdr of pair"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The empty list is not a pair, so the argument must not be the empty list.])
+
+(src "
+(cdr '(a)) → ()
+(cdr '(a b c)) → (b c)
+(cdr (cons 3 4)) → 4")
+
+(formdef
+    :syntax "(set-car! pair obj)"
+    :returns "unspecified"
+    :libraries "(rnrs mutable-pairs)")
+
+(p [,(var "set-car!") changes the ,(var "car") of pair to ,(var "obj").])
+
+(src "
+(let ([x (list 'a 'b 'c)])
+  (set-car! x 1)
+  x) → (1 b c)")
+
+(formdef
+    :syntax "(set-cdr! pair obj)"
+    :returns "unspecified"
+    :libraries "(rnrs mutable-pairs)")
+
+(p [,(var "set-cdr!") changes the ,(var "cdr") of pair to ,(var "obj").])
+
+(src "
+(let ([x (list 'a 'b 'c)])
+  (set-cdr! x 1)
+  x) → (a . 1)")
+
+(formdef
+    :syntax '("(caar pair)"
+              "(cadr pair)  →"
+              "(cddddr pair)")
+    :returns "the caar, cadr, ..., or cddddr of pair"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [These procedures are defined as the composition of up to four cars and cdrs. The a's and d's between the c and r
+    represent the application of ,(var "car") or ,(var "cdr") in order from right to left. For example, the procedure cadr applied to a
+    pair yields the car of the cdr of the pair and is equivalent to ,(var "(lambda (x) (car (cdr x)))").])
+
+(src "
+(caar '((a))) → a
+(cadr '(a b c)) → b
+(cdddr '(a b c d)) → (d)
+(cadadr '(a (b c))) → c")
+
+(formdef
+    :syntax "(list obj ...)"
+    :returns "a list of obj ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(p [list is equivalent to ,(var "(lambda x x)").])
+
+(src "
+(list) → ()
+(list 1 2 3) → (1 2 3)
+(list 3 2 1) → (3 2 1)")
+
+(formdef
+    :syntax "(cons* obj ... final-obj)"
+    :returns "a list of obj ... terminated by final-obj"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [If the objects ,(var "obj ...") are omitted, the result is simply ,(var "final-obj"). Otherwise, a list of ,(var "obj ...") is constructed, as
+    with list, except that the final ,(var "cdr") field is ,(var "final-obj") instead of ,(var "()"). If ,(var "final-obj") is not a list, the result is an
+    improper list.])
+
+(src "
+(cons* '()) → ()
+(cons* '(a b)) → (a b)
+(cons* 'a 'b 'c) → (a b . c)
+(cons* 'a 'b '(c d)) → (a b c d)")
+
+(formdef
+    :syntax "(list? obj)"
+    :returns "#t if obj is a proper list, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "list?") must return ,(var "#f") for all improper lists, including cyclic lists. A definition of ,(var "list?") is shown on page 67.])
+
+(src "
+(list? '()) → #t
+(list? '(a b c)) → #t
+(list? 'a) → #f
+(list? '(3 . 4)) → #f
+(list? 3) → #f
+(let ([x (list 'a 'b 'c)])
+  (set-cdr! (cddr x) x)
+  (list? x)) → #f")
+
+(formdef
+    :syntax "(length list)"
+    :returns "the number of elements in list"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "length") may be defined as follows, using an adaptation of the hare and tortoise algorithm used for the definition of
+    ,(var "list?") on page 67.])
+
+(src "
+(define length
+  (lambda (x)
+    (define improper-list
+      (lambda ()
+        (assertion-violation 'length \"not a proper list\" x)))
+
+    (let f ([h x] [t x] [n 0])
+      (if (pair? h)
+          (let ([h (cdr h)])
+            (if (pair? h)
+                (if (eq? h t)
+                    (improper-list)
+                    (f (cdr h) (cdr t) (+ n 2)))
+                (if (null? h)
+                    (+ n 1)
+                    (improper-list))))
+          (if (null? h)
+              n
+              (improper-list))))))
+
+(length '()) → 0
+(length '(a b c)) → 3
+(length '(a b . c)) → exception
+(length
+  (let ([ls (list 'a 'b)])
+    (set-cdr! (cdr ls) ls) → exception
+    ls))
+(length
+  (let ([ls (list 'a 'b)])
+    (set-car! (cdr ls) ls) → 2
+    ls))")
+
+(formdef
+    :syntax "(list-ref list n)"
+    :returns "the nth element (zero-based) of list"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "n") must be an exact nonnegative integer less than the length of list. ,(var "list-ref") may be defined without error checks as follows.])
+
+(src "
+(define list-ref
+  (lambda (ls n)
+    (if (= n 0)
+        (car ls)
+        (list-ref (cdr ls) (- n 1)))))
+
+(list-ref '(a b c) 0) → a
+(list-ref '(a b c) 1) → b
+(list-ref '(a b c) 2) → c")
+
+(formdef
+    :syntax "(list-tail list n)"
+    :returns "the nth tail (zero-based) of list"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "n") must be an exact nonnegative integer less than or equal to the length of list. The result is not a copy\; the tail
+    is ,(var "eq?") to the nth ,(var "cdr") of list (or to list itself, if ,(var "n") is zero).])
+
+(p [,(var "list-tail") may be defined without error checks as follows.])
+
+(src "
+(define list-tail
+  (lambda (ls n)
+    (if (= n 0)
+        ls
+        (list-tail (cdr ls) (- n 1)))))
+
+(list-tail '(a b c) 0) → (a b c)
+(list-tail '(a b c) 2) → (c)
+(list-tail '(a b c) 3) → ()
+(list-tail '(a b c . d) 2) → (c . d)
+(list-tail '(a b c . d) 3) → d
+(let ([x (list 1 2 3)])
+  (eq? (list-tail x 2)
+       (cddr x))) → #t")
+
+(formdef
+    :syntax '("(append)"
+              "(append list ... obj)")
+    :returns "the concatenation of the input lists"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "append") returns a new list consisting of the elements of the first list followed by the elements of the second list,
+    the elements of the third list, and so on. The new list is made from new pairs for all arguments but the last\; the
+    last (which need not be a list) is merely placed at the end of the new structure. append may be defined without
+    error checks as follows.])
+
+(src "
+(define append
+  (lambda args
+    (let f ([ls '()] [args args])
+      (if (null? args)
+          ls
+          (let g ([ls ls])
+            (if (null? ls)
+                (f (car args) (cdr args))
+                (cons (car ls) (g (cdr ls)))))))))
+
+(append '(a b c) '()) → (a b c)
+(append '() '(a b c)) → (a b c)
+(append '(a b) '(c d)) → (a b c d)
+(append '(a b) 'c) → (a b . c)
+(let ([x (list 'b)])
+  (eq? x (cdr (append '(a) x)))) → #t")
+
+(formdef
+    :syntax "(reverse list)"
+    :returns "a new list containing the elements of list in reverse order"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [,(var "reverse") may be defined without error checks as follows.])
+
+(src "
+(define reverse
+  (lambda (ls)
+    (let rev ([ls ls] [new '()])
+      (if (null? ls)
+          new
+          (rev (cdr ls) (cons (car ls) new))))))
+
+(reverse '()) → ()
+(reverse '(a b c)) → (c b a)")
+
+(formdef
+    :syntax '("(memq obj list)"
+              "(memv obj list)"
+              "(member obj list)")
+    :returns "the first tail of list whose car is equivalent to obj, or #f"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [These procedures traverse the argument list in order, comparing the elements of list against obj. If an object
+    equivalent to ,(var "obj") is found, the tail of the list whose first element is that object is returned. If the list
+    contains more than one object equivalent to obj, the first tail whose first element is equivalent to ,(var "obj") is
+    returned. If no object equivalent to ,(var "obj") is found, ,(var "#f") is returned. The equivalence test for ,(var "memq") is ,(var "eq?"), for ,(var "memv") is
+    ,(var "eqv?"), and for ,(var "member") is ,(var "equal?").])
+
+(p [These procedures are most often used as predicates, but their names do not end with a question mark because they
+    return a useful true value in place of ,(var "#t"). memq may be defined without error checks as follows.])
+
+(src "
+(define memq
+  (lambda (x ls)
+    (cond
+      [(null? ls) #f]
+      [(eq? (car ls) x) ls]
+      [else (memq x (cdr ls))])))")
+
+(p [,(var "memv") and ,(var "member") may be defined similarly, with ,(var "eqv?") and ,(var "equal?") in place of ,(var "eq?").])
+
+(src "
+(memq 'a '(b c a d e)) → (a d e)
+(memq 'a '(b c d e g)) → #f
+(memq 'a '(b a c a d a)) → (a c a d a)
+
+(memv 3.4 '(1.2 2.3 3.4 4.5)) → (3.4 4.5)
+(memv 3.4 '(1.3 2.5 3.7 4.9)) → #f
+(let ([ls (list 'a 'b 'c)])
+  (set-car! (memv 'b ls) 'z)
+  ls) → (a z c)
+
+(member '(b) '((a) (b) (c))) → ((b) (c))
+(member '(d) '((a) (b) (c))) → #f
+(member \"b\" '(\"a\" \"b\" \"c\")) → (\"b\" \"c\")
+
+(let ()
+  (define member?
+    (lambda (x ls)
+      (and (member x ls) #t)))
+  (member? '(b) '((a) (b) (c)))) → #t
+
+(define count-occurrences
+  (lambda (x ls)
+    (cond
+      [(memq x ls) =>
+       (lambda (ls)
+         (+ (count-occurrences x (cdr ls)) 1))]
+      [else 0])))
+
+(count-occurrences 'a '(a b c d a)) → 2")
+
+(formdef
+    :syntax "(memp procedure list)"
+    :returns "the first tail of list for whose car procedure returns true, or #f"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [,(var "procedure") should accept one argument and return a single value. It should not modify list.])
+
+(src "
+(memp odd? '(1 2 3 4)) → (1 2 3 4)
+(memp even? '(1 2 3 4)) → (2 3 4)
+(let ([ls (list 1 2 3 4)])
+  (eq? (memp odd? ls) ls)) → #t
+(let ([ls (list 1 2 3 4)])
+  (eq? (memp even? ls) (cdr ls))) → #t
+(memp odd? '(2 4 6 8)) → #f")
+
+(formdef
+    :syntax '("(remq obj list)"
+              "(remv obj list)"
+              "(remove obj list)")
+    :returns "a list containing the elements of list with all occurrences of obj removed"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [These procedures traverse the argument list, removing any objects that are equivalent to obj. The elements remaining
+    in the output list are in the same order as they appear in the input list. If a tail of list (including list itself)
+    contains no occurrences of obj, the corresponding tail of the result list may be the same (by eq?) as the tail of
+    the input list.])
+
+(p [The equivalence test for ,(var "remq") is ,(var "eq?"), for ,(var "remv") is ,(var "eqv?"), and for remove is ,(var "equal?").])
+
+(src "
+(remq 'a '(a b a c a d)) → (b c d)
+(remq 'a '(b c d)) → (b c d)
+
+(remv 1/2 '(1.2 1/2 0.5 3/2 4)) → (1.2 0.5 3/2 4)
+
+(remove '(b) '((a) (b) (c))) → ((a) (c))")
+
+(formdef
+    :syntax "(remp procedure list)"
+    :returns "a list of the elements of list for which procedure returns #f"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [,(var "procedure") should accept one argument and return a single value. It should not modify list.])
+
+(p [,(var "remp") applies ,(var "procedure") to each element of list and returns a list containing only the elements for which procedure
+    returns ,(var "#f"). The elements of the returned list appear in the same order as they appeared in the original list.])
+
+(src "
+(remp odd? '(1 2 3 4)) → (2 4)
+(remp
+  (lambda (x) (and (> x 0) (< x 10)))
+  '(-5 15 3 14 -20 6 0 -9)) → (-5 15 14 -20 0 -9)")
+
+(formdef
+    :syntax "(filter procedure list)"
+    :returns "a list of the elements of list for which procedure returns true"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [,(var "procedure") should accept one argument and return a single value. It should not modify list.])
+
+(p [,(var "filter") applies procedure to each element of ,(var "list") and returns a new list containing only the elements for which
+    procedure returns true. The elements of the returned list appear in the same order as they appeared in the original
+    list.])
+
+(src "
+(filter odd? '(1 2 3 4)) → (1 3)
+(filter
+  (lambda (x) (and (> x 0) (< x 10)))
+  '(-5 15 3 14 -20 6 0 -9)) → (3 6)")
+
+(formdef
+    :syntax "(partition procedure list)"
+    :returns "see below"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [,(var "procedure") should accept one argument and return a single value. It should not modify list.])
+
+(p [,(var "partition") applies procedure to each element of list and returns two values: a new list containing only the elements
+    for which procedure returns true, and a new list containing only the elements for which procedure returns ,(var "#f"). The
+    elements of the returned lists appear in the same order as they appeared in the original list.])
+
+(src "
+(partition odd? '(1 2 3 4)) → (1 3)
+                             (2 4)
+(partition
+  (lambda (x) (and (> x 0) (< x 10)))
+  '(-5 15 3 14 -20 6 0 -9)) → (3 6)
+                             (-5 15 14 -20 0 -9)")
+
+(p [The values returned by ,(var "partition") can be obtained by calling filter and remp separately, but this would require two
+    calls to procedure for each element of list.])
+
+(formdef
+    :syntax "(find procedure list)"
+    :returns "the first element of list for which procedure returns true, or #f"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [procedure should accept one argument and return a single value. It should not modify list.])
+
+(p [,(var "find") traverses the argument list in order, applying ,(var "procedure") to each element in turn. If procedure returns a true
+    value for a given element, find returns that element without applying procedure to the remaining elements. If
+    procedure returns ,(var "#f") for each element of list, find returns ,(var "#f").])
+
+(p [If a program must distinguish between finding ,(var "#f") in the list and finding no element at all, memp should be used
+    instead.])
+
+(src "
+(find odd? '(1 2 3 4)) → 1
+(find even? '(1 2 3 4)) → 2
+(find odd? '(2 4 6 8)) → #f
+(find not '(1 a #f 55)) → #f")
+
+(formdef
+    :syntax '("(assq obj alist)"
+              "(assv obj alist)"
+              "(assoc obj alist)")
+    :returns "first element of alist whose car is equivalent to obj, or #f"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [The argument alist must be an association list. An association list is a proper list whose elements are key-value
+    pairs of the form ,(var "(key . value)"). Associations are useful for storing information (values) associated with certain
+    objects (keys).])
+
+(p [These procedures traverse the association list, testing each key for equivalence with obj. If an equivalent key is
+    found, the key-value pair is returned. Otherwise, ,(var "#f") is returned.])
+
+(p [The equivalence test for ,(var "assq") is ,(var "eq?"), for ,(var "assv") is ,(var "eqv?"), and for ,(var "assoc") is ,(var "equal?"). ,(var "assq") may be defined without error
+    checks as follows.])
+
+(src "
+(define assq
+  (lambda (x ls)
+    (cond
+      [(null? ls) #f]
+      [(eq? (caar ls) x) (car ls)]
+      [else (assq x (cdr ls))])))")
+
+(p [,(var "assv") and ,(var "assoc") may be defined similarly, with ,(var "eqv?") and ,(var "equal?") in place of ,(var "eq?").])
+
+(src "
+(assq 'b '((a . 1) (b . 2))) → (b . 2)
+(cdr (assq 'b '((a . 1) (b . 2)))) → 2
+(assq 'c '((a . 1) (b . 2))) → #f
+
+(assv 2/3 '((1/3 . 1) (2/3 . 2))) → (2/3 . 2)
+(assv 2/3 '((1/3 . a) (3/4 . b))) → #f
+
+(assoc '(a) '(((a) . a) (-1 . b))) → ((a) . a)
+(assoc '(a) '(((b) . b) (a . c))) → #f
+
+(let ([alist (list (cons 2 'a) (cons 3 'b))])
+  (set-cdr! (assv 3 alist) 'c)
+  alist) → ((2 . a) (3 . c))")
+
+(p [The interpreter given in Section 12.7 represents environments as association lists and uses ,(var "assq") for both variable
+    lookup and assignment.])
+
+(formdef
+    :syntax "(assp procedure alist)"
+    :returns "first element of alist for whose car procedure returns true, or #f"
+    :libraries "(rnrs lists), (rnrs)")
+
+(p [,(var "alist") must be an association list. An association list is a proper list whose elements are key-value pairs of the
+    form (key . value). procedure should accept one argument and return a single value. It should not modify list.])
+
+(src "
+(assp odd? '((1 . a) (2 . b))) → (1 . a)
+(assp even? '((1 . a) (2 . b))) → (2 . b)
+(let ([ls (list (cons 1 'a) (cons 2 'b))])
+  (eq? (assp odd? ls) (car ls))) → #t
+(let ([ls (list (cons 1 'a) (cons 2 'b))])
+  (eq? (assp even? ls) (cadr ls))) → #t
+(assp odd? '((2 . b))) → #f")
+
+(formdef
+    :syntax "(list-sort predicate list)"
+    :returns "a list containing the elements of list sorted according to predicate"
+    :libraries "(rnrs sorting), (rnrs)")
+
+(p [,(var "predicate") should be a procedure that expects two arguments and returns ,(var "#t") if its first argument must precede its
+    second in the sorted list. That is, if predicate is applied to two elements ,(var "x") and ,(var "y"), where ,(var "x") appears after ,(var "y") in the
+    input list, it should return true only if ,(var "x") should appear before ,(var "y") in the output list. If this constraint is met,
+    ,(var "list-sort") performs a stable sort, i.e., two elements are reordered only when necessary according to
+    predicate. Duplicate elements are not removed. This procedure may call predicate up to nlogn times, where n is the
+    length of list.])
+
+(src "
+(list-sort < '(3 4 2 1 2 5)) → (1 2 2 3 4 5)
+(list-sort > '(0.5 1/2)) → (0.5 1/2)
+(list-sort > '(1/2 0.5)) → (1/2 0.5)
+(list->string
+  (list-sort char>?
+    (string->list \"hello\"))) → \"ollhe\""))
+
+(section :title [Numbers]
+      (p [Scheme numbers may be classified as integers, rational numbers, real numbers, or complex numbers. This
+    classification is hierarchical, in that all integers are rational, all rational numbers are real, and all real
+    numbers are complex. The predicates integer?, rational?, real?, and complex? described in Section 6.2 are used to
+    determine into which of these classes a number falls.])
+
+    (p [A Scheme number may also be classified as exact or inexact, depending upon the quality of operations used to derive
+    the number and the inputs to these operations. The predicates exact? and inexact? may be used to determine the
+    exactness of a number. Most operations on numbers in Scheme are exactness preserving: if given exact operands they
+    return exact values, and if given inexact operands or a combination of exact and inexact operands they return
+    inexact values.])
+
+    (p [Exact integer and rational arithmetic is typically supported to arbitrary precision\; the size of an integer or of
+    the denominator or numerator of a ratio is limited only by system storage constraints. Although other
+    representations are possible, inexact numbers are typically represented by floating-point numbers supported by the
+    host computer's hardware or by system software. Complex numbers are typically represented as ordered pairs
+    (real-part, imag-part), where real-part and imag-part are exact integers, exact rationals, or floating-point
+    numbers.])
+
+    (p [Scheme numbers are written in a straightforward manner not much different from ordinary conventions for writing
+    numbers. An exact integer is normally written as a sequence of numerals preceded by an optional sign. For example,
+    3, +19, -100000, and 208423089237489374 all represent exact integers.])
+
+    (p [An exact rational number is normally written as two sequences of numerals separated by a slash (/) and preceded by
+    an optional sign. For example, 3/4, -6/5, and 1/1208203823 are all exact rational numbers. A ratio is reduced
+    immediately to lowest terms when it is read and may in fact reduce to an exact integer.])
+
+    (p [Inexact real numbers are normally written in either floating-point or scientific notation. Floating-point notation
+    consists of a sequence of numerals followed by a decimal point and another sequence of numerals, all preceded by an
+    optional sign. Scientific notation consists of an optional sign, a sequence of numerals, an optional decimal point
+    followed by a second string of numerals, and an exponent; an exponent is written as the letter e followed by an
+    optional sign and a sequence of numerals. For example, 1.0 and -200.0 are valid inexact integers, and 1.5, 0.034,
+    -10e-10 and 1.5e-5 are valid inexact rational numbers. The exponent is the power of ten by which the number
+    preceding the exponent should be scaled, so that 2e3 is equivalent to 2000.0.])
+
+    (p [A mantissa width |w may appear as the suffix of a real number or the real components of a complex number written in
+    floating-point or scientific notation. The mantissa width w represents the number of significant bits in the
+    representation of the number. The mantissa width defaults to 53, the number of significant bits in a normalized IEEE
+    double floating-point number, or more. For denormalized IEEE double floating-point numbers, the mantissa width is
+    less than 53. If an implementation cannot represent a number with the mantissa width specified, it uses a
+    representation with at least as many significant bits as requested if possible, otherwise it uses its representation
+    with the largest mantissa width.])
+
+    (p [Exact and inexact real numbers are written as exact or inexact integers or rational numbers; no provision is made in
+    the syntax of Scheme numbers for nonrational real numbers, i.e., irrational numbers.])
+
+    (p [Complex numbers may be written in either rectangular or polar form. In rectangular form, a complex number is written
+    as x+yi or x-yi, where x is an integer, rational, or real number and y is an unsigned integer, rational, or real
+    number. The real part, x, may be omitted, in which case it is assumed to be zero. For example, 3+4i, 3.2-3/4i, +i,
+    and -3e-5i are complex numbers written in rectangular form. In polar form, a complex number is written as x@y, where
+    x and y are integer, rational, or real numbers. For example, 1.1@1.764 and -1@-1/2 are complex numbers written in
+    polar form.])
+
+    (p [The syntaxes +inf.0 and -inf.0 represent inexact real numbers that represent positive and negative infinity. The
+    syntaxes +nan.0 and -nan.0 represent an inexact "not-a-number" (NaN) value. Infinities may be produced by dividing
+    inexact positive and negative values by inexact zero, and NaNs may also be produced by dividing inexact zero by
+    inexact zero, among other ways.])
+
+    (p [The exactness of a numeric representation may be overridden by preceding the representation by either #e or #i. #e
+    forces the number to be exact, and #i forces it to be inexact. For example, 1, #e1, 1/1, #e1/1, #e1.0, and #e1e0 all
+    represent the exact integer 1, and #i3/10, 0.3, #i0.3, and 3e-1 all represent the inexact rational 0.3.])
+
+    (p [Numbers are written by default in base 10, although the special prefixes #b (binary), #o (octal), #d (decimal), and
+    #x (hexadecimal) can be used to specify base 2, base 8, base 10, or base 16. For radix 16, the letters a through f
+    or A through F serve as the additional numerals required to express digit values 10 through 15. For example, #b10101
+    is the binary equivalent of 2110, #o72 is the octal equivalent of 5810, and #xC7 is the hexadecimal equivalent
+    of 19910. Numbers written in floating-point and scientific notations are always written in base 10.])
+
+    (p [If both are present, radix and exactness prefixes may appear in either order.])
+
+    (p [A Scheme implementation may support more than one size of internal representation for inexact quantities. The
+    exponent markers s (short), f (single), d (double), and l (long) may appear in place of the default exponent marker
+    e to override the default size for numbers written in scientific notation. In implementations that support multiple
+    representations, the default size has at least as much precision as double.])
+
+    (p [A precise grammar for Scheme numbers is given on page 459.])
+
+    (p [Any number can be written in a variety of different ways, but the system printer (invoked by put-datum, write, and
+    display) and number->string express numbers in a compact form, using the fewest number of digits necessary to retain
+    the property that, when read, the printed number is identical to the original number.])
+
+    (p [The remainder of this section describes "generic arithmetic" procedures that operate on numbers. The two sections
+    that follow this section describe operations specific to fixnums and flonums, which are representations of exact,
+    fixed-precision integer values and inexact real values.])
+
+    (p [The types of numeric arguments accepted by the procedures in this section are implied by the names given to the
+    arguments: num for complex numbers (that is, all numbers), real for real numbers, rat for rational numbers, and int
+    for integers. If a real, rat, or int is required, the argument must be considered real, rational, or integral by
+    real?, rational?, or integer?, i.e., the imaginary part of the number must be exactly zero. Where exact integers are
+    required, the name exint is used. In each case, a suffix may appear on the name, e.g., int2.])
+
+(formdef
+    :syntax "(exact? num)"
+    :returns "#t if num is exact, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(exact? 1) → #t
+(exact? -15/16) → #t
+(exact? 2.01) → #f
+(exact? #i77) → #f
+(exact? #i2/3) → #f
+(exact? 1.0-2i) → #f")
+
+(formdef
+    :syntax "(inexact? num)"
+    :returns "#t if num is inexact, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(inexact? -123) → #f
+(inexact? #i123) → #t
+(inexact? 1e23) → #t
+(inexact? +i) → #f")
+
+(formdef
+    :syntax '("(= num1 num2 num3 ...)"
+              "(< real1 real2 real3 ...)"
+              "(> real1 real2 real3 ...)"
+              "(<= real1 real2 real3 ...)"
+              "(>= real1 real2 real3 ...)")
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The predicate = returns #t if its arguments are equal. The predicate < returns #t if its arguments are monotonically
+    increasing, i.e., each argument is greater than the preceding ones, while > returns #t if its arguments are
+    monotonically decreasing. The predicate <= returns #t if its arguments are monotonically nondecreasing, i.e., each
+    argument is not less than the preceding ones, while >= returns #t if its arguments are monotonically nonincreasing.])
+
+(p [As implied by the names of the arguments, = is defined for complex arguments while the other relational predicates
+    are defined only for real arguments. Two complex numbers are considered equal if their real and imaginary parts are
+    equal. Comparisons involving NaNs always return #f.])
+
+(src "
+(= 7 7) → #t
+(= 7 9) → #f
+
+(< 2e3 3e2) → #f
+(<= 1 2 3 3 4 5) → #t
+(<= 1 2 3 4 5) → #t
+
+(> 1 2 2 3 3 4) → #f
+(>= 1 2 2 3 3 4) → #f
+
+(= -1/2 -0.5) → #t
+(= 2/3 .667) → #f
+(= 7.2+0i 7.2) → #t
+(= 7.2-3i 7) → #f
+
+(< 1/2 2/3 3/4) → #t
+(> 8 4.102 2/3 -5) → #t
+
+(let ([x 0.218723452])
+  (< 0.210 x 0.220)) → #t
+
+(let ([i 1] [v (vector 'a 'b 'c)])
+  (< -1 i (vector-length v))) → #t
+
+(apply < '(1 2 3 4)) → #t
+(apply > '(4 3 3 2)) → #f
+
+(= +nan.0 +nan.0) → #f
+(< +nan.0 +nan.0) → #f
+(> +nan.0 +nan.0) → #f
+(>= +inf.0 +nan.0) → #f
+(>= +nan.0 -inf.0) → #f
+(> +nan.0 0.0) → #f")
+
+(formdef
+    :syntax "(+ num ...)"
+    :returns "the sum of the arguments num ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(p [When called with no arguments, + returns 0.])
+
+(src "
+(+) → 0
+(+ 1 2) → 3
+(+ 1/2 2/3) → 7/6
+(+ 3 4 5) → 12
+(+ 3.0 4) → 7.0
+(+ 3+4i 4+3i) → 7+7i
+(apply + '(1 2 3 4 5)) → 15")
+
+(formdef
+    :syntax "(- num)"
+    :returns "the additive inverse of num"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(- num1 num2 num3 ...)"
+    :returns "the difference between num1 and the sum of num2 num3 ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(- 3) → -3
+(- -2/3) → 2/3
+(- 4 3.0) → 1.0
+(- 3.25+4.25i 1/4+1/4i) → 3.0+4.0i
+(- 4 3 2 1) → -2")
+
+(formdef
+    :syntax "(* num ...)"
+    :returns "the product of the arguments num ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(p [When called with no arguments, * returns 1.])
+
+(src "
+(*) → 1
+(* 3.4) → 3.4
+(* 1 1/2) → 1/2
+(* 3 4 5.5) → 66.0
+(* 1+2i 3+4i) → -5+10i
+(apply * '(1 2 3 4 5)) → 120")
+
+(formdef
+    :syntax "(/ num)"
+    :returns "the multiplicative inverse of num"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(/ num1 num2 num3 ...)"
+    :returns "the result of dividing num1 by the product of num2 num3 ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(/ -17) → -1/17
+(/ 1/2) → 2
+(/ .5) → 2.0
+(/ 3 4) → 3/4
+(/ 3.0 4) → .75
+(/ -5+10i 3+4i) → 1+2i
+(/ 60 5 4 3 2) → 1/2")
+
+(formdef
+    :syntax "(zero? num)"
+    :returns "#t if num is zero, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [zero? is equivalent to ,(var "(lambda (x) (= x 0))").])
+
+(src "
+(zero? 0) → #t
+(zero? 1) → #f
+(zero? (- 3.0 3.0)) → #t
+(zero? (+ 1/2 1/2)) → #f
+(zero? 0+0i) → #t
+(zero? 0.0-0.0i) → #t")
+
+(formdef
+    :syntax "(positive? real)"
+    :returns "#t if real is greater than zero, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [positive? is equivalent to ,(var "(lambda (x) (> x 0))").])
+
+(src "
+(positive? 128) → #t
+(positive? 0.0) → #f
+(positive? 1.8e-15) → #t
+(positive? -2/3) → #f
+(positive? .001-0.0i) → exception: not a real number")
+
+(formdef
+    :syntax "(negative? real)"
+    :returns "#t if real is less than zero, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [negative? is equivalent to ,(var "(lambda (x) (< x 0))").])
+
+(src "
+(negative? -65) → #t
+(negative? 0) → #f
+(negative? -0.0121) → #t
+(negative? 15/16) → #f
+(negative? -7.0+0.0i) → exception: not a real number")
+
+(formdef
+    :syntax "(even? int)"
+    :returns "#t if int is even, #f otherwise"
+    :syntax "(odd? int)"
+    :returns "#t if int is odd, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(even? 0) → #t
+(even? 1) → #f
+(even? 2.0) → #t
+(even? -120762398465) → #f
+(even? 2.0+0.0i) → exception: not an integer
+
+(odd? 0) → #f
+(odd? 1) → #t
+(odd? 2.0) → #f
+(odd? -120762398465) → #t
+(odd? 2.0+0.0i) → exception: not an integer")
+
+(formdef
+    :syntax "(finite? real)"
+    :returns "#t if real is finite, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(infinite? real)"
+    :returns "#t if real is infinite, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(nan? real)"
+    :returns "#t if real is a NaN, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(finite? 2/3) → #t
+(infinite? 2/3) → #f
+(nan? 2/3) → #f
+
+(finite? 3.1415) → #t
+(infinite? 3.1415) → #f
+(nan? 3.1415) → #f
+
+(finite? +inf.0) → #f
+(infinite? -inf.0) → #t
+(nan? -inf.0) → #f
+
+(finite? +nan.0) → #f
+(infinite? +nan.0) → #f
+(nan? +nan.0) → #t")
+
+(formdef
+    :syntax "(quotient int1 int2)"
+    :returns "the integer quotient of int1 and int2"
+    :libraries "(rnrs r5rs)")
+(formdef
+    :syntax "(remainder int1 int2)"
+    :returns "the integer remainder of int1 and int2"
+    :libraries "(rnrs r5rs)")
+(formdef
+    :syntax "(modulo int1 int2)"
+    :returns "the integer modulus of int1 and int2"
+    :libraries "(rnrs r5rs)")
+
+(p [The result of remainder has the same sign as int1, while the result of modulo has the same sign as int2.])
+
+(src "
+(quotient 45 6) → 7
+(quotient 6.0 2.0) → 3.0
+(quotient 3.0 -2) → -1.0
+
+(remainder 16 4) → 0
+(remainder 5 2) → 1
+(remainder -45.0 7) → -3.0
+(remainder 10.0 -3.0) → 1.0
+(remainder -17 -9) → -8
+
+(modulo 16 4) → 0
+(modulo 5 2) → 1
+(modulo -45.0 7) → 4.0
+(modulo 10.0 -3.0) → -2.0
+(modulo -17 -9) → -8")
+
+(formdef
+    :syntax '("(div x1 x2)"
+              "(mod x1 x2)"
+              "(div-and-mod x1 x2)")
+    :returns "see below"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If x1 and x2 are exact, x2 must not be zero. These procedures implement number-theoretic integer division, with the
+    div operation being related to quotient and the mod operation being related to remainder or modulo, but in both
+    cases extended to handle real numbers.])
+
+(p [The value nd of (div x1 x2) is an integer, and the value xm of (mod x1 x2) is a real number such that x1 = nd · x2 +
+    xm and 0 ≤ xm < |x2|. In situations where the implementation cannot represent the mathematical results prescribed by
+    these equations as a number object, div and mod return an unspecified number or raise an exception with condition
+    type &implementation-restriction.])
+
+(p [The div-and-mod procedure behaves as if defined as follows.])
+
+(src "
+(define (div-and-mod x1 x2) (values (div x1 x2) (mod x1 x2)))")
+
+(p [That is, unless it raises an exception in the circumstance described above, it returns two values: the result of
+    calling div on the two arguments and the result of calling mod on the two arguments.])
+
+(src "
+(div 17 3) → 5
+(mod 17 3) → 2
+(div -17 3) → -6
+(mod -17 3) → 1
+(div 17 -3) → -5
+(mod 17 -3) → 2
+(div -17 -3) → 6
+(mod -17 -3) → 1
+
+(div-and-mod 17.5 3) → 5.0
+                      2.5")
+
+(formdef
+    :syntax '("(div0 x1 x2)"
+              "(mod0 x1 x2)"
+              "(div0-and-mod0 x1 x2)")
+    :returns "see below"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If x1 and x2 are exact, x2 must not be zero. These procedures are similar to div, mod, and div-and-mod, but
+    constrain the "mod" value differently, which also affects the "div" value. The value nd of (div0 x1 x2) is an
+    integer, and the value xm of (mod0 x1 x2) is a real number such that x1 = nd · x2 + xm and -|x2/2| ≤ xm < |x2/2|. In
+    situations where the implementation cannot represent the mathematical results prescribed by these equations as a
+    number object, div0 and mod0 return an unspecified number or raise an exception with condition type
+    &implementation-restriction.])
+
+(p [The div0-and-mod0 procedure behaves as if defined as follows.])
+
+(src-lite "(define (div0-and-mod0 x1 x2) (values (div0 x1 x2) (mod0 x1 x2)))")
+
+(p [That is, unless it raises an exception in the circumstance described above, it returns two values: the result of
+    calling div0 on the two arguments and the result of calling mod0 on the two arguments.])
+
+(src "
+(div0 17 3) → 6
+(mod0 17 3) → -1
+(div0 -17 3) → -6
+(mod0 -17 3) → 1
+(div0 17 -3) → -6
+(mod0 17 -3) → -1
+(div0 -17 -3) → 6
+(mod0 -17 -3) → 1
+
+(div0-and-mod0 17.5 3) → 6.0
+                        -0.5")
+
+(formdef
+    :syntax "(truncate real)"
+    :returns "the integer closest to real toward zero"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If real is an infinity or NaN, truncate returns real.])
+
+(src "
+(truncate 19) → 19
+(truncate 2/3) → 0
+(truncate -2/3) → 0
+(truncate 17.3) → 17.0
+(truncate -17/2) → -8")
+
+(formdef
+    :syntax "(floor real)"
+    :returns "the integer closest to real toward →"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If real is an infinity or NaN, floor returns real.])
+
+(src "
+(floor 19) → 19
+(floor 2/3) → 0
+(floor -2/3) → -1
+(floor 17.3) → 17.0
+(floor -17/2) → -9")
+
+(formdef
+    :syntax "(ceiling real)"
+    :returns "the integer closest to real toward →"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If real is an infinity or NaN, ceiling returns real.])
+
+(src "
+(ceiling 19) → 19
+(ceiling 2/3) → 1
+(ceiling -2/3) → 0
+(ceiling 17.3) → 18.0
+(ceiling -17/2) → -8")
+
+(formdef
+    :syntax "(round real)"
+    :returns "the integer closest to real"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If real is exactly between two integers, the closest even integer is returned. If real is an infinity or NaN, round
+    returns real.])
+
+(src "
+(round 19) → 19
+(round 2/3) → 1
+(round -2/3) → -1
+(round 17.3) → 17.0
+(round -17/2) → -8
+(round 2.5) → 2.0
+(round 3.5) → 4.0")
+
+(formdef
+    :syntax "(abs real)"
+    :returns "the absolute value of real"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [abs is equivalent to ,(var "(lambda (x) (if (< x 0) (- x) x))"). abs and magnitude (see page 183) are identical for real
+    inputs.])
+
+(src "
+(abs 1) → 1
+(abs -3/4) → 3/4
+(abs 1.83) → 1.83
+(abs -0.093) → 0.093")
+
+(formdef
+    :syntax "(max real1 real2 ...)"
+    :returns "the maximum of real1 real2 ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(max 4 -7 2 0 -6) → 4
+(max 1/2 3/4 4/5 5/6 6/7) → 6/7
+(max 1.5 1.3 -0.3 0.4 2.0 1.8) → 2.0
+(max 5 2.0) → 5.0
+(max -5 -2.0) → -2.0
+(let ([ls '(7 3 5 2 9 8)])
+  (apply max ls)) → 9")
+
+(formdef
+    :syntax "(min real1 real2 ...)"
+    :returns "the minimum of real1 real2 ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(min 4 -7 2 0 -6) → -7
+(min 1/2 3/4 4/5 5/6 6/7) → 1/2
+(min 1.5 1.3 -0.3 0.4 2.0 1.8) → -0.3
+(min 5 2.0) → 2.0
+(min -5 -2.0) → -5.0
+(let ([ls '(7 3 5 2 9 8)])
+  (apply min ls)) → 2")
+
+(formdef
+    :syntax "(gcd int ...)"
+    :returns "the greatest common divisor of its arguments int ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The result is always nonnegative, i.e., factors of -1 are ignored. When called with no arguments, gcd returns 0.])
+
+(src "
+(gcd) → 0
+(gcd 34) → 34
+(gcd 33.0 15.0) → 3.0
+(gcd 70 -42 28) → 14")
+
+(formdef
+    :syntax "(lcm int ...)"
+    :returns "the least common multiple of its arguments int ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The result is always nonnegative, i.e., common multiples of -1 are ignored. Although lcm should probably return
+    → when called with no arguments, it is defined to return 1. If one or more of the arguments is 0, lcm
+    returns 0.])
+
+(src "
+(lcm) → 1
+(lcm 34) → 34
+(lcm 33.0 15.0) → 165.0
+(lcm 70 -42 28) → 420
+(lcm 17.0 0) → 0.0")
+
+(formdef
+    :syntax "(expt num1 num2)"
+    :returns "num1 raised to the num2 power"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If both arguments are 0, expt returns 1.])
+
+(src "
+(expt 2 10) → 1024
+(expt 2 -10) → 1/1024
+(expt 2 -10.0) → 9.765625e-4
+(expt -1/2 5) → -1/32
+(expt 3.0 3) → 27.0
+(expt +i 2) → -1")
+
+(formdef
+    :syntax "(inexact num)"
+    :returns "an inexact representation of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If num is already inexact, it is returned unchanged. If no inexact representation for num is supported by the
+    implementation, an exception with condition type &implementation-violation may be raised. inexact may also return
+    +inf.0 or -inf.0 for inputs whose magnitude exceeds the range of the implementation's inexact number
+    representations.])
+
+(src "
+(inexact 3) → 3.0
+(inexact 3.0) → 3.0
+(inexact -1/4) → -.25
+(inexact 3+4i) → 3.0+4.0i
+(inexact (expt 10 20)) → 1e20")
+
+(formdef
+    :syntax "(exact num)"
+    :returns "an exact representation of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If num is already exact, it is returned unchanged. If no exact representation for num is supported by the
+    implementation, an exception with condition type &implementation-violation may be raised.])
+
+(src "
+(exact 3.0) → 3
+(exact 3) → 3
+(exact -.25) → -1/4
+(exact 3.0+4.0i) → 3+4i
+(exact 1e20) → 100000000000000000000")
+
+(formdef
+    :syntax "(exact->inexact num)"
+    :returns "an inexact representation of num"
+    :libraries "(rnrs r5rs)")
+(formdef
+    :syntax "(inexact->exact num)"
+    :returns "an exact representation of num"
+    :libraries "(rnrs r5rs)")
+
+(p [These are alternative names for inexact and exact, supported for compatibility with the Revised5 Report.])
+
+(formdef
+    :syntax "(rationalize real1 real2)"
+    :returns "see below"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [rationalize returns the simplest rational number that differs from real1 by no more than real2. A rational number q1
+    = n1/m1 is simpler than another rational number q2 = n2/m2 if |n1| ≤ |n2| and |m1| ≤ |m2| and either |n1| < |n2|
+    or |m1| < |m2|.])
+
+(src "
+(rationalize 3/10 1/10) → 1/3
+(rationalize .3 1/10) → 0.3333333333333333
+(eqv? (rationalize .3 1/10) #i1/3) → #t")
+
+(formdef
+    :syntax "(numerator rat)"
+    :returns "the numerator of rat"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If rat is an integer, the numerator is rat.])
+
+(src "
+(numerator 9) → 9
+(numerator 9.0) → 9.0
+(numerator 0.0) → 0.0
+(numerator 2/3) → 2
+(numerator -9/4) → -9
+(numerator -2.25) → -9.0")
+
+(formdef
+    :syntax "(denominator rat)"
+    :returns "the denominator of rat"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If rat is an integer, including zero, the denominator is one.])
+
+(src "
+(denominator 9) → 1
+(denominator 9.0) → 1.0
+(denominator 0) → 1
+(denominator 0.0) → 1.0
+(denominator 2/3) → 3
+(denominator -9/4) → 4
+(denominator -2.25) → 4.0")
+
+
+   (formdef
+    :syntax "(real-part num)"
+    :returns "the real component of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If num is real, real-part returns num.])
+
+(src "
+(real-part 3+4i) → 3
+(real-part -2.3+0.7i) → -2.3
+(real-part -i) → 0
+(real-part 17.2) → 17.2
+(real-part -17/100) → -17/100")
+
+(formdef
+    :syntax "(imag-part num)"
+    :returns "the imaginary component of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If num is real, imag-part returns exact zero.])
+
+(src "
+(imag-part 3+4i) → 4
+(imag-part -2.3+0.7i) → 0.7
+(imag-part -i) → -1
+(imag-part -2.5) → 0
+(imag-part -17/100) → 0")
+
+(formdef
+    :syntax "(make-rectangular real1 real2)"
+    :returns "a complex number with real component real1 and imaginary component real2"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(make-rectangular -2 7) → -2+7i
+(make-rectangular 2/3 -1/2) → 2/3-1/2i
+(make-rectangular 3.2 5.3) → 3.2+5.3i")
+
+(formdef
+    :syntax "(make-polar real1 real2)"
+    :returns "a complex number with magnitude real1 and angle real2"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(make-polar 2 0) → 2
+(make-polar 2.0 0.0) → 2.0+0.0i
+(make-polar 1.0 (asin -1.0)) → 0.0-1.0i
+(eqv? (make-polar 7.2 -0.588) 7.2@-0.588) → #t")
+
+(formdef
+    :syntax "(angle num)"
+    :returns "the angle part of the polar representation of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The range of the result is → (exclusive) to → (inclusive).])
+
+(src "
+(angle 7.3@1.5708) → 1.5708
+(angle 5.2) → 0.0")
+
+(formdef
+    :syntax "(magnitude num)"
+    :returns "the magnitude of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [magnitude and abs (see page 178) are identical for real arguments. The magnitude of a complex number x + yi is
+    →.])
+
+(src "
+(magnitude 1) → 1
+(magnitude -3/4) → 3/4
+(magnitude 1.83) → 1.83
+(magnitude -0.093) → 0.093
+(magnitude 3+4i) → 5
+(magnitude 7.25@1.5708) → 7.25")
+
+(formdef
+    :syntax "(sqrt num)"
+    :returns "the principal square root of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [Implementations are encouraged, but not required, to return exact results for exact inputs to sqrt whenever
+    feasible.])
+
+(src "
+(sqrt 16) → 4
+(sqrt 1/4) → 1/2
+(sqrt 4.84) → 2.2
+(sqrt -4.84) → 0.0+2.2i
+(sqrt 3+4i) → 2+1i
+(sqrt -3.0-4.0i) → 1.0-2.0i")
+
+(formdef
+    :syntax "(exact-integer-sqrt n)"
+    :returns "see below"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [This procedure returns two nonnegative exact integers s and r where n = s2 + r and n < (s + 1)2.])
+
+(src "
+(exact-integer-sqrt 0) → 0
+                        0
+(exact-integer-sqrt 9) → 3
+                       → 0
+(exact-integer-sqrt 19) → 4
+                        → 3")
+
+(formdef
+    :syntax "(exp num)"
+    :returns "e to the num power"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(exp 0.0) → 1.0
+(exp 1.0) → 2.7182818284590455
+(exp -.5) → 0.6065306597126334")
+
+(formdef
+    :syntax "(log num)"
+    :returns "the natural logarithm of num"
+    :libraries "(rnrs base), (rnrs)")
+(formdef
+    :syntax "(log num1 num2)"
+    :returns "the base-num2 logarithm of num1"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(log 1.0) → 0.0
+(log (exp 1.0)) → 1.0
+(/ (log 100) (log 10)) → 2.0
+(log (make-polar (exp 2.0) 1.0)) → 2.0+1.0i
+
+(log 100.0 10.0) → 2.0
+(log .125 2.0) → -3.0")
+
+(formdef
+    :syntax '("(sin num)"
+              "(cos num)"
+              "(tan num)")
+    :returns "the sine, cosine, or tangent of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The argument is specified in radians.])
+
+(src "
+(sin 0.0) → 0.0
+(cos 0.0) → 1.0
+(tan 0.0) → 0.0")
+
+(formdef
+    :syntax '("(asin num)"
+              "(acos num)")
+    :returns "the arc sine or the arc cosine of num"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The result is in radians. The arc sine and arc cosine of a complex number z are defined as follows.])
+
+      (p (center (image :file "images/17.png" :width 175)))
+      (p (center (image :file "images/18.png" :width 150)))
+
+(src "
+(define pi (* (asin 1) 2))
+(= (* (acos 0) 2) pi) → #t
+")
+
+(formdef
+    :syntax '("(atan num)"
+              "(atan real1 real2)")
+    :returns "see below"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [When passed a single complex argument num (the first form), atan returns the arc tangent of num. The arc tangent of
+    a complex number z is defined as follows.])
+
+      (p (center (image :file "images/19.png" :width 200)))
+
+(p [When passed two real arguments (the second form), atan is equivalent to ,(var "(lambda (y x) (angle (make-rectangular x y)))").])
+
+(src "
+(define pi (* (atan 1) 4))
+(= (* (atan 1.0 0.0) 2) pi) → #t")
+
+(formdef
+    :syntax "(bitwise-not exint)"
+    :returns "the bitwise not of exint"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+(formdef
+    :syntax "(bitwise-and exint ...)"
+    :returns "the bitwise and of exint ..."
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+(formdef
+    :syntax "(bitwise-ior exint ...)"
+    :returns "the bitwise inclusive or of exint ..."
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+(formdef
+    :syntax "(bitwise-xor exint ...)"
+    :returns "the bitwise exclusive or of exint ..."
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [The inputs are treated as if represented in two's complement, even if they are not represented that way internally.])
+
+(src "
+(bitwise-not 0) → -1
+(bitwise-not 3) → -4
+
+(bitwise-and #b01101 #b00111) → #b00101
+(bitwise-ior #b01101 #b00111) → #b01111
+(bitwise-xor #b01101 #b00111) → #b01010")
+
+(formdef
+    :syntax "(bitwise-if exint1 exint2 exint3)"
+    :returns "the bitwise \"if\" of its arguments"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [The inputs are treated as if represented in two's complement, even if they are not represented that way internally.])
+
+(p [For each bit set in exint1, the corresponding bit of the result is taken from exint2, and for each bit not set in
+    exint1, the corresponding bit of the result is taken from x3.])
+
+(src "(bitwise-if #b101010 #b111000 #b001100) → #b101100")
+
+(p [bitwise-if might be defined as follows:])
+
+(src "
+(define bitwise-if
+  (lambda (exint1 exint2 exint3)
+    (bitwise-ior
+      (bitwise-and exint1 exint2)
+      (bitwise-and (bitwise-not exint1) exint3))))")
+
+(formdef
+    :syntax "(bitwise-bit-count exint)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [For nonnegative inputs, bitwise-bit-count returns the number of bits set in the two's complement representation of
+    exint. For negative inputs, it returns a negative number whose magnitude is one greater than the number of bits not
+    set in the two's complement representation of exint, which is equivalent to (bitwise-not (bitwise-bit-count
+    (bitwise-not exint))).])
+
+(src "
+(bitwise-bit-count #b00000) → 0
+(bitwise-bit-count #b00001) → 1
+(bitwise-bit-count #b00100) → 1
+(bitwise-bit-count #b10101) → 3
+
+(bitwise-bit-count -1) → -1
+(bitwise-bit-count -2) → -2
+(bitwise-bit-count -4) → -3")
+
+(formdef
+    :syntax "(bitwise-length exint)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [This procedure returns the number of bits of the smallest two's complement representation of exint, not including
+    the sign bit for negative numbers. For 0 bitwise-length returns 0.])
+
+(src "
+(bitwise-length #b00000) → 0
+(bitwise-length #b00001) → 1
+(bitwise-length #b00100) → 3
+(bitwise-length #b00110) → 3
+
+(bitwise-length -1) → 0
+(bitwise-length -6) → 3
+(bitwise-length -9) → 4")
+
+(formdef
+    :syntax "(bitwise-first-bit-set exint)"
+    :returns "the index of the least significant bit set in exint"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [The input is treated as if represented in two's complement, even if it is not represented that way internally.])
+
+(p [If exint is 0, bitwise-first-bit-set returns -1.])
+
+(src "
+(bitwise-first-bit-set #b00000) → -1
+(bitwise-first-bit-set #b00001) → 0
+(bitwise-first-bit-set #b01100) → 2
+
+(bitwise-first-bit-set -1) → 0
+(bitwise-first-bit-set -2) → 1
+(bitwise-first-bit-set -3) → 0")
+
+(formdef
+    :syntax "(bitwise-bit-set? exint1 exint2)"
+    :returns "#t if bit exint2 of exint1 is set, #f otherwise"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. The two's
+    complement representation of a nonnegative number conceptually extends to the left (toward more significant bits)
+    with an infinite number of zero bits, and the two's complement representation of a negative number conceptually
+    extends to the left with an infinite number of one bits. Thus, exact integers can be used to represent arbitrarily
+    large sets, where 0 is the empty set, -1 is the universe, and bitwise-bit-set? is used to test for membership.])
+
+(src "
+(bitwise-bit-set? #b01011 0) → #t
+(bitwise-bit-set? #b01011 2) → #f
+
+(bitwise-bit-set? -1 0) → #t
+(bitwise-bit-set? -1 20) → #t
+(bitwise-bit-set? -3 1) → #f
+
+(bitwise-bit-set? 0 5000) → #f
+(bitwise-bit-set? -1 5000) → #t")
+
+(formdef
+    :syntax "(bitwise-copy-bit exint1 exint2 exint3)"
+    :returns "exint1 with bit exint2 replaced by exint3"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. exint3 must be
+    0 or 1. This procedure effectively clears or sets the specified bit depending on the value of exint3. exint1 is
+    treated as if represented in two's complement, even if it is not represented that way internally.])
+
+(src "
+(bitwise-copy-bit #b01110 0 1) → #b01111
+(bitwise-copy-bit #b01110 2 0) → #b01010")
+
+(formdef
+    :syntax "(bitwise-bit-field exint1 exint2 exint3)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the number
+    represented by extracting from exint1 the sequence of bits from exint2 (inclusive) to exint3 (exclusive). exint1 is
+    treated as if represented in two's complement, even if it is not represented that way internally.])
+
+(src "
+(bitwise-bit-field #b10110 0 3) → #b00110
+(bitwise-bit-field #b10110 1 3) → #b00011
+(bitwise-bit-field #b10110 2 3) → #b00001
+(bitwise-bit-field #b10110 3 3) → #b00000")
+
+(formdef
+    :syntax "(bitwise-copy-bit-field exint1 exint2 exint3 exint4)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns exint1
+    with the n bits from exint2 (inclusive) to exint3 (exclusive) replaced by the low-order n bits of exint4. exint1 and
+    exint4 are treated as if represented in two's complement, even if they are not represented that way internally.])
+
+(src "
+(bitwise-copy-bit-field #b10000 0 3 #b10101) → #b10101
+(bitwise-copy-bit-field #b10000 1 3 #b10101) → #b10010
+(bitwise-copy-bit-field #b10000 2 3 #b10101) → #b10100
+(bitwise-copy-bit-field #b10000 3 3 #b10101) → #b10000")
+
+(formdef
+    :syntax "(bitwise-arithmetic-shift-right exint1 exint2)"
+    :returns "exint1 arithmetically shifted right by exint2 bits"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+(formdef
+    :syntax "(bitwise-arithmetic-shift-left exint1 exint2)"
+    :returns "exint1 shifted left by exint2 bits"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [exint2 must be nonnegative. exint1 is treated as if represented in two's complement, even if it is not represented
+    that way internally.])
+
+(src "
+(bitwise-arithmetic-shift-right #b10000 3) → #b00010
+(bitwise-arithmetic-shift-right -1 1) → -1
+(bitwise-arithmetic-shift-right -64 3) → -8
+
+(bitwise-arithmetic-shift-left #b00010 2) → #b01000
+(bitwise-arithmetic-shift-left -1 2) → -4")
+
+(formdef
+    :syntax "(bitwise-arithmetic-shift exint1 exint2)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [If exint2 is negative, bitwise-arithmetic-shift returns the result of arithmetically shifting exint1 right by
+    -exint2 bits. Otherwise, bitwise-arithmetic-shift returns the result of shifting exint1 left by exint2 bits. exint1
+    is treated as if represented in two's complement, even if it is not represented that way internally.])
+
+(src "
+(bitwise-arithmetic-shift #b10000 -3) → #b00010
+(bitwise-arithmetic-shift -1 -1) → -1
+(bitwise-arithmetic-shift -64 -3) → -8
+(bitwise-arithmetic-shift #b00010 2) → #b01000
+(bitwise-arithmetic-shift -1 2) → -4")
+
+(p [Thus, bitwise-arithmetic-shift behaves as if defined as follows.])
+
+(src "
+(define bitwise-arithmetic-shift
+  (lambda (exint1 exint2)
+    (if (< exint2 0)
+        (bitwise-arithmetic-shift-right exint1 (- exint2))
+        (bitwise-arithmetic-shift-left exint1 exint2))))")
+
+(formdef
+    :syntax "(bitwise-rotate-bit-field exint1 exint2 exint3 exint4)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [exint2, exint3, and exint4 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns
+    the result of shifting the bits of exint1 from bit exint2 (inclusive) through bit exint3 (exclusive) left by (mod
+    exint4 (- exint3 exint2)) bits, with the bits shifted out of the range inserted at the bottom end of the
+    range. exint1 is treated as if represented in two's complement, even if it is not represented that way internally.])
+
+(src "
+(bitwise-rotate-bit-field #b00011010 0 5 3) → #b00010110
+(bitwise-rotate-bit-field #b01101011 2 7 3) → #b01011011")
+
+(formdef
+    :syntax "(bitwise-reverse-bit-field exint1 exint2 exint3)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic bitwise), (rnrs)")
+
+(p [exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the result
+    of reversing the bits of exint1 from bit exint2 (inclusive) through bit exint3 (exclusive). exint1 is treated as if
+    represented in two's complement, even if it is not represented that way internally.])
+
+(src "
+(bitwise-reverse-bit-field #b00011010 0 5) → #b00001011
+(bitwise-reverse-bit-field #b01101011 2 7) → #b00101111")
+
+(formdef
+    :syntax '("(string->number string)"
+              "(string->number string radix)")
+    :returns "the number represented by string, or #f"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [If string is a valid representation of a number, that number is returned, otherwise #f is returned. The number is
+    interpreted in radix radix, which must be an exact integer in the set {2,8,10,16}. If not specified, radix defaults
+    to 10. Any radix specifier within string, e.g., #x, overrides the radix argument.])
+
+(src "
+(string->number \"0\") → 0
+(string->number \"3.4e3\") → 3400.0
+(string->number \"#x#e-2e2\") → -738
+(string->number \"#e-2e2\" 16) → -738
+(string->number \"#i15/16\") → 0.9375
+(string->number \"10\" 16) → 16")
+
+(formdef
+    :syntax '("(number->string num)"
+              "(number->string num radix)"
+              "(number->string num radix precision)")
+    :returns "an external representation of num as a string"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The num is expressed in radix radix, which must be an exact integer in the set {2,8,10,16}. If not specified, radix
+    defaults to 10. In any case, no radix specifier appears in the resulting string.])
+
+(p [The external representation is such that, when converted back into a number using string->number, the resulting
+    numeric value is equivalent to num. That is, for all inputs:])
+
+(src "
+(eqv? (string->number
+        (number->string num radix)
+        radix)
+      num)")
+
+(p [returns #t. An exception with condition type &implementation-restriction is raised if this is not possible.])
+
+(p [If precision is provided, it must be an exact positive integer, num must be inexact, and radix must be 10. In this
+    case, the real part and, if present, the imaginary part of the number are each printed with an explicit mantissa
+    width m, where m is the least possible value greater than or equal to precision that makes the expression above
+    true.])
+
+(p [If radix is 10, inexact values of num are expressed using the fewest number of significant digits possible ,(ref :bib 'b5)
+    without violating the above restriction.])
+
+(src "
+(number->string 3.4) → \"3.4\"
+(number->string 1e2) → \"100.0\"
+(number->string 1e-23) → \"1e-23\"
+(number->string -7/2) → \"-7/2\"
+(number->string 220/9 16) → \"DC/9\""))
+
    (section :title [Fixnums]
-      (p [TODO]))
+      (p [Fixnums represent exact integers in the fixnum range, which is required to be a closed range \[-2w-1,2w-1 - 1\], where
+    w (the fixnum width) is at least 24. The implementation-specific value of w may be determined via the procedure
+    fixnum-width, and the endpoints of the range may be determined via the procedures least-fixnum and greatest-fixnum.])
+
+    (p [The names of arithmetic procedures that operate only on fixnums begin with the prefix "fx" to set them apart from
+    their generic counterparts.])
+
+    (p [Procedure arguments required to be fixnums are named fx, possibly with a suffix, e.g., fx2.])
+
+    (p [Unless otherwise specified, the numeric values of fixnum-specific procedures are fixnums. If the value of a fixnum
+    operation should be a fixnum, but the mathematical result would be outside the fixnum range, an exception with
+    condition type &implementation-restriction is raised.])
+
+    (p [Bit and shift operations on fixnums assume that fixnums are represented in two's complement, even if they are not
+    represented that way internally.])
+
+(formdef
+    :syntax "(fixnum? obj)"
+    :returns "#t if obj is a fixnum, #f otherwise"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fixnum? 0) → #t
+(fixnum? -1) → #t
+(fixnum? (- (expt 2 23))) → #t
+(fixnum? (- (expt 2 23) 1)) → #t")
+
+(formdef
+    :syntax "(least-fixnum)"
+    :returns "the least (most negative) fixnum supported by the implementation"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(least-fixnum)"
+    :returns "the least (most negative) fixnum supported by the implementation"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fixnum? (- (least-fixnum) 1)) → #f
+(fixnum? (least-fixnum)) → #t
+(fixnum? (greatest-fixnum)) → #t
+(fixnum? (+ (greatest-fixnum) 1)) → #f")
+
+(formdef
+    :syntax "(fixnum-width)"
+    :returns "the implementation-dependent fixnum width"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [As described in the lead-in to this section, the fixnum width determines the size of the fixnum range and must be at
+    least 24.])
+
+(src "
+(define w (fixnum-width))
+(= (least-fixnum) (- (expt 2 (- w 1)))) → #t
+(= (greatest-fixnum) (- (expt 2 (- w 1)) 1)) → #t
+(>= w 24) → #t")
+
+(formdef
+    :syntax '("(fx=? fx1 fx2 fx3 ...)"
+              "(fx<? fx1 fx2 fx3 ...)"
+              "(fx>? fx1 fx2 fx3 ...)"
+              "(fx<=? fx1 fx2 fx3 ...)"
+              "(fx>=? fx1 fx2 fx3 ...)")
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [The predicate fx=? returns #t if its arguments are equal. The predicate fx<? returns #t if its arguments are
+    monotonically increasing, i.e., each argument is greater than the preceding ones, while fx>? returns #t if its
+    arguments are monotonically decreasing. The predicate fx<=? returns #t if its arguments are monotonically
+    nondecreasing, i.e., each argument is not less than the preceding ones, while fx>=? returns #t if its arguments are
+    monotonically nonincreasing.])
+
+(src "
+(fx=? 0 0) → #t
+(fx=? -1 1) → #f
+(fx<? (least-fixnum) 0 (greatest-fixnum)) → #t
+(let ([x 3]) (fx<=? 0 x 9)) → #t
+(fx>? 5 4 3 2 1) → #t
+(fx<=? 1 3 2) → #f
+(fx>=? 0 0 (least-fixnum)) → #t")
+
+(formdef
+    :syntax "(fxzero? fx)"
+    :returns "#t if fx is zero, #f otherwise"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fxpositive? fx)"
+    :returns "#t if fx is greater than zero, #f otherwise"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fxnegative? fx)"
+    :returns "#t if fx is less than zero, #f otherwise"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fxzero? is equivalent to (lambda (x) (fx=? x 0)), fxpositive? is equivalent to (lambda (x) (fx>? x 0)), and
+    fxnegative? to (lambda (x) (fx<? x 0)).])
+
+(src "
+(fxzero? 0) → #t
+(fxzero? 1) → #f
+
+(fxpositive? 128) → #t
+(fxpositive? 0) → #f
+(fxpositive? -1) → #f
+
+(fxnegative? -65) → #t
+(fxnegative? 0) → #f
+(fxnegative? 1) → #f")
+
+(formdef
+:syntax "(fxeven? fx)"
+:returns "#t if fx is even, #f otherwise"
+:libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+:syntax "(fxodd? fx)"
+:returns "#t if fx is odd, #f otherwise"
+:libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fxeven? 0) → #t
+(fxeven? 1) → #f
+(fxeven? -1) → #f
+(fxeven? -10) → #t
+
+(fxodd? 0) → #f
+(fxodd? 1) → #t
+(fxodd? -1) → #t
+(fxodd? -10) → #f")
+
+(formdef
+    :syntax "(fxmin fx1 fx2 ...)"
+    :returns "the minimum of fx1 fx2 ..."
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fxmax fx1 fx2 ...)"
+    :returns "the maximum of fx1 fx2 ..."
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fxmin 4 -7 2 0 -6) → -7
+
+(let ([ls '(7 3 5 2 9 8)])
+  (apply fxmin ls)) → 2
+
+(fxmax 4 -7 2 0 -6) → 4
+
+(let ([ls '(7 3 5 2 9 8)])
+  (apply fxmax ls)) → 9")
+
+(formdef
+    :syntax "(fx+ fx1 fx2)"
+    :returns "the sum of fx1 and fx2"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fx+ -3 4) → 1")
+
+(formdef
+    :syntax "(fx- fx)"
+    :returns "the additive inverse of fx"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fx- fx1 fx2)"
+    :returns "the difference between fx1 and fx2"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fx- 3) → -3
+(fx- -3 4) → -7")
+
+(formdef
+    :syntax "(fx* fx1 fx2)"
+    :returns "the product of fx1 and fx2"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fx* -3 4) → -12")
+
+(formdef
+    :syntax '("(fxdiv fx1 fx2)"
+              "(fxmod fx1 fx2)"
+              "(fxdiv-and-mod fx1 fx2)")
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 must not be zero. These are fixnum-specific versions of the generic div, mod, and div-and-mod.])
+
+(src "
+(fxdiv 17 3) → 5
+(fxmod 17 3) → 2
+(fxdiv -17 3) → -6
+(fxmod -17 3) → 1
+(fxdiv 17 -3) → -5
+(fxmod 17 -3) → 2
+(fxdiv -17 -3) → 6
+(fxmod -17 -3) → 1
+
+(fxdiv-and-mod 17 3) → 5
+                       2")
+
+(formdef
+    :syntax '("(fxdiv0 fx1 fx2)"
+              "(fxmod0 fx1 fx2)"
+              "(fxdiv0-and-mod0 fx1 fx2)")
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 must not be zero. These are fixnum-specific versions of the generic div0, mod0, and div0-and-mod0.])
+
+(src "
+(fxdiv0 17 3) → 6
+(fxmod0 17 3) → -1
+(fxdiv0 -17 3) → -6
+(fxmod0 -17 3) → 1
+(fxdiv0 17 -3) → -6
+(fxmod0 17 -3) → -1
+(fxdiv0 -17 -3) → 6
+(fxmod0 -17 -3) → 1
+
+(fxdiv0-and-mod0 17 3) → 6
+                        -1")
+
+(formdef
+    :syntax '("(fx+/carry fx1 fx2 fx3)"
+              "(fx-/carry fx1 fx2 fx3)"
+              "(fx*/carry fx1 fx2 fx3)")
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [When an ordinary fixnum addition, subtraction, or multiplication operation overflows, an exception is raised. These
+    alternative procedures instead return a carry and also allow the carry to be propagated to the next operation. They
+    can be used to implement portable code for multiple-precision arithmetic.])
+
+(p [These procedures return the two fixnum values of the following computations. For fx+/carry:])
+
+(src "
+(let* ([s (+ fx1 fx2 fx3)]
+       [s0 (mod0 s (expt 2 (fixnum-width)))]
+       [s1 (div0 s (expt 2 (fixnum-width)))])
+  (values s0 s1))")
+
+(p [for fx-/carry:])
+
+(src "
+(let* ([d (- fx1 fx2 fx3)]
+       [d0 (mod0 d (expt 2 (fixnum-width)))]
+       [d1 (div0 d (expt 2 (fixnum-width)))])
+  (values d0 d1))")
+
+(p [and for fx*/carry:])
+
+(src "
+(let* ([s (+ (* fx1 fx2) fx3)]
+       [s0 (mod0 s (expt 2 (fixnum-width)))]
+       [s1 (div0 s (expt 2 (fixnum-width)))])
+  (values s0 s1))")
+
+(formdef
+    :syntax "(fxnot fx)"
+    :returns "the bitwise not of fx"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fxand fx ...)"
+    :returns "the bitwise and of fx ..."
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fxior fx ...)"
+    :returns "the bitwise inclusive or of fx ..."
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fxxor fx ...)"
+    :returns "the bitwise exclusive or of fx ..."
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(src "
+(fxnot 0) → -1
+(fxnot 3) → -4
+
+(fxand #b01101 #b00111) → #b00101
+(fxior #b01101 #b00111) → #b01111
+(fxxor #b01101 #b00111) → #b01010")
+
+(formdef
+    :syntax "(fxif fx1 fx2 fx3)"
+    :returns "the bitwise \"if\" of its arguments"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [For each bit set in fx1, the corresponding bit of the result is taken from fx2, and for each bit not set in fx1, the
+    corresponding bit of the result is taken from x3.])
+
+(src "
+(fxif #b101010 #b111000 #b001100) → #b101100")
+
+(p [fxif might be defined as follows:])
+
+(src "
+(define fxif
+  (lambda (fx1 fx2 fx3)
+    (fxior (fxand fx1 fx2)
+           (fxand (fxnot fx1) fx3))))")
+
+(formdef
+    :syntax "(fxbit-count fx)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [For nonnegative inputs, fxbit-count returns the number of bits set in the two's complement representation of fx. For
+    negative inputs, it returns a negative number whose magnitude is one greater than the number of bits not set in fx,
+    which is equivalent to (fxnot (fxbit-count (fxnot fx))).])
+
+(src "
+(fxbit-count #b00000) → 0
+(fxbit-count #b00001) → 1
+(fxbit-count #b00100) → 1
+(fxbit-count #b10101) → 3
+
+(fxbit-count -1) → -1
+(fxbit-count -2) → -2
+(fxbit-count -4) → -3")
+
+(formdef
+    :syntax "(fxlength fx)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [This procedure returns the number of bits of the smallest two's complement representation of fx, not including the
+    sign bit for negative numbers. For 0 fxlength returns 0.])
+
+(src "
+(fxlength #b00000) → 0
+(fxlength #b00001) → 1
+(fxlength #b00100) → 3
+(fxlength #b00110) → 3
+
+(fxlength -1) → 0
+(fxlength -6) → 3
+(fxlength -9) → 4")
+
+(formdef
+    :syntax "(fxfirst-bit-set fx)"
+    :returns "the index of the least significant bit set in fx"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [If fx is 0, fxfirst-bit-set returns -1.])
+
+(src "
+(fxfirst-bit-set #b00000) → -1
+(fxfirst-bit-set #b00001) → 0
+(fxfirst-bit-set #b01100) → 2
+
+(fxfirst-bit-set -1) → 0
+(fxfirst-bit-set -2) → 1
+(fxfirst-bit-set -3) → 0")
+
+(formdef
+    :syntax "(fxbit-set? fx1 fx2)"
+    :returns "#t if bit fx2 of fx1 is set, #f otherwise"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 must be nonnegative. It is taken as a zero-based index for the bits in the two's complement representation of
+    fx1, with the sign bit virtually replicated an infinite number of positions to the left.])
+
+(src "
+(fxbit-set? #b01011 0) → #t
+(fxbit-set? #b01011 2) → #f
+
+(fxbit-set? -1 0) → #t
+(fxbit-set? -1 20) → #t
+(fxbit-set? -3 1) → #f
+(fxbit-set? 0 (- (fixnum-width) 1)) → #f
+(fxbit-set? -1 (- (fixnum-width) 1)) → #t")
+
+(formdef
+    :syntax "(fxcopy-bit fx1 fx2 fx3)"
+    :returns "fx1 with bit fx2 replaced by fx3"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 must be nonnegative and less than the value of (- (fixnum-width) 1). fx3 must be 0 or 1. This procedure
+    effectively clears or sets the specified bit depending on the value of fx3.])
+
+(src "
+(fxcopy-bit #b01110 0 1) → #b01111
+(fxcopy-bit #b01110 2 0) → #b01010")
+
+(formdef
+    :syntax "(fxbit-field fx1 fx2 fx3)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
+    fx3. This procedure returns the number represented by extracting from fx1 the sequence of bits from fx2 (inclusive)
+    to fx3 (exclusive).])
+
+(src "
+(fxbit-field #b10110 0 3) → #b00110
+(fxbit-field #b10110 1 3) → #b00011
+(fxbit-field #b10110 2 3) → #b00001
+(fxbit-field #b10110 3 3) → #b00000")
+
+(formdef
+    :syntax "(fxcopy-bit-field fx1 fx2 fx3 fx4)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
+    fx3. This procedure returns fx1 with n bits from fx2 (inclusive) to fx3 (exclusive) replaced by the low-order n bits
+    of x4.])
+
+(src "
+(fxcopy-bit-field #b10000 0 3 #b10101) → #b10101
+(fxcopy-bit-field #b10000 1 3 #b10101) → #b10010
+(fxcopy-bit-field #b10000 2 3 #b10101) → #b10100
+(fxcopy-bit-field #b10000 3 3 #b10101) → #b10000")
+
+(formdef
+    :syntax "(fxarithmetic-shift-right fx1 fx2)"
+    :returns "fx1 arithmetically shifted right by fx2 bits"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+(formdef
+    :syntax "(fxarithmetic-shift-left fx1 fx2)"
+    :returns "fx1 shifted left by fx2 bits"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 must be nonnegative and less than the value of (fixnum-width).])
+
+(src "
+(fxarithmetic-shift-right #b10000 3) → #b00010
+(fxarithmetic-shift-right -1 1) → -1
+(fxarithmetic-shift-right -64 3) → -8
+
+(fxarithmetic-shift-left #b00010 2) → #b01000
+(fxarithmetic-shift-left -1 2) → -4")
+
+(formdef
+    :syntax "(fxarithmetic-shift fx1 fx2)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [The absolute value of fx2 must be less than the value of (fixnum-width). If fx2 is negative, fxarithmetic-shift
+    returns the result of arithmetically shifting fx1 right by fx2 bits. Otherwise, fxarithmetic-shift returns the
+    result of shifting fx1 left by fx2 bits.])
+
+(src "
+(fxarithmetic-shift #b10000 -3) → #b00010
+(fxarithmetic-shift -1 -1) → -1
+(fxarithmetic-shift -64 -3) → -8
+(fxarithmetic-shift #b00010 2) → #b01000
+(fxarithmetic-shift -1 2) → -4")
+
+(p [Thus, fxarithmetic-shift behaves as if defined as follows.])
+
+(src "
+(define fxarithmetic-shift
+  (lambda (fx1 fx2)
+    (if (fx<? fx2 0)
+        (fxarithmetic-shift-right fx1 (fx- fx2))
+        (fxarithmetic-shift-left fx1 fx2))))")
+
+(formdef
+    :syntax "(fxrotate-bit-field fx1 fx2 fx3 fx4)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2, fx3, and fx4 must be nonnegative and less than the value of (fixnum-width), fx2 must not be greater than fx3,
+    and fx4 must not be greater than the difference between fx3 and fx2.])
+
+(p [This procedure returns the result of shifting the bits of fx1 from bit fx2 (inclusive) through bit fx3 (exclusive)
+    left by fx4 bits, with the bits shifted out of the range inserted at the bottom end of the range.])
+
+(src "
+(fxrotate-bit-field #b00011010 0 5 3) → #b00010110
+(fxrotate-bit-field #b01101011 2 7 3) → #b01011011")
+
+(formdef
+    :syntax "(fxreverse-bit-field fx1 fx2 fx3)"
+    :returns "see below"
+    :libraries "(rnrs arithmetic fixnums), (rnrs)")
+
+(p [fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx2 must not be greater than
+    fx3. This procedure returns the result of reversing the bits of fx1 from bit fx2 (inclusive) through bit fx3
+    (exclusive).])
+
+(src "
+(fxreverse-bit-field #b00011010 0 5) → #b00001011
+(fxreverse-bit-field #b01101011 2 7) → #b00101111"))
+
    (section :title [Flonums]
-      (p [TODO]))
+      (p [Flonums represent inexact real numbers. Implementations are required to represent as a flonum any inexact real
+    number whose lexical syntax contains no vertical bar and no exponent marker other than e, but are not required to
+    represent any other inexact real number as a flonum.])
+
+    (p [Implementations typically use the IEEE double-precision floating-point representation for flonums, but
+    implementations are not required to do so or even to use a floating-point representation of any sort, despite the
+    name "flonum."])
+
+    (p [This section describes operations on flonums. Flonum-specific procedure names begin with the prefix "fl" to set them
+    apart from their generic counterparts.])
+
+    (p [Procedure arguments required to be flonums are named fl, possibly with suffix, e.g., fl2. Unless otherwise
+    specified, the numeric values of flonum-specific procedures are flonums.])
+
+(formdef
+    :syntax "(flonum? obj)"
+    :returns "#t if obj is a flonum, otherwise #f"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(src "
+(flonum? 0) → #f
+(flonum? 3/4) → #f
+(flonum? 3.5) → #t
+(flonum? .02) → #t
+(flonum? 1e10) → #t
+(flonum? 3.0+0.0i) → #f")
+
+(formdef
+    :syntax '("(fl=? fl1 fl2 fl3 ...)"
+              "(fl<? fl1 fl2 fl3 ...)"
+              "(fl>? fl1 fl2 fl3 ...)"
+              "(fl<=? fl1 fl2 fl3 ...)"
+              "(fl>=? fl1 fl2 fl3 ...)")
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [The predicate fl=? returns #t if its arguments are equal. The predicate fl<? returns #t if its arguments are
+    monotonically increasing, i.e., each argument is greater than the preceding ones, while fl>? returns #t if its
+    arguments are monotonically decreasing. The predicate fl<=? returns #t if its arguments are monotonically
+    nondecreasing, i.e., each argument is not less than the preceding ones, while fl>=? returns #t if its arguments are
+    monotonically nonincreasing. When passed only one argument, each of these predicates returns #t.])
+
+(p [Comparisons involving NaNs always return #f.])
+
+(src "
+(fl=? 0.0 0.0) → #t
+(fl<? -1.0 0.0 1.0) → #t
+(fl>? -1.0 0.0 1.0) → #f
+(fl<=? 0.0 3.0 3.0) → #t
+(fl>=? 4.0 3.0 3.0) → #t
+(fl<? 7.0 +inf.0) → #t
+(fl=? +nan.0 0.0) → #f
+(fl=? +nan.0 +nan.0) → #f
+(fl<? +nan.0 +nan.0) → #f
+(fl<=? +nan.0 +inf.0) → #f
+(fl>=? +nan.0 +inf.0) → #f")
+
+(formdef
+    :syntax "(flzero? fl)"
+    :returns "#t if fl is zero, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flpositive? fl)"
+    :returns "#t if fl is greater than zero, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flnegative? fl)"
+    :returns "#t if fl is less than zero, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [flzero? is equivalent to (lambda (x) (fl=? x 0.0)), flpositive? is equivalent to (lambda (x) (fl>? x 0.0)), and
+    flnegative? to (lambda (x) (fl<? x 0.0)).])
+
+(p [Even if the flonum representation distinguishes -0.0 from +0.0, -0.0 is considered both zero and nonnegative.])
+
+(src "
+(flzero? 0.0) → #t
+(flzero? 1.0) → #f
+
+(flpositive? 128.0) → #t
+(flpositive? 0.0) → #f
+(flpositive? -1.0) → #f
+
+(flnegative? -65.0) → #t
+(flnegative? 0.0) → #f
+(flnegative? 1.0) → #f
+
+(flzero? -0.0) → #t
+(flnegative? -0.0) → #f
+
+(flnegative? +nan.0) → #f
+(flzero? +nan.0) → #f
+(flpositive? +nan.0) → #f
+
+(flnegative? +inf.0) → #f
+(flnegative? -inf.0) → #t")
+
+(formdef
+    :syntax "(flinteger? fl)"
+    :returns "#t if fl is integer, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(src "
+(flinteger? 0.0) → #t
+(flinteger? -17.0) → #t
+(flinteger? +nan.0) → #f
+(flinteger? +inf.0) → #f")
+
+(formdef
+    :syntax "(flfinite? fl)"
+    :returns "#t if fl is finite, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flinfinite? fl)"
+    :returns "#t if fl is infinite, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flnan? fl)"
+    :returns "#t if fl is a NaN, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(src "
+(flfinite? 3.1415) → #t
+(flinfinite? 3.1415) → #f
+(flnan? 3.1415) → #f
+
+(flfinite? +inf.0) → #f
+(flinfinite? -inf.0) → #t
+(flnan? -inf.0) → #f
+
+(flfinite? +nan.0) → #f
+(flinfinite? +nan.0) → #f
+(flnan? +nan.0) → #t")
+
+(formdef
+    :syntax "(fleven? fl-int)"
+    :returns "#t if fl-int is even, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flodd? fl-int)"
+    :returns "#t if fl-int is odd, #f otherwise"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [fl-int must be an integer-valued flonum.])
+
+(src "
+(fleven? 0.0) → #t
+(fleven? 1.0) → #f
+(fleven? -1.0) → #f
+(fleven? -10.0) → #t
+
+(flodd? 0.0) → #f
+(flodd? 1.0) → #t
+(flodd? -1.0) → #t
+(flodd? -10.0) → #f")
+
+(formdef
+    :syntax "(flmin fl1 fl2 ...)"
+    :returns "the minimum of fl1 fl2 ..."
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flmax fl1 fl2 ...)"
+    :returns "the maximum of fl1 fl2 ..."
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(src "
+(flmin 4.2 -7.5 2.0 0.0 -6.4) → -7.5
+
+(let ([ls '(7.1 3.5 5.0 2.6 2.6 8.0)])
+  (apply flmin ls)) → 2.6
+
+(flmax 4.2 -7.5 2.0 0.0 -6.4) → 4.2
+
+(let ([ls '(7.1 3.5 5.0 2.6 2.6 8.0)])
+  (apply flmax ls)) → 8.0")
+
+(formdef
+    :syntax "(fl+ fl ...)"
+    :returns "the sum of the arguments fl ..."
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [When called with no arguments, fl+ returns 0.0.])
+
+(src "
+(fl+) → 0.0
+(fl+ 1.0 2.5) → 3.25
+(fl+ 3.0 4.25 5.0) → 12.25
+(apply fl+ '(1.0 2.0 3.0 4.0 5.0)) → 15.0")
+
+(formdef
+    :syntax "(fl- fl)"
+    :returns "the additive inverse of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(fl- fl1 fl2 fl3 ...)"
+    :returns "the difference between fl1 and the sum of fl2 fl3 ..."
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [With an IEEE floating-point representation of flonums, the single-argument fl- is equivalent to])
+
+(src "
+(lambda (x) (fl* -1.0 x))")
+
+(p [or])
+
+(src "
+(lambda (x) (fl- -0.0 x))")
+
+(p [but not])
+
+(src "
+(lambda (x) (fl- 0.0 x))")
+
+(p [since the latter returns 0.0 rather than -0.0 for 0.0.])
+
+(src "
+(fl- 0.0) → -0.0
+(fl- 3.0) → -3.0
+(fl- 4.0 3.0) → 1.0
+(fl- 4.0 3.0 2.0 1.0) → -2.0")
+
+(formdef
+    :syntax "(fl* fl ...)"
+    :returns "the product of the arguments fl ..."
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [When called with no arguments, fl* returns 1.0.])
+
+(src "
+(fl*) → 1.0
+(fl* 1.5 2.5) → 3.75
+(fl* 3.0 -4.0 5.0) → -60.0
+(apply fl* '(1.0 -2.0 3.0 -4.0 5.0)) → 120.0")
+
+(formdef
+    :syntax "(fl/ fl)"
+    :returns "the multiplicative inverse of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(fl/ fl1 fl2 fl3 ...)"
+    :returns "the result of dividing fl1 by the product of fl2 fl3 ..."
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(src "
+(fl/ -4.0) → -0.25
+(fl/ 8.0 -2.0) → -4.0
+(fl/ -9.0 2.0) → -4.5
+(fl/ 60.0 5.0 3.0 2.0) → 2.0")
+
+(formdef
+    :syntax '("(fldiv fl1 fl2)"
+              "(flmod fl1 fl2)"
+              "(fldiv-and-mod fl1 fl2)")
+    :returns "see below"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [These are flonum-specific versions of the generic div, mod, and div-and-mod.])
+
+(src "
+(fldiv 17.0 3.0) → 5.0
+(flmod 17.0 3.0) → 2.0
+(fldiv -17.0 3.0) → -6.0
+(flmod -17.0 3.0) → 1.0
+(fldiv 17.0 -3.0) → -5.0
+(flmod 17.0 -3.0) → 2.0
+(fldiv -17.0 -3.0) → 6.0
+(flmod -17.0 -3.0) → 1.0
+
+(fldiv-and-mod 17.5 3.75) → 4.0
+                                    2.5")
+
+(formdef
+    :syntax '("(fldiv0 fl1 fl2)"
+              "(flmod0 fl1 fl2)"
+              "(fldiv0-and-mod0 fl1 fl2)")
+    :returns "see below"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [These are flonum-specific versions of the generic div0, mod0, and div0-and-mod0.])
+
+(src "
+(fldiv0 17.0 3.0) → 6.0
+(flmod0 17.0 3.0) → -1.0
+(fldiv0 -17.0 3.0) → -6.0
+(flmod0 -17.0 3.0) → 1.0
+(fldiv0 17.0 -3.0) → -6.0
+(flmod0 17.0 -3.0) → -1.0
+(fldiv0 -17.0 -3.0) → 6.0
+(flmod0 -17.0 -3.0) → 1.0
+
+(fldiv0-and-mod0 17.5 3.75) → 5.0
+                             -1.25")
+
+(formdef
+    :syntax "(flround fl)"
+    :returns "the integer closest to fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(fltruncate fl)"
+    :returns "the integer closest to fl toward zero"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flfloor fl)"
+    :returns "the integer closest to fl toward →"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flceiling fl)"
+    :returns "the integer closest to fl toward →"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [If fl is an integer, NaN, or infinity, each of these procedures returns fl. If fl is exactly between two integers,
+    flround returns the closest even integer.])
+
+(src "
+(flround 17.3) → 17.0
+(flround -17.3) → -17.0
+(flround 2.5) → 2.0
+(flround 3.5) → 4.0
+
+(fltruncate 17.3) → 17.0
+(fltruncate -17.3) → -17.0
+
+(flfloor 17.3) → 17.0
+(flfloor -17.3) → -18.0
+
+(flceiling 17.3) → 18.0
+(flceiling -17.3) → -17.0")
+
+(formdef
+    :syntax "(flnumerator fl)"
+    :returns "the numerator of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(fldenominator fl)"
+    :returns "the denominator of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [If fl is an integer, including 0.0, or infinity, the numerator is fl and the denominator is 1.0.])
+
+(src "
+(flnumerator -9.0) → -9.0
+(fldenominator -9.0) → 1.0
+(flnumerator 0.0) → 0.0
+(fldenominator 0.0) → 1.0
+(flnumerator -inf.0) → -inf.0
+(fldenominator -inf.0) → 1.0")
+
+(p [The following hold for IEEE floats, but not necessarily other flonum representations.])
+
+(src "
+(flnumerator 3.5) → 7.0
+(fldenominator 3.5) → 2.0")
+
+(formdef
+    :syntax "(flabs fl)"
+    :returns "absolute value of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(src "
+(flabs 3.2) → 3.2
+(flabs -2e-20) → 2e-20")
+
+(formdef
+    :syntax "(flexp fl)"
+    :returns "e to the fl power"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(fllog fl)"
+    :returns "the natural logarithm of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(fllog fl1 fl2)"
+    :returns "the base-fl2 logarithm of fl1"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(src "
+(flexp 0.0) → 1.0
+(flexp 1.0) → 2.7182818284590455
+
+(fllog 1.0) → 0.0
+(fllog (exp 1.0)) → 1.0
+(fl/ (fllog 100.0) (fllog 10.0)) → 2.0
+
+(fllog 100.0 10.0) → 2.0
+(fllog .125 2.0) → -3.0")
+
+(formdef
+    :syntax "(flsin fl)"
+    :returns "the sine of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flcos fl)"
+    :returns "the cosine of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(fltan fl)"
+    :returns "the tangent of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flasin fl)"
+    :returns "the arc sine of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flacos fl)"
+    :returns "the arc cosine of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flatan fl)"
+    :returns "the arc tangent of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flatan fl1 fl2)"
+    :returns "the arc tangent of fl1/fl2"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(flsqrt fl)"
+    :returns "the principal square root of fl"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [Returns the principal square root of fl. The square root of -0.0 should be -0.0. The result for other negative
+    numbers may be a NaN or some other unspecified flonum.])
+
+(src "
+(flsqrt 4.0) → 2.0
+(flsqrt 0.0) → 0.0
+(flsqrt -0.0) → -0.0")
+
+(formdef
+    :syntax "(flexpt fl1 fl2)"
+    :returns "fl1 raised to the fl2 power"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [If fl1 is negative and fl2 is not an integer, the result may be a NaN or some other unspecified flonum. If fl1 and
+    fl2 are both zero, the result is 1.0. If fl1 is zero and fl2 is positive, the result is zero. In other cases where
+    fl1 is zero, the result may be a NaN or some other unspecified flonum.])
+
+(src "
+(flexpt 3.0 2.0) → 9.0
+(flexpt 0.0 +inf.0) → 0.0")
+
+(formdef
+    :syntax "(fixnum->flonum fx)"
+    :returns "the flonum representation closest to fx"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+(formdef
+    :syntax "(real->flonum real)"
+    :returns "the flonum representation closest to real"
+    :libraries "(rnrs arithmetic flonums), (rnrs)")
+
+(p [fixnum->flonum is a restricted variant of inexact. real->flonum is a restricted variant of inexact when the input is
+    an exact real; when it is an inexact non-flonum real, it coverts the inexact non-flonum real into the closest
+    flonum.])
+
+(src "
+(fixnum->flonum 0) → 0.0
+(fixnum->flonum 13) → 13.0
+
+(real->flonum -1/2) → -0.5
+(real->flonum 1s3) → 1000.0"))
+
    (section :title [Characters]
       (p [TODO]))
+
    (section :title [Strings]
       (p [TODO]))
+
    (section :title [Vectors]
       (p [TODO]))
+
    (section :title [Bytevectors]
       (p [TODO]))
+
    (section :title [Symbols]
       (p [TODO]))
+
    (section :title [Booleans]
       (p [TODO]))
+
    (section :title [Hashtables]
       (p [TODO]))
+
    (section :title [Enumerations]
       (p [TODO])))
