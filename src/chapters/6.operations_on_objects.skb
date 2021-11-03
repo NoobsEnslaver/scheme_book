@@ -3308,25 +3308,1991 @@
 (real->flonum 1s3) → 1000.0"))
 
    (section :title [Characters]
-      (p [TODO]))
+      (p [Characters are atomic objects representing letters, digits, special symbols such as $ or -, and certain nongraphic
+    control characters such as space and newline. Characters are written with a #\\ prefix. For most characters, the
+    prefix is followed by the character itself. The written character representation of the letter A, for example, is
+    #\\A. The characters newline, space, and tab may be written in this manner as well, but they can be written more
+    clearly as #\\newline, #\\space, and #\\tab. Other character names are supported as well, as defined by the grammar for
+    character objects on page 457. Any Unicode character may be written with the syntax #\\xn, where n consists of one or
+    more hexadecimal digits and represents a valid Unicode scalar value.])
+
+    (p [This section describes the operations that deal primarily with characters. See also the following section on strings
+    and Chapter 7 on input and output for other operations relating to characters.])
+
+(formdef
+    :syntax "(char=? char1 char2 char3 ...)"
+    :syntax "(char<? char1 char2 char3 ...)"
+    :syntax "(char>? char1 char2 char3 ...)"
+    :syntax "(char<=? char1 char2 char3 ...)"
+    :syntax "(char>=? char1 char2 char3 ...)"
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [These predicates behave in a similar manner to the numeric predicates =, <, >, <=, and >=. For example, char=?
+    returns #t when its arguments are equivalent characters, and char<? returns #t when its arguments are monotonically
+    increasing character (Unicode scalar) values.])
+
+(src "
+(char>? #\\a #\\b) → #f
+(char<? #\\a #\\b) → #t
+(char<? #\\a #\\b #\\c) → #t
+(let ([c #\\r])
+  (char<=? #\\a c #\\z)) → #t
+(char<=? #\\Z #\\W) → #f
+(char=? #\\+ #\\+) → #t")
+
+(formdef
+    :syntax "(char-ci=? char1 char2 char3 ...)"
+    :syntax "(char-ci<? char1 char2 char3 ...)"
+    :syntax "(char-ci>? char1 char2 char3 ...)"
+    :syntax "(char-ci<=? char1 char2 char3 ...)"
+    :syntax "(char-ci>=? char1 char2 char3 ...)"
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [These predicates are identical to the predicates char=?, char<?, char>?, char<=?, and char>=? except that they are
+    case-insensitive, i.e., compare the case-folded versions of their arguments. For example, char=? considers #\\a and
+    #\\A to be distinct values; char-ci=? does not.])
+
+(src "
+(char-ci<? #\\a #\\B) → #t
+(char-ci=? #\\W #\\w) → #t
+(char-ci=? #\\= #\\+) → #f
+(let ([c #\\R])
+  (list (char<=? #\\a c #\\z)
+        (char-ci<=? #\\a c #\\z))) → (#f #t)")
+
+(formdef
+    :syntax "(char-alphabetic? char)"
+    :returns "#t if char is a letter, #f otherwise"
+    :syntax "(char-numeric? char)"
+    :returns "#t if char is a digit, #f otherwise"
+    :syntax "(char-whitespace? char)"
+    :returns "#t if char is whitespace, #f otherwise"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [A character is alphabetic if it has the Unicode "Alphabetic" property, numeric if it has the Unicode "Numeric"
+    property, and whitespace if has the Unicode "White_Space" property.])
+
+(src "
+(char-alphabetic? #\\a) → #t
+(char-alphabetic? #\\T) → #t
+(char-alphabetic? #\\8) → #f
+(char-alphabetic? #\\$) → #f
+
+(char-numeric? #\\7) → #t
+(char-numeric? #\\2) → #t
+(char-numeric? #\\X) → #f
+(char-numeric? #\\space) → #f
+
+(char-whitespace? #\\space) → #t
+(char-whitespace? #\\newline) → #t
+(char-whitespace? #\\Z) → #f")
+
+(formdef
+    :syntax "(char-lower-case? char)"
+    :returns "#t if char is lower case, #f otherwise"
+    :syntax "(char-upper-case? char)"
+    :returns "#t if char is upper case, #f otherwise"
+    :syntax "(char-title-case? char)"
+    :returns "#t if char is title case, #f otherwise"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [A character is upper-case if it has the Unicode "Uppercase" property, lower-case if it has the "Lowercase" property,
+    and title-case if it is in the Lt general category.])
+
+(src "
+(char-lower-case? #\\r) → #t
+(char-lower-case? #\\R) → #f
+
+(char-upper-case? #\\r) → #f
+(char-upper-case? #\\R) → #t
+
+(char-title-case? #\\I) → #f
+(char-title-case? #\\x01C5) → #t")
+
+(formdef
+    :syntax "(char-general-category char)"
+    :returns "a symbol representing the Unicode general category of char"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [The return value is one of the symbols Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Ps, Pe, Pi, Pf, Pd, Pc, Po, Sc,
+    Sm, Sk, So, Zs, Zp, Zl, Cc, Cf, Cs, Co, or Cn.])
+
+(src "
+(char-general-category #\\a) → Ll
+(char-general-category #\\space) → Zs
+(char-general-category #\\x10FFFF) → Cn")
+
+(formdef
+    :syntax "(char-upcase char)"
+    :returns "the upper-case character counterpart of char"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [If char is a lower- or title-case character and has a single upper-case counterpart, char-upcase returns the
+    upper-case counterpart. Otherwise char-upcase returns char.])
+
+(src "
+(char-upcase #\\g) → #\\G
+(char-upcase #\\G) → #\\G
+(char-upcase #\\7) → #\\7
+(char-upcase #\\ς) → #\\Σ")
+
+(formdef
+    :syntax "(char-downcase char)"
+    :returns "the lower-case character equivalent of char"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [If char is an upper- or title-case character and has a single lower-case counterpart, char-downcase returns the
+    lower-case counterpart. Otherwise char-downcase returns char.])
+
+(src "
+(char-downcase #\\g) → #\\g
+(char-downcase #\\G) → #\\g
+(char-downcase #\\7) → #\\7
+(char-downcase #\\ς) → #\\ς")
+
+(formdef
+    :syntax "(char-titlecase char)"
+    :returns "the title-case character equivalent of char"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [If char is an upper- or lower-case character and has a single title-case counterpart, char-titlecase returns the
+    title-case counterpart. Otherwise, if it is not a title-case character, has no single title-case counterpart, but
+    does have a single upper-case counterpart, char-titlecase returns the upper-case counterpart. Otherwise
+    char-titlecase returns char.])
+
+(src "
+(char-titlecase #\\g) → #\\G
+(char-titlecase #\\G) → #\\G
+(char-titlecase #\\7) → #\\7
+(char-titlecase #\\ς) → #\\Σ")
+
+(formdef
+    :syntax "(char-foldcase char)"
+    :returns "the case-folded character equivalent of char"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [If char has a case-folded counterpart, char-foldcase returns the case-folded counterpart. Otherwise, char-foldcase
+    returns char. For most characters, (char-foldcase char) is equivalent to (char-downcase (char-upcase char)), but for
+    Turkic İ and ı, char-foldcase acts as the identity.])
+
+(src "
+(char-foldcase #\\g) → #\\g
+(char-foldcase #\\G) → #\\g
+(char-foldcase #\\7) → #\\7
+(char-foldcase #\\ς) → #\\σ")
+
+(formdef
+    :syntax "(char->integer char)"
+    :returns "the Unicode scalar value of char as an exact integer"
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(char->integer #\\newline) → 10
+(char->integer #\\space) → 32
+(- (char->integer #\\Z) (char->integer #\\A)) → 25")
+
+(formdef
+    :syntax "(integer->char n)"
+    :returns "the character corresponding to the Unicode scalar value n"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [n must be an exact integer and a valid Unicode scalar value, i.e., ,(var [0,(symbol "le")n,(symbol "le")#xD7FF]) or
+,(var [#xE000,(symbol "le")n,(symbol "le")#x10FFFF]).])
+
+(src "
+(integer->char 48) → #\\0
+(integer->char #x3BB) → #\\→"))
 
    (section :title [Strings]
-      (p [TODO]))
+      (p [Strings are sequences of characters and are often used as messages, character buffers, or containers for blocks of
+    text. Scheme provides operations for creating strings, extracting characters from strings, obtaining substrings,
+    concatenating strings, and altering the contents of strings.])
+
+    (p [A string is written as a sequence of characters enclosed in double quotes, e.g., \"hi there\". A double quote may be
+    introduced into a string by preceding it by a backward slash, e.g., \"two \\\"quotes\\\" within\". A backward slash may
+    also be included by preceding it with a backward slash, e.g., \"a \\slash\". Various special characters can be
+    inserted with other two-character sequences, e.g., \\n for newline, \\r for carriage return, and \t for tab. Any
+    Unicode character may be inserted with the syntax #\\xn;, where n consists of one or more hexadecimal digits and
+    represents a valid Unicode scalar value. A grammar defining the precise syntax of strings is given on page 458.])
+
+    (p [Strings are indexed by exact nonnegative integers, and the index of the first element of any string is 0. The
+    highest valid index for a given string is one less than its length.])
+
+(formdef
+    :syntax '("(string=? string1 string2 string3 ...)"
+              "(string<? string1 string2 string3 ...)"
+              "(string>? string1 string2 string3 ...)"
+              "(string<=? string1 string2 string3 ...)"
+              "(string>=? string1 string2 string3 ...)")
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [As with =, <, >, <=, and >=, these predicates express relationships among all of the arguments. For example,
+    string>? determines if the lexicographic ordering of its arguments is monotonically decreasing.])
+
+(p [The comparisons are based on the character predicates char=? and char<?. Two strings are lexicographically
+    equivalent if they are the same length and consist of the same sequence of characters according to char=?. If two
+    strings differ only in length, the shorter string is considered to be lexicographically less than the longer
+    string. Otherwise, the first character position at which the strings differ (by char=?) determines which string is
+    lexicographically less than the other, according to char<?.])
+
+(p [Two-argument string=? may be defined without error checks as follows.])
+
+(src "
+(define string=?
+  (lambda (s1 s2)
+    (let ([n (string-length s1)])
+      (and (= (string-length s2) n)
+           (let loop ([i 0])
+             (or (= i n)
+                 (and (char=? (string-ref s1 i) (string-ref s2 i))
+                      (loop (+ i 1)))))))))")
+
+(p [Two-argument string<? may be defined without error checks as follows.])
+
+(src "
+(define string<?
+  (lambda (s1 s2)
+    (let ([n1 (string-length s1)] [n2 (string-length s2)])
+      (let loop ([i 0])
+        (and (not (= i n2))
+             (or (= i n1)
+                 (let ([c1 (string-ref s1 i)] [c2 (string-ref s2 i)])
+                   (or (char<? c1 c2)
+                       (and (char=? c1 c2)
+                            (loop (+ i 1)))))))))))")
+
+(p [These definitions may be extended straightforwardly to support three or more arguments. string<=?, string>?, and
+    string>=? may be defined similarly.])
+
+(src "
+(string=? \"mom\" \"mom\") → #t
+(string<? \"mom\" \"mommy\") → #t
+(string>? \"Dad\" \"Dad\") → #f
+(string=? \"Mom and Dad\" \"mom and dad\") → #f
+(string<? \"a\" \"b\" \"c\") → #t")
+
+(formdef
+    :syntax '("(string-ci=? string1 string2 string3 ...)"
+              "(string-ci<? string1 string2 string3 ...)"
+              "(string-ci>? string1 string2 string3 ...)"
+              "(string-ci<=? string1 string2 string3 ...)"
+              "(string-ci>=? string1 string2 string3 ...)")
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [These predicates are identical to string=?, string<?, string>?, string<=?, and string>=? except that they are
+    case-insensitive, i.e., compare the case-folded versions of their arguments.])
+
+(src "
+(string-ci=? \"Mom and Dad\" \"mom and dad\") → #t
+(string-ci<=? \"say what\" \"Say What!?\") → #t
+(string-ci>? \"N\" \"m\" \"L\" \"k\") → #t
+(string-ci=? \"Straße\" \"Strasse\") → #t")
+
+(formdef
+    :syntax "(string char ...)"
+    :returns "a string containing the characters char ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(string) → \"\"
+(string #\\a #\\b #\\c) → \"abc\"
+(string #\\H #\\E #\\Y #\\!) → \"HEY!\"")
+
+(formdef
+    :syntax '("(make-string n)"
+              "(make-string n char)")
+    :returns "a string of length n"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [n must be an exact nonnegative integer. If char is supplied, the string is filled with n occurrences of char,
+    otherwise the characters contained in the string are unspecified.])
+
+(src "
+(make-string 0) → \"\"
+(make-string 0 #\\x) → \"\"
+(make-string 5 #\\x) → \"xxxxx\"")
+
+(formdef
+    :syntax "(string-length string)"
+    :returns "the number of characters in string"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The length of a string is always an exact nonnegative integer.])
+
+(src "
+(string-length \"abc\") → 3
+(string-length \"\") → 0
+(string-length \"hi there\") → 8
+(string-length (make-string 1000000)) → 1000000")
+
+(formdef
+    :syntax "(string-ref string n)"
+    :returns "the nth character (zero-based) of string"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [n must be an exact nonnegative integer less than the length of string.])
+
+(src "
+(string-ref \"hi there\" 0) → #\\h
+(string-ref \"hi there\" 5) → #\\e")
+
+(formdef
+    :syntax "(string-set! string n char)"
+    :returns "unspecified"
+    :libraries "(rnrs mutable-strings)")
+
+(p [n must be an exact nonnegative integer less than the length of string. string-set! changes the nth element of string
+    to char.])
+
+(src "
+(let ([str (string-copy \"hi three\")])
+  (string-set! str 5 #\\e)
+  (string-set! str 6 #\\r)
+  str) → \"hi there\"")
+
+(formdef
+    :syntax "(string-copy string)"
+    :returns "a new copy of string"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [This procedure creates a new string with the same length and contents as string.])
+
+(src "
+(string-copy \"abc\") → \"abc\"
+
+(let ([str \"abc\"])
+  (eq? str (string-copy str))) → #f")
+
+(formdef
+    :syntax "(string-append string ...)"
+    :returns "a new string formed by concatenating the strings string ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(string-append) → \"\"
+(string-append \"abc\" \"def\") → \"abcdef\"
+(string-append \"Hey \" \"you \" \"there!\") → \"Hey you there!\"")
+
+(p [The following implementation of string-append recurs down the list of strings to compute the total length, then
+    allocates the new string, then fills it up as it unwinds the recursion.])
+
+(src "
+(define string-append
+  (lambda args
+    (let f ([ls args] [n 0])
+      (if (null? ls)
+          (make-string n)
+          (let* ([s1 (car ls)]
+                 [m (string-length s1)]
+                 [s2 (f (cdr ls) (+ n m))])
+            (do ([i 0 (+ i 1)] [j n (+ j 1)])
+                ((= i m) s2)
+              (string-set! s2 j (string-ref s1 i))))))))")
+
+(formdef
+    :syntax "(substring string start end)"
+    :returns "a copy of string from start (inclusive) to end (exclusive)"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [start and end must be exact nonnegative integers; start must be less than or equal to end, while end must be less
+    than or equal to the length of string. If end = start, a string of length zero is returned. substring may be defined
+    without error checks as follows.])
+
+(src "
+(define substring
+  (lambda (s1 m n)
+    (let ([s2 (make-string (- n m))])
+      (do ([j 0 (+ j 1)] [i m (+ i 1)])
+          ((= i n) s2)
+        (string-set! s2 j (string-ref s1 i))))))
+
+(substring \"hi there\" 0 1) → \"h\"
+(substring \"hi there\" 3 6) → \"the\"
+(substring \"hi there\" 5 5) → \"\"")
+
+(src "
+(let ([str \"hi there\"])
+  (let ([end (string-length str)])
+    (substring str 0 end))) → \"hi there\"")
+
+(formdef
+    :syntax "(string-fill! string char)"
+    :returns "unspecified"
+    :libraries "(rnrs mutable-strings)")
+
+(p [string-fill! sets every character in string to char.])
+
+(src "
+(let ([str (string-copy \"sleepy\")])
+  (string-fill! str #\\Z)
+  str) → \"ZZZZZZ\"")
+
+(p [string-fill! might be defined as follows:])
+
+(src "
+(define string-fill!
+  (lambda (s c)
+    (let ([n (string-length s)])
+      (do ([i 0 (+ i 1)])
+          ((= i n))
+          (string-set! s i c)))))")
+
+(p [An alternative definition is given on page 276.])
+
+(formdef
+    :syntax "(string-upcase string)"
+    :returns "the upper-case equivalent of string"
+    :libraries "(rnrs unicode), (rnrs)")
+(formdef
+    :syntax "(string-downcase string)"
+    :returns "the lower-case equivalent of string"
+    :libraries "(rnrs unicode), (rnrs)")
+(formdef
+    :syntax "(string-foldcase string)"
+    :returns "the case-folded equivalent of string"
+    :libraries "(rnrs unicode), (rnrs)")
+(formdef
+    :syntax "(string-titlecase string)"
+    :returns "the title-case equivalent of string"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [These procedures implement Unicode's locale-independent case mappings from scalar-value sequences to scalar-value
+    sequences. These mappings do not always map single characters to single characters, so the length of the result
+    string may differ from the length of string. If the result string is the same as string (by string=?), string or a
+    copy of string may be returned. Otherwise, the result string is newly allocated. string-foldcase does not use the
+    special mappings for Turkic languages.])
+
+(p [string-titlecase converts the first cased character of each word in string to its title-case counterpart and
+    converts each other character to its lower-case counterpart. Word breaks are recognized as specified in Unicode
+    Standard Annex #29 ,(ref :bib 'b8).])
+
+(src "
+(string-upcase \"Hi\") → \"HI\"
+(string-downcase \"Hi\") → \"hi\"
+(string-foldcase \"Hi\") → \"hi\"
+
+(string-upcase \"Straße\") → \"STRASSE\"
+(string-downcase \"Straße\") → \"straße\"
+(string-foldcase \"Straße\") → \"strasse\"
+(string-downcase \"STRASSE\")  → \"strasse\"
+
+(string-downcase \"→\") → \"→\"
+
+(string-titlecase \"kNock KNoCK\") → \"Knock Knock\"
+(string-titlecase \"who's there?\") → \"Who's There?\"
+(string-titlecase \"r6rs\") → \"R6rs\"
+(string-titlecase \"R6RS\") → \"R6rs\"")
+
+(formdef
+    :syntax "(string-normalize-nfd string)"
+    :returns "the Unicode normalized form D of string"
+    :libraries "(rnrs unicode), (rnrs)")
+(formdef
+    :syntax "(string-normalize-nfkd string)"
+    :returns "the Unicode normalized form KD of string"
+    :libraries "(rnrs unicode), (rnrs)")
+(formdef
+    :syntax "(string-normalize-nfc string)"
+    :returns "the Unicode normalized form C of string"
+    :libraries "(rnrs unicode), (rnrs)")
+(formdef
+    :syntax "(string-normalize-nfkc string)"
+    :returns "the Unicode normalized form KC of string"
+    :libraries "(rnrs unicode), (rnrs)")
+
+(p [If the result string is the same as string (by string=?), string or a copy of string may be returned. Otherwise, the
+    result string is newly allocated.])
+
+(src "
+(string-normalize-nfd \"\xE9;\") → \"e\x301;\"
+(string-normalize-nfc \"\xE9;\") → \"\xE9;\"
+(string-normalize-nfd \"\x65;\x301;\") → \"e\x301;\"
+(string-normalize-nfc \"\x65;\x301;\") → \"\xE9;\"")
+
+(formdef
+    :syntax "(string->list string)"
+    :returns "a list of the characters in string"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [string->list allows a string to be converted into a list, so that Scheme's list-processing operations may be applied
+    to the processing of strings. string->list may be defined without error checks as follows.])
+
+(src "
+(define string->list
+  (lambda (s)
+    (do ([i (- (string-length s) 1) (- i 1)]
+         [ls '() (cons (string-ref s i) ls)])
+        ((< i 0) ls))))")
+
+(src "
+(string->list \"\") → ()
+(string->list \"abc\") → (#\\a #\\b #\\c)
+(apply char<? (string->list \"abc\")) → #t
+(map char-upcase (string->list \"abc\")) → (#\\A #\\B #\\C)")
+
+(formdef
+    :syntax "(list->string list)"
+    :returns "a string of the characters in list"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [list must consist entirely of characters.])
+
+(p [list->string is the functional inverse of string->list. A program might use both procedures together, first
+    converting a string into a list, then operating on this list to produce a new list, and finally converting the new
+    list back into a string.])
+
+(p [list->string may be defined without error checks as follows.])
+
+(src "
+(define list->string
+  (lambda (ls)
+    (let ([s (make-string (length ls))])
+      (do ([ls ls (cdr ls)] [i 0 (+ i 1)])
+          ((null? ls) s)
+        (string-set! s i (car ls))))))
+
+(list->string '()) → ""
+(list->string '(#\\a #\\b #\\c)) → \"abc\"
+(list->string
+  (map char-upcase
+       (string->list \"abc\"))) → \"ABC\""))
 
    (section :title [Vectors]
-      (p [TODO]))
+      (p [Vectors are more convenient and efficient than lists for some applications. Whereas accessing an arbitrary element
+    in a list requires a linear traversal of the list up to the selected element, arbitrary vector elements are accessed
+    in constant time. The length of a vector is the number of elements it contains. Vectors are indexed by exact
+    nonnegative integers, and the index of the first element of any vector is 0. The highest valid index for a given
+    vector is one less than its length.])
+
+    (p [As with lists, the elements of a vector can be of any type, and a single vector can hold more than one type of
+    object.])
+
+    (p [A vector is written as a sequence of objects separated by whitespace, preceded by the prefix #( and followed by
+    ). For example, a vector consisting of the elements a, b, and c would be written #(a b c).])
+
+(formdef
+    :syntax "(vector obj ...)"
+    :returns "a vector of the objects obj ..."
+    :libraries "(rnrs base), (rnrs)")
+
+(src "
+(vector) → #()
+(vector 'a 'b 'c) → #(a b c)")
+
+(formdef
+    :syntax "(make-vector n)"
+    :syntax "(make-vector n obj)"
+    :returns "a vector of length n"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [n must be an exact nonnegative integer. If obj is supplied, each element of the vector is filled with obj;
+    otherwise, the elements are unspecified.])
+
+(src "
+(make-vector 0) → #()
+(make-vector 0 '#(a)) → #()
+(make-vector 5 '#(a)) → #(#(a) #(a) #(a) #(a) #(a))")
+
+(formdef
+    :syntax "(vector-length vector)"
+    :returns "the number of elements in vector"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The length of a vector is always an exact nonnegative integer.])
+
+(src "
+(vector-length '#()) → 0
+(vector-length '#(a b c)) → 3
+(vector-length (vector 1 '(2) 3 '#(4 5))) → 4
+(vector-length (make-vector 300)) → 300")
+
+(formdef
+    :syntax "(vector-ref vector n)"
+    :returns "the nth element (zero-based) of vector"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [n must be an exact nonnegative integer less than the length of vector.])
+
+(src "
+(vector-ref '#(a b c) 0) → a
+(vector-ref '#(a b c) 1) → b
+(vector-ref '#(x y z w) 3) → w")
+
+(formdef
+    :syntax "(vector-set! vector n obj)"
+    :returns "unspecified"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [n must be an exact nonnegative integer less than the length of vector. vector-set! changes the nth element of vector
+    to obj.])
+
+(src "
+(let ([v (vector 'a 'b 'c 'd 'e)])
+  (vector-set! v 2 'x)
+  v) → #(a b x d e)")
+
+(formdef
+    :syntax "(vector-fill! vector obj)"
+    :returns "unspecified"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [vector-fill! replaces each element of vector with obj. It may be defined without error checks as follows.])
+
+(src "
+(define vector-fill!
+  (lambda (v x)
+    (let ([n (vector-length v)])
+      (do ([i 0 (+ i 1)])
+          ((= i n))
+        (vector-set! v i x)))))
+
+(let ([v (vector 1 2 3)])
+  (vector-fill! v 0)
+  v) → #(0 0 0)")
+
+(formdef
+    :syntax "(vector->list vector)"
+    :returns "a list of the elements of vector"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [vector->list provides a convenient method for applying list-processing operations to vectors. It may be defined
+    without error checks as follows.])
+
+(src "
+(define vector->list
+  (lambda (s)
+    (do ([i (- (vector-length s) 1) (- i 1)]
+         [ls '() (cons (vector-ref s i) ls)])
+        ((< i 0) ls))))
+
+(vector->list (vector)) → ()
+(vector->list '#(a b c)) → (a b c)
+
+(let ((v '#(1 2 3 4 5)))
+  (apply * (vector->list v))) → 120")
+
+(formdef
+    :syntax "(list->vector list)"
+    :returns "a vector of the elements of list"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [list->vector is the functional inverse of vector->list. The two procedures are often used in combination to take
+    advantage of a list-processing operation. A vector may be converted to a list with vector->list, this list processed
+    in some manner to produce a new list, and the new list converted back into a vector with list->vector.])
+
+(p [list->vector may be defined without error checks as follows.])
+
+(src "
+(define list->vector
+  (lambda (ls)
+    (let ([s (make-vector (length ls))])
+      (do ([ls ls (cdr ls)] [i 0 (+ i 1)])
+          ((null? ls) s)
+        (vector-set! s i (car ls))))))
+
+(list->vector '()) → #()
+(list->vector '(a b c)) → #(a b c)
+
+(let ([v '#(1 2 3 4 5)])
+  (let ([ls (vector->list v)])
+    (list->vector (map * ls ls)))) → #(1 4 9 16 25)")
+
+(formdef
+    :syntax "(vector-sort predicate vector)"
+    :returns "a vector containing the elements of vector, sorted according to predicate"
+    :libraries "(rnrs sorting), (rnrs)")
+(formdef
+    :syntax "(vector-sort! predicate vector)"
+    :returns "unspecified"
+    :libraries "(rnrs sorting), (rnrs)")
+
+(p [predicate should be a procedure that expects two arguments and returns #t if its first argument must precede its
+    second in the sorted vector. That is, if predicate is applied to two elements x and y, where x appears after y in
+    the input vector, the predicate should return true only if x should appear before y in the output vector. If this
+    constraint is met, vector-sort performs a stable sort, i.e., two elements are reordered only when necessary
+    according to predicate. vector-sort! performs the sort destructively and does not necessarily perform a stable
+    sort. Duplicate elements are not removed. predicate should not have any side effects.])
+
+(p [vector-sort may call predicate up to nlogn times, where n is the length of vector, while vector-sort! may call the
+    predicate up to n2 times. The looser bound for vector-sort! allows an implementation to use a quicksort algorithm,
+    which may be faster in some cases than algorithms that have the tighter nlogn bound.])
+
+(src "
+(vector-sort < '#(3 4 2 1 2 5)) → #(1 2 2 3 4 5)
+(vector-sort > '#(0.5 1/2)) → #(0.5 1/2)
+(vector-sort > '#(1/2 0.5)) → #(1/2 0.5)
+
+(let ([v (vector 3 4 2 1 2 5)])
+  (vector-sort! < v)
+  v) → #(1 2 2 3 4 5)"))
 
    (section :title [Bytevectors]
-      (p [TODO]))
+      (p [Bytevectors are vectors of raw binary data. Although nominally organized as a sequence of exact unsigned 8-bit
+    integers, a bytevector can be interpreted as a sequence of exact signed 8-bit integers, exact signed or unsigned
+    16-bit, 32-bit, 64-bit, or arbitrary-precision integers, IEEE single or double floating-point numbers, or arbitrary
+    combinations of the above.])
+
+    (p [The length of a bytevector is the number of 8-bit bytes it stores, and indices into a bytevector are always given as
+    byte offsets. Any data element may be aligned at any byte offset, regardless of the underlying hardware's alignment
+    requirements, and may be represented using a specified endianness (see below) that differs from that prescribed by
+    the hardware. Special, typically more efficient operators are provided for 16-, 32-, and 64-bit integers and single
+    and double floats that are in their native format, i.e,. with the endianness of the underlying hardware and stored
+    at an index that is a multiple of the size in bytes of the integer or float.])
+
+    (p [The endianness of a multi-byte data value determines how it is laid out in memory. In big-endian format, the value
+    is laid out with the more significant bytes at lower indices, while in little-endian format, the value is laid out
+    with the more significant bytes at higher indices. When a bytevector procedure accepts an endianness argument, the
+    argument may be the symbol big, representing the big-endian format, or the symbol little, representing the
+    little-endian format. Implementations may extend these procedures to accept other endianness symbols. The native
+    endianness of the implementation may be obtained via the procedure native-endianness.])
+
+    (p [Bytevectors are written with the #vu8( prefix in place of the #( prefix for vectors, e.g., #vu8(1 2 3). The elements
+    of a bytevector specified in this manner are always given as 8-bit unsigned exact integers, i.e., integers from 0 to
+    255 inclusive, written using any valid syntax for such numbers. Like strings, bytevectors are self-evaluating, so
+    they need not be quoted.])
+
+(src "
+'#vu8(1 2 3) → #vu8(1 2 3)
+#vu8(1 2 3) → #vu8(1 2 3)
+#vu8(#x3f #x7f #xbf #xff) → #vu8(63 127 191 255)")
+
+(formdef
+    :syntax "(endianness symbol)"
+    :returns "symbol"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [symbol must be the symbol little, the symbol big, or some other symbol recognized by the implementation as an
+    endianness symbol. It is a syntax violation if symbol is not a symbol or if it is not recognized by the
+    implementation as an endianness symbol.])
+
+(src "
+(endianness little) → little
+(endianness big) → big
+(endianness \"spam\") → exception")
+
+(formdef
+    :syntax "(native-endianness)"
+    :returns "a symbol naming the implementation's native endianness"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [The return value is the symbol little, the symbol big, or some other endianness symbol recognized by the
+    implementation. It typically reflects the endianness of the underlying hardware.])
+
+(src "
+(symbol? (native-endianness)) → #t")
+
+(formdef
+    :syntax '("(make-bytevector n)"
+              "(make-bytevector n fill)")
+    :returns "a new bytevector of length n"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [If fill is supplied, each element of the bytevector is initialized to fill; otherwise, the elements are
+    unspecified. The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255
+    inclusive. A negative fill value is treated as its two's complement equivalent.])
+
+(src "
+(make-bytevector 0) → #vu8()
+(make-bytevector 0 7) → #vu8()
+(make-bytevector 5 7) → #vu8(7 7 7 7 7)
+(make-bytevector 5 -7) → #vu8(249 249 249 249 249)")
+
+(formdef
+    :syntax "(bytevector-length bytevector)"
+    :returns "the length of bytevector in 8-bit bytes"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(src "
+(bytevector-length #vu8()) → 0
+(bytevector-length #vu8(1 2 3)) → 3
+(bytevector-length (make-bytevector 300)) → 300")
+
+(formdef
+    :syntax "(bytevector=? bytevector1 bytevector2)"
+    :returns "#t if the relation holds, #f otherwise"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [Two bytevectors are equal by bytevector=? if and only if they have the same length and same contents.])
+
+(src "
+(bytevector=? #vu8() #vu8()) → #t
+(bytevector=? (make-bytevector 3 0) #vu8(0 0 0)) → #t
+(bytevector=? (make-bytevector 5 0) #vu8(0 0 0)) → #f
+(bytevector=? #vu8(1 127 128 255) #vu8(255 128 127 1)) → #f")
+
+(formdef
+    :syntax "(bytevector-fill! bytevector fill)"
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255 inclusive. A
+    negative fill value is treated as its two's complement equivalent.])
+
+(p [bytevector-fill! replaces each element of bytevector with fill.])
+
+(src "
+(let ([v (make-bytevector 6)])
+  (bytevector-fill! v 255)
+  v) → #vu8(255 255 255 255 255 255)
+
+(let ([v (make-bytevector 6)])
+  (bytevector-fill! v -128)
+  v) → #vu8(128 128 128 128 128 128)")
+
+(formdef
+    :syntax "(bytevector-copy bytevector)"
+    :returns "a new bytevector that is a copy of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [bytevector-copy creates a new bytevector with the same length and contents as bytevector.])
+
+(src "
+(bytevector-copy #vu8(1 127 128 255)) → #vu8(1 127 128 255)
+
+(let ([v #vu8(1 127 128 255)])
+  (eq? v (bytevector-copy v))) → #f")
+
+(formdef
+    :syntax "(bytevector-copy! src src-start dst dst-start n)"
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [src and dst must be bytevectors. src-start, dst-start, and n must be exact nonnegative integers. The sum of
+    src-start and n must not exceed the length of src, and the sum of dst-start and n must not exceed the length of
+    dst.])
+
+(p [bytevector-copy! overwrites the n bytes of dst starting at dst-start with the n bytes of src starting at
+    src-start. This works even if dst is the same bytevector as src and the source and destination locations
+    overlap. That is, the destination is filled with the bytes that appeared at the source before the operation began.])
+
+(src "
+(define v1 #vu8(31 63 95 127 159 191 223 255))
+(define v2 (make-bytevector 10 0))
+
+(bytevector-copy! v1 2 v2 1 4)
+v2 → #vu8(0 95 127 159 191 0 0 0 0 0)
+
+(bytevector-copy! v1 5 v2 7 3)
+v2 → #vu8(0 95 127 159 191 0 0 191 223 255)
+
+(bytevector-copy! v2 3 v2 0 6)
+v2 → #vu8(159 191 0 0 191 223 0 191 223 255)
+
+(bytevector-copy! v2 0 v2 1 9)
+v2 → #vu8(159 159 191 0 0 191 223 0 191 223)")
+
+(formdef
+    :syntax "(bytevector-u8-ref bytevector n)"
+    :returns "the 8-bit unsigned byte at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer less than the length of bytevector.])
+
+(p [The value is returned as an exact 8-bit unsigned integer, i.e., a value in the range 0 to 255 inclusive.])
+
+(src "
+(bytevector-u8-ref #vu8(1 127 128 255) 0) → 1
+(bytevector-u8-ref #vu8(1 127 128 255) 2) → 128
+(bytevector-u8-ref #vu8(1 127 128 255) 3) → 255")
+
+(formdef
+    :syntax "(bytevector-s8-ref bytevector n)"
+    :returns "the 8-bit signed byte at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer less than the length of bytevector.])
+
+(p [The value returned is an exact 8-bit signed integer, i.e., a value in the range -128 to 127 inclusive, and is the
+    equivalent of the stored value treated as a two's complement value.])
+
+(src "
+(bytevector-s8-ref #vu8(1 127 128 255) 0) → 1
+(bytevector-s8-ref #vu8(1 127 128 255) 1) → 127
+(bytevector-s8-ref #vu8(1 127 128 255) 2) → -128
+(bytevector-s8-ref #vu8(1 127 128 255) 3) → -1")
+
+(formdef
+    :syntax "(bytevector-u8-set! bytevector n u8)"
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer less than the length of bytevector. u8 must be an 8-bit unsigned value, i.e.,
+    a value in the range 0 to 255 inclusive.])
+
+(p [bytevector-u8-set! changes the 8-bit value at index n (zero-based) of bytevector to u8.])
+
+(src "
+(let ([v (make-bytevector 5 -1)])
+  (bytevector-u8-set! v 2 128)
+  v) → #vu8(255 255 128 255 255)")
+
+(formdef
+    :syntax "(bytevector-s8-set! bytevector n s8)"
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer less than the length of bytevector. s8 must be an 8-bit signed value, i.e., a
+    value in the range -128 to 127 inclusive.])
+
+(p [bytevector-s8-set! changes the 8-bit value at index n (zero-based) of bytevector to the two's complement equivalent
+    of s8.])
+
+(src "
+(let ([v (make-bytevector 4 0)])
+  (bytevector-s8-set! v 1 100)
+  (bytevector-s8-set! v 2 -100)
+  v) → #vu8(0 100 156 0)")
+
+(formdef
+    :syntax "(bytevector->u8-list bytevector)"
+    :returns "a list of the 8-bit unsigned elements of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(src "
+(bytevector->u8-list (make-bytevector 0)) → ()
+(bytevector->u8-list #vu8(1 127 128 255)) → (1 127 128 255)
+
+(let ([v #vu8(1 2 3 255)])
+  (apply * (bytevector->u8-list v))) → 1530")
+
+(formdef
+    :syntax "(u8-list->bytevector list)"
+    :returns "a new bytevector of the elements of list"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [list must consist entirely of exact 8-bit unsigned integers, i.e., values in the range 0 to 255 inclusive.])
+
+(src "
+(u8-list->bytevector '()) → #vu8()
+(u8-list->bytevector '(1 127 128 255)) → #vu8(1 127 128 255)
+
+(let ([v #vu8(1 2 3 4 5)])
+  (let ([ls (bytevector->u8-list v)])
+    (u8-list->bytevector (map * ls ls)))) → #vu8(1 4 9 16 25)")
+
+(formdef
+    :syntax "(bytevector-u16-native-ref bytevector n)"
+    :returns "the 16-bit unsigned integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-s16-native-ref bytevector n)"
+    :returns "the 16-bit signed integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-u32-native-ref bytevector n)"
+    :returns "the 32-bit unsigned integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-s32-native-ref bytevector n)"
+    :returns "the 32-bit signed integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-u64-native-ref bytevector n)"
+    :returns "the 64-bit unsigned integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-s64-native-ref bytevector n)"
+    :returns "the 64-bit signed integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
+    number of bytes occupied by the value: 2 for 16-bit values, 4 for 32-bit values, and 8 for 64-bit values. The sum of
+    n and the number of bytes occupied by the value must not exceed the length of bytevector. The native endianness is
+    assumed.])
+
+(p [The return value is an exact integer in the appropriate range for the number of bytes occupied by the value. Signed
+    values are the equivalent of the stored value treated as a two's complement value.])
+
+(src-lite "(define v #vu8(#x12 #x34 #xfe #x56 #xdc #xba #x78 #x98))")
+
+(p [If native endianness is big:])
+
+(src "
+(bytevector-u16-native-ref v 2) → #xfe56
+(bytevector-s16-native-ref v 2) → #x-1aa
+(bytevector-s16-native-ref v 6) → #x7898
+
+(bytevector-u32-native-ref v 0) → #x1234fe56
+(bytevector-s32-native-ref v 0) → #x1234fe56
+(bytevector-s32-native-ref v 4) → #x-23458768
+
+(bytevector-u64-native-ref v 0) → #x1234fe56dcba7898
+(bytevector-s64-native-ref v 0) → #x1234fe56dcba7898")
+
+(p [If native endianness is little:])
+
+(src "
+(bytevector-u16-native-ref v 2) → #x56fe
+(bytevector-s16-native-ref v 2) → #x56fe
+(bytevector-s16-native-ref v 6) → #x-6788
+
+(bytevector-u32-native-ref v 0) → #x56fe3412
+(bytevector-s32-native-ref v 0) → #x56fe3412
+(bytevector-s32-native-ref v 4) → #x-67874524
+
+(bytevector-u64-native-ref v 0) → #x9878badc56fe3412
+(bytevector-s64-native-ref v 0) → #x-67874523a901cbee")
+
+(formdef
+    :syntax '("(bytevector-u16-native-set! bytevector n u16)"
+              "(bytevector-s16-native-set! bytevector n s16)"
+              "(bytevector-u32-native-set! bytevector n u32)"
+              "(bytevector-s32-native-set! bytevector n s32)"
+              "(bytevector-u64-native-set! bytevector n u64)"
+              "(bytevector-s64-native-set! bytevector n s64)")
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
+    number of bytes occupied by the value: 2 for 16-bit values, 4 for 32-bit values, and 8 for 64-bit values. The sum of
+    n and the number of bytes occupied by the value must not exceed the length bytevector. u16 must be a 16-bit unsigned
+    value, i.e., a value in the range 0 to 216 - 1 inclusive; s16 must be a 16-bit signed value, i.e., a value in the
+    range -215 to 215 - 1 inclusive; u32 must be a 32-bit unsigned value, i.e., a value in the range 0 to 232 - 1
+    inclusive; s32 must be a 32-bit signed value, i.e., a value in the range -231 to 231 - 1 inclusive; u64 must be a
+    64-bit unsigned value, i.e., a value in the range 0 to 264 - 1 inclusive; and s64 must be a 64-bit signed value,
+    i.e., a value in the range -263 to 263 - 1 inclusive. The native endianness is assumed.])
+
+(p [These procedures store the given value in the 2, 4, or 8 bytes starting at index n (zero-based) of
+    bytevector. Negative values are stored as their two's complement equivalent.])
+
+(src "
+(define v (make-bytevector 8 0))
+(bytevector-u16-native-set! v 0 #xfe56)
+(bytevector-s16-native-set! v 2 #x-1aa)
+(bytevector-s16-native-set! v 4 #x7898)")
+
+(p [If native endianness is big:])
+
+(src-lite "v → #vu8(#xfe #x56 #xfe #x56 #x78 #x98 #x00 #x00)")
+
+    (p [If native endianness is little:])
+
+(src-lite "v → #vu8(#x56 #xfe #x56 #xfe #x98 #x78 #x00 #x00)")
+
+(src "
+(define v (make-bytevector 16 0))
+(bytevector-u32-native-set! v 0 #x1234fe56)
+(bytevector-s32-native-set! v 4 #x1234fe56)
+(bytevector-s32-native-set! v 8 #x-23458768)")
+
+(p [If native endianness is big:])
+
+(src "
+v → #vu8(#x12 #x34 #xfe #x56 #x12 #x34 #xfe #x56
+         #xdc #xba #x78 #x98 #x00 #x00 #x00 #x00)")
+
+(p [If native endianness is little:])
+
+(src "
+v → #vu8(#x56 #xfe #x34 #x12 #x56 #xfe #x34 #x12
+         #x98 #x78 #xba #xdc #x00 #x00 #x00 #x00)")
+
+(src "
+(define v (make-bytevector 24 0))
+(bytevector-u64-native-set! v 0 #x1234fe56dcba7898)
+(bytevector-s64-native-set! v 8 #x1234fe56dcba7898)
+(bytevector-s64-native-set! v 16 #x-67874523a901cbee)")
+
+(p [If native endianness is big:])
+
+(src "
+v → #vu8(#x12 #x34 #xfe #x56 #xdc #xba #x78 #x98
+         #x12 #x34 #xfe #x56 #xdc #xba #x78 #x98
+         #x98 #x78 #xba #xdc #x56 #xfe #x34 #x12)")
+
+(p [If native endianness is little:])
+
+(src "
+v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
+         #x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
+         #x12 #x34 #xfe #x56 #xdc #xba #x78 #x98)")
+
+(formdef
+    :syntax "(bytevector-u16-ref bytevector n eness)"
+    :returns "the 16-bit unsigned integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-s16-ref bytevector n eness)"
+    :returns "the 16-bit signed integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-u32-ref bytevector n eness)"
+    :returns "the 32-bit unsigned integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-s32-ref bytevector n eness)"
+    :returns "the 32-bit signed integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-u64-ref bytevector n eness)"
+    :returns "the 64-bit unsigned integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-s64-ref bytevector n eness)"
+    :returns "the 64-bit signed integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
+    bytes occupied by the value (2 for 16-bit values, 4 for 32-bit values, and 8 for 32-bit values) must not exceed the
+    length of bytevector. n need not be a multiple of the number of bytes occupied by the value. eness must be a valid
+    endianness symbol naming the endianness.])
+
+(p [The return value is an exact integer in the appropriate range for the number of bytes occupied by the value. Signed
+    values are the equivalent of the stored value treated as a two's complement value.])
+
+(src "
+(define v #vu8(#x12 #x34 #xfe #x56 #xdc #xba #x78 #x98 #x9a #x76))
+(bytevector-u16-ref v 0 (endianness big)) → #x1234
+(bytevector-s16-ref v 1 (endianness big)) → #x34fe
+(bytevector-s16-ref v 5 (endianness big)) → #x-4588
+
+(bytevector-u32-ref v 2 'big) → #xfe56dcba
+(bytevector-s32-ref v 3 'big) → #x56dcba78
+(bytevector-s32-ref v 4 'big) → #x-23458768
+
+(bytevector-u64-ref v 0 'big) → #x1234fe56dcba7898
+(bytevector-s64-ref v 1 'big) → #x34fe56dcba78989a
+
+(bytevector-u16-ref v 0 (endianness little)) → #x3412
+(bytevector-s16-ref v 1 (endianness little)) → #x-1cc
+(bytevector-s16-ref v 5 (endianness little)) → #x78ba
+
+(bytevector-u32-ref v 2 'little) → #xbadc56fe
+(bytevector-s32-ref v 3 'little) → #x78badc56
+(bytevector-s32-ref v 4 'little) → #x-67874524
+
+(bytevector-u64-ref v 0 'little) → #x9878badc56fe3412
+(bytevector-s64-ref v 1 'little) → #x-6567874523a901cc")
+
+(formdef
+    :syntax '("(bytevector-u16-set! bytevector n u16 eness)"
+              "(bytevector-s16-set! bytevector n s16 eness)"
+              "(bytevector-u32-set! bytevector n u32 eness)"
+              "(bytevector-s32-set! bytevector n s32 eness)"
+              "(bytevector-u64-set! bytevector n u64 eness)"
+              "(bytevector-s64-set! bytevector n s64 eness)")
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
+    bytes occupied by the value must not exceed the length of bytevector. n need not be a multiple of the number of
+    bytes occupied by the value. u16 must be a 16-bit unsigned value, i.e., a value in the range 0 to 216 - 1 inclusive;
+    s16 must be a 16-bit signed value, i.e., a value in the range -215 to 215 - 1 inclusive; u32 must be a 32-bit
+    unsigned value, i.e., a value in the range 0 to 232 - 1 inclusive; s32 must be a 32-bit signed value, i.e., a value
+    in the range -231 to 231 - 1 inclusive; u64 must be a 64-bit unsigned value, i.e., a value in the range 0 to 264 - 1
+    inclusive; and s64 must be a 64-bit signed value, i.e., a value in the range -263 to 263 - 1 inclusive. eness must
+    be a valid endianness symbol naming the endianness.])
+
+(p [These procedures store the given value in the 2, 4, or 8 bytes starting at index n (zero-based) of
+    bytevector. Negative values are stored as their two's complement equivalent.])
+
+(src "
+(define v (make-bytevector 8 0))
+(bytevector-u16-set! v 0 #xfe56 (endianness big))
+(bytevector-s16-set! v 3 #x-1aa (endianness little))
+(bytevector-s16-set! v 5 #x7898 (endianness big))
+v → #vu8(#xfe #x56 #x0 #x56 #xfe #x78 #x98 #x0)
+
+(define v (make-bytevector 16 0))
+(bytevector-u32-set! v 0 #x1234fe56 'little)
+(bytevector-s32-set! v 6 #x1234fe56 'big)
+(bytevector-s32-set! v 11 #x-23458768 'little)
+v → #vu8(#x56 #xfe #x34 #x12 #x0 #x0
+         #x12 #x34 #xfe #x56 #x0
+         #x98 #x78 #xba #xdc #x0)
+
+(define v (make-bytevector 28 0))
+(bytevector-u64-set! v 0 #x1234fe56dcba7898 'little)
+(bytevector-s64-set! v 10 #x1234fe56dcba7898 'big)
+(bytevector-s64-set! v 19 #x-67874523a901cbee 'big)
+v → #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0 #x0
+         #x12 #x34 #xfe #x56 #xdc #xba #x78 #x98 #x0
+         #x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0)")
+
+(formdef
+    :syntax "(bytevector-uint-ref bytevector n eness size)"
+    :returns "the size-byte unsigned integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-sint-ref bytevector n eness size)"
+    :returns "the size-byte signed integer at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive
+    integer and specifies the number of bytes occupied by the value. The sum of n and size must not exceed the length of
+    bytevector. n need not be a multiple of the number of bytes occupied by the value. eness must be a valid endianness
+    symbol naming the endianness.])
+
+(p [The return value is an exact integer in the appropriate range for the number of bytes occupied by the value. Signed
+    values are the equivalent of the stored value treated as a two's complement value.])
+
+(src "
+(define v #vu8(#x12 #x34 #xfe #x56 #xdc #xba #x78 #x98 #x9a #x76))
+
+(bytevector-uint-ref v 0 'big 1) → #x12
+(bytevector-uint-ref v 0 'little 1) → #x12
+(bytevector-uint-ref v 1 'big 3) → #x34fe56
+(bytevector-uint-ref v 2 'little 7) → #x9a9878badc56fe
+
+(bytevector-sint-ref v 2 'big 1) → #x-02
+(bytevector-sint-ref v 1 'little 6) → #x78badc56fe34
+(bytevector-sint-ref v 2 'little 7) → #x-6567874523a902
+
+(bytevector-sint-ref (make-bytevector 1000 -1) 0 'big 1000) → -1")
+
+(formdef
+    :syntax '("(bytevector-uint-set! bytevector n uint eness size)"
+              "(bytevector-sint-set! bytevector n sint eness size)")
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive
+    integer and specifies the number of bytes occupied by the value. The sum of n and size must not exceed the length of
+    bytevector. n need not be a multiple of the number of bytes occupied by the value. uint must be an exact integer in
+    the range 0 to 2size·8 - 1 inclusive. sint must be an exact integer in the range -2size·8-1 to 2size·8-1 - 1
+    inclusive. eness must be a valid endianness symbol naming the endianness.])
+
+(p [These procedures store the given value in the size bytes starting at index n (zero-based) of bytevector. Negative
+    values are stored as their two's complement equivalent.])
+
+(src "
+(define v (make-bytevector 5 0))
+(bytevector-uint-set! v 1 #x123456 (endianness big) 3)
+v → #vu8(0 #x12 #x34 #x56 0)
+
+(define v (make-bytevector 7 -1))
+(bytevector-sint-set! v 1 #x-8000000000 (endianness little) 5)
+v → #vu8(#xff 0 0 0 0 #x80 #xff)")
+
+(formdef
+    :syntax "(bytevector->uint-list bytevector eness size)"
+    :returns "a new list of the size-byte unsigned elements of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector->sint-list bytevector eness size)"
+    :returns "a new list of the size-byte signed elements of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies
+    the number of bytes occupied by the value. It must be a value that evenly divides the length of bytevector.])
+
+(src "
+(bytevector->uint-list (make-bytevector 0) 'little 3) → ()
+
+(let ([v #vu8(1 2 3 4 5 6)])
+  (bytevector->uint-list v 'big 3)) → (#x010203 #x040506)
+
+(let ([v (make-bytevector 80 -1)])
+  (bytevector->sint-list v 'big 20)) → (-1 -1 -1 -1)")
+
+(formdef
+    :syntax '("(uint-list->bytevector list eness size)"
+              "(sint-list->bytevector list eness size)")
+    :returns "a new bytevector of the elements of list"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies
+    the number of bytes occupied by the value. For uint-list->bytevector, list must consist entirely of size-byte exact
+    unsigned integers, i.e., values in the range 0 to 2size·8 - 1 inclusive. For sint-list->bytevector, list must
+    consist entirely of size-byte exact signed integers, i.e., values in the range -2size·8-1 to 2size·8-1 - 1
+    inclusive. Each value occupies size bytes in the resulting bytevector, whose length is thus size times the length of
+    list.])
+
+(src "
+(uint-list->bytevector '() 'big 25) → #vu8()
+(sint-list->bytevector '(0 -1) 'big 3) → #vu8(0 0 0 #xff #xff #xff)
+
+(define (f size)
+  (let ([ls (list (- (expt 2 (- (* 8 size) 1)))
+                  (- (expt 2 (- (* 8 size) 1)) 1))])
+    (sint-list->bytevector ls 'little size)))
+(f 6) → #vu8(#x00 #x00 #x00 #x00 #x00 #x80
+            #xff #xff #xff #xff #xff #x7f)")
+
+(formdef
+    :syntax "(bytevector-ieee-single-native-ref bytevector n)"
+    :returns "the single floating-point value at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-ieee-double-native-ref bytevector n)"
+    :returns "the double floating-point value at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
+    number of bytes occupied by the value: 4 for single floats, 8 for double. The sum of n and the number of bytes
+    occupied by the value must not exceed the length of bytevector. The native endianness is assumed.])
+
+(p [The return value is an inexact real number. Examples appear after the mutation operators below.])
+
+(formdef
+    :syntax '("(bytevector-ieee-single-native-set! bytevector n x)"
+              "(bytevector-ieee-double-native-set! bytevector n x)")
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the
+    number of bytes occupied by the value: 4 for single floats, 8 for double. The sum of n and the number of bytes
+    occupied by the value must not exceed the length of bytevector. The native endianness is assumed.])
+
+(p [These procedures store the given value as an IEEE-754 single or double floating-point value at index n (zero-based)
+    of bytevector.])
+
+(src "
+(define v (make-bytevector 8 0))
+(bytevector-ieee-single-native-set! v 0 .125)
+(bytevector-ieee-single-native-set! v 4 -3/2)
+(list
+  (bytevector-ieee-single-native-ref v 0)
+  (bytevector-ieee-single-native-ref v 4)) → (0.125 -1.5)
+
+(bytevector-ieee-double-native-set! v 0 1e23)
+(bytevector-ieee-double-native-ref v 0) → 1e23")
+
+(formdef
+    :syntax "(bytevector-ieee-single-ref bytevector n eness)"
+    :returns "the single floating-point value at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+(formdef
+    :syntax "(bytevector-ieee-double-ref bytevector n eness)"
+    :returns "the double floating-point value at index n (zero-based) of bytevector"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
+    bytes occupied by the value (4 for a single float, 8 for a double) must not exceed the length of bytevector. n need
+    not be a multiple of the number of bytes occupied by the value. eness must be a valid endianness symbol naming the
+    endianness.])
+
+(p [The return value is an inexact real number. Examples appear after the mutation operators below.])
+
+(formdef
+    :syntax '("(bytevector-ieee-single-set! bytevector n x eness)"
+              "(bytevector-ieee-double-set! bytevector n x eness)")
+    :returns "unspecified"
+    :libraries "(rnrs bytevectors), (rnrs)")
+
+(p [n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of
+    bytes occupied by the value (4 for a single float, 8 for a double) must not exceed the length of bytevector. n need
+    not be a multiple of the number of bytes occupied by the value. eness must be a valid endianness symbol naming the
+    endianness.])
+
+(p [These procedures store the given value as an IEEE-754 single or double floating-point value at index n (zero-based)
+    of bytevector.])
+
+(src "
+(define v (make-bytevector 10 #xc7))
+(bytevector-ieee-single-set! v 1 .125 'little)
+(bytevector-ieee-single-set! v 6 -3/2 'big)
+(list
+  (bytevector-ieee-single-ref v 1 'little)
+  (bytevector-ieee-single-ref v 6 'big)) → (0.125 -1.5)
+v → #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
+
+(bytevector-ieee-double-set! v 1 1e23 'big)
+(bytevector-ieee-double-ref v 1 'big) → 1e23"))
 
    (section :title [Symbols]
-      (p [TODO]))
+      (p [Symbols are used for a variety of purposes as symbolic names in Scheme programs. Strings could be used for most of
+    the same purposes, but an important characteristic of symbols makes comparisons between symbols much more
+    efficient. This characteristic is that two symbols with the same name are identical in the sense of eq?. The reason
+    is that the Scheme reader (invoked by get-datum and read) and the procedure string->symbol catalog symbols in an
+    internal symbol table and always return the same symbol whenever the same name is encountered. Thus, no
+    character-by-character comparison is needed, as would be needed to compare two strings.])
+
+    (p [The property that two symbols may be compared quickly for equivalence makes them ideally suited for use as
+    identifiers in the representation of programs, allowing fast comparison of identifiers. This property also makes
+    symbols useful for a variety of other purposes. For example, symbols might be used as messages passed between
+    procedures, labels for list-structured records, or names for objects stored in an association list (see assq in
+    Section 6.3).])
+
+    (p [Symbols are written without double quotes or other bracketing characters. Parentheses, double quotes, spaces, and
+    most other characters with a special meaning to the Scheme reader are not allowed within the printed representation
+    of a symbol. These and any other Unicode character may appear anywhere within the printed representation of a symbol
+    with the syntax #\xn;, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar
+    value.])
+
+    (p [The grammar for symbols on page 458 gives a precise definition of the syntax of symbols.])
+
+(formdef
+    :syntax "(symbol=? symbol1 symbol2)"
+    :returns "#t if the two symbols are the same, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [Symbols can also be compared with eq?, which is typically more efficient than symbol=?.])
+
+(src "
+(symbol=? 'a 'a) → #t
+(symbol=? 'a (string->symbol \"a\")) → #t
+(symbol=? 'a 'b) → #f")
+
+(formdef
+    :syntax "(string->symbol string)"
+    :returns "a symbol whose name is string"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [string->symbol records all symbols it creates in an internal table that it shares with the system reader. If a
+    symbol whose name is equivalent to string (according to the predicate string=?) already exists in the table, this
+    symbol is returned. Otherwise, a new symbol is created with string as its name; this symbol is entered into the
+    table and returned.])
+
+(p [The effect of modifying a string after it is used as an argument to string->symbol is unspecified.])
+
+(src "
+(string->symbol \"x\") → x
+
+(eq? (string->symbol \"x\") 'x) → #t
+(eq? (string->symbol \"X\") 'x) → #f
+
+(eq? (string->symbol \"x\")
+     (string->symbol \"x\")) → #t
+
+(string->symbol \"()\") → \x28;\x29;")
+
+(formdef
+    :syntax "(symbol->string symbol)"
+    :returns "a string, the name of symbol"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The string returned by symbol->string should be treated as immutable. Unpredictable behavior can result if a string
+    passed to string->symbol is altered with string-set! or by any other means.])
+
+(src "
+(symbol->string 'xyz) → \"xyz\"
+(symbol->string 'Hi) → \"Hi\"
+(symbol->string (string->symbol \"()\")) → \"()\""))
 
    (section :title [Booleans]
-      (p [TODO]))
+      (p [While every Scheme object has a truth value when used in a conditional context, with every object but #f counting as
+    true, Scheme provides the dedicated true value #t for use when a value of an expression should convey nothing more
+    than that it is true.])
+
+(formdef
+    :syntax "(boolean=? boolean1 boolean2)"
+    :returns "#t if the two booleans are the same, #f otherwise"
+    :libraries "(rnrs base), (rnrs)")
+
+(p [The boolean values #t and #f may also be compared with eq?, which is typically more efficient than boolean=?.])
+
+(src "
+(boolean=? #t #t) → #t
+(boolean=? #t #f) → #f
+(boolean=? #t (< 3 4)) → #t"))
 
    (section :title [Hashtables]
-      (p [TODO]))
+      (p [Hashtables represent sets of associations between arbitrary Scheme values. They serve essentially the same purpose
+    as association lists (see page  165) but are typically much faster when large numbers of associations are involved.])
+
+(formdef
+    :syntax '("(make-eq-hashtable)"
+              "(make-eq-hashtable size)")
+    :returns "a new mutable eq hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable
+    should initially hold. Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the
+    existing elements. Providing a nonzero size can help limit the amount of rehashing that must be done as the table is
+    initially populated.])
+
+(p [An eq hashtable compares keys using the eq? (pointer equality) procedure and typically employs a hash function based
+    on object addresses. Its hash and equivalence functions are suitable for any Scheme object.])
+
+(src "
+(define ht1 (make-eq-hashtable))
+(define ht2 (make-eq-hashtable 32))")
+
+(formdef
+    :syntax '("(make-eqv-hashtable)"
+              "(make-eqv-hashtable size)")
+    :returns "a new mutable eqv hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable
+    should initially hold. Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the
+    existing elements. Providing a nonzero size can help limit the amount of rehashing that must be done as the table is
+    initially populated.])
+
+(p [An eqv hashtable compares keys using the eqv? procedure and typically employs a hash function based on object
+    addresses for objects that are identifiable with eq?. Its hash and equivalence functions are suitable for any Scheme
+    object.])
+
+(formdef
+    :syntax '("(make-hashtable hash equiv?)"
+              "(make-hashtable hash equiv? size)")
+    :returns "a new mutable hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [hash and equiv? must be procedures. If size is provided, it must be a nonnegative exact integer indicating
+    approximately how many elements the hashtable should initially hold. Hashtables grow as needed, but when the
+    hashtable grows it generally must rehash all of the existing elements. Providing a nonzero size can help limit the
+    amount of rehashing that must be done as the table is initially populated.])
+
+(p [The new hashtable computes hash values using hash and compares keys using equiv?, neither of which should modify the
+    hashtable. equiv? should compare two keys and return false only if the two keys should be distinguished. hash should
+    accept a key as an argument and return a nonnegative exact integer value that is the same each time it is called
+    with arguments that equiv? does not distinguish. The hash and equiv? procedures need not accept arbitrary inputs as
+    long as the hashtable is used only for keys that they do accept, and both procedures may assume that the keys are
+    immutable as long as the keys are not modified while they have associations stored in the table. The hashtable
+    operation may call hash and equiv? once, not at all, or multiple times for each hashtable operation.])
+
+(src-lite "(define ht (make-hashtable string-hash string=?))")
+
+(formdef
+    :syntax "(hashtable-mutable? hashtable)"
+    :returns "#t if hashtable is mutable, #f otherwise"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [Hashtables returned by one of the hashtable creation procedures above are mutable, but those created by
+    hashtable-copy may be immutable. Immutable hashtables cannot be altered by any of the procedures hashtable-set!,
+    hashtable-update!, hashtable-delete!, or hashtable-clear!.])
+
+(src "
+(hashtable-mutable? (make-eq-hashtable)) → #t
+(hashtable-mutable? (hashtable-copy (make-eq-hashtable))) → #f")
+
+(formdef
+    :syntax "(hashtable-hash-function hashtable)"
+    :returns "the hash function associated with hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+(formdef
+    :syntax "(hashtable-equivalence-function hashtable)"
+    :returns "the equivalence function associated with hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [hashtable-hash-function returns #f for eq and eqv hashtables.])
+
+(src "
+(define ht (make-eq-hashtable))
+(hashtable-hash-function ht) → #f
+(eq? (hashtable-equivalence-function ht) eq?) → #t
+
+(define ht (make-hashtable string-hash string=?))
+(eq? (hashtable-hash-function ht) string-hash) → #t
+(eq? (hashtable-equivalence-function ht) string=?) → #t")
+
+(formdef
+    :syntax '("(equal-hash obj)"
+              "(string-hash string)"
+              "(string-ci-hash string)"
+              "(symbol-hash symbol)")
+    :returns "an exact nonnegative integer hash value"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [These procedures are hash functions suitable for use with the appropriate Scheme predicate: equal? for equal-hash,
+    string=? for string-hash, string-ci=? for string-ci-hash, and symbol=? (or eq?) for symbol-hash. The hash values
+    returned by equal-hash, string-hash, and string-ci-hash are typically dependent on the current structure and
+    contents of the input values and are thus unsuitable if keys are modified while they have associations in a
+    hashtable.])
+
+(formdef
+    :syntax "(hashtable-set! hashtable key obj)"
+    :returns "unspecified"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
+    functions. obj may be any Scheme object.])
+
+(p [hashtable-set! associates key with obj in hashtable, replacing the existing association, if any.])
+
+(src "
+(define ht (make-eq-hashtable))
+(hashtable-set! ht 'a 73)")
+
+(formdef
+    :syntax "(hashtable-ref hashtable key default)"
+    :returns "see below"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [key should be an appropriate key for the hashtable's hash and equivalence functions. default may be any Scheme
+    object.])
+
+(p [hashtable-ref returns the value associated with key in hashtable. If no value is associated with key in hashtable,
+    hashtable-ref returns default.])
+
+(src "
+(define p1 (cons 'a 'b))
+(define p2 (cons 'a 'b))
+
+(define eqht (make-eq-hashtable))
+(hashtable-set! eqht p1 73)
+(hashtable-ref eqht p1 55) → 73
+(hashtable-ref eqht p2 55) → 55
+
+(define equalht (make-hashtable equal-hash equal?))
+(hashtable-set! equalht p1 73)
+(hashtable-ref equalht p1 55) → 73
+(hashtable-ref equalht p2 55) → 73")
+
+(formdef
+    :syntax "(hashtable-contains? hashtable key)"
+    :returns "#t if an association for key exists in hashtable, #f otherwise"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [key should be an appropriate key for the hashtable's hash and equivalence functions.])
+
+(src "
+(define ht (make-eq-hashtable))
+(define p1 (cons 'a 'b))
+(define p2 (cons 'a 'b))
+(hashtable-set! ht p1 73)
+(hashtable-contains? ht p1) → #t
+(hashtable-contains? ht p2) → #f")
+
+(formdef
+    :syntax "(hashtable-update! hashtable key procedure default)"
+    :returns "unspecified"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
+    functions. default may be any Scheme object. procedure should accept one argument, should return one value, and
+    should not modify hashtable.])
+
+(p [hashtable-update! applies procedure to the value associated with key in hashtable, or to default if no value is
+    associated with key in hashtable. If procedure returns, hashtable-update! associates key with the value returned by
+    procedure, replacing the old association, if any.])
+
+(p [A version of hashtable-update! that does not verify that it receives arguments of the proper type might be defined
+    as follows.])
+
+(src "
+(define hashtable-update!
+  (lambda (ht key proc value)
+    (hashtable-set! ht key
+      (proc (hashtable-ref ht key value)))))")
+
+(p [An implementation may, however, be able to implement hashtable-update! more efficiently by avoiding multiple hash
+    computations and hashtable lookups.])
+
+(src "
+(define ht (make-eq-hashtable))
+(hashtable-update! ht 'a
+  (lambda (x) (* x 2))
+  55)
+(hashtable-ref ht 'a 0) → 110
+(hashtable-update! ht 'a
+  (lambda (x) (* x 2))
+  0)
+(hashtable-ref ht 'a 0) → 220")
+
+(formdef
+    :syntax "(hashtable-delete! hashtable key)"
+    :returns "unspecified"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence
+    functions.])
+
+(p [hashtable-delete! drops any association for key from hashtable.])
+
+(src "
+(define ht (make-eq-hashtable))
+(define p1 (cons 'a 'b))
+(define p2 (cons 'a 'b))
+(hashtable-set! ht p1 73)
+(hashtable-contains? ht p1) → #t
+(hashtable-delete! ht p1)
+(hashtable-contains? ht p1) → #f
+(hashtable-contains? ht p2) → #f
+(hashtable-delete! ht p2)")
+
+(formdef
+    :syntax "(hashtable-size hashtable)"
+    :returns "number of entries in hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(src "
+(define ht (make-eq-hashtable))
+(define p1 (cons 'a 'b))
+(define p2 (cons 'a 'b))
+(hashtable-size ht) → 0
+(hashtable-set! ht p1 73)
+(hashtable-size ht) → 1
+(hashtable-delete! ht p1)
+(hashtable-size ht) → 0")
+
+(formdef
+    :syntax '("(hashtable-copy hashtable)"
+              "(hashtable-copy hashtable mutable?)")
+    :returns "a new hashtable containing the same entries as hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [If mutable? is present and not false, the copy is mutable; otherwise, the copy is immutable.])
+
+(src "
+(define ht (make-eq-hashtable))
+(define p1 (cons 'a 'b))
+(hashtable-set! ht p1 \"c\")
+(define ht-copy (hashtable-copy ht))
+(hashtable-mutable? ht-copy) → #f
+(hashtable-delete! ht p1)
+(hashtable-ref ht p1 #f) → #f
+(hashtable-delete! ht-copy p1) → exception: not mutable
+(hashtable-ref ht-copy p1 #f) → \"c\"")
+
+(formdef
+    :syntax '("(hashtable-clear! hashtable)"
+              "(hashtable-clear! hashtable size)")
+    :returns "unspecified"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [hashtable must be a mutable hashtable. If size is provided, it must be a nonnegative exact integer.])
+
+(p [hashtable-clear! removes all entries from hashtable. If size is provided, the hashtable is reset to the given size,
+    as if newly created by one of the hashtable creation operations with size argument size.])
+
+(src "
+(define ht (make-eq-hashtable))
+(define p1 (cons 'a 'b))
+(define p2 (cons 'a 'b))
+(hashtable-set! ht p1 \"first\")
+(hashtable-set! ht p2 \"second\")
+(hashtable-size ht) → 2
+(hashtable-clear! ht)
+(hashtable-size ht) → 0
+(hashtable-ref ht p1 #f) → #f")
+
+(formdef
+    :syntax "(hashtable-keys hashtable)"
+    :returns "a vector containing the keys in hashtable"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [The keys may appear in any order in the returned vector.])
+
+(src "
+(define ht (make-eq-hashtable))
+(define p1 (cons 'a 'b))
+(define p2 (cons 'a 'b))
+(hashtable-set! ht p1 \"one\")
+(hashtable-set! ht p2 \"two\")
+(hashtable-set! ht 'q \"three\")
+(hashtable-keys ht) → #((a . b) q (a . b))")
+
+(formdef
+    :syntax "(hashtable-entries hashtable)"
+    :returns "two vectors: one of keys and a second of values"
+    :libraries "(rnrs hashtables), (rnrs)")
+
+(p [hashtable-entries returns two values. The first is a vector containing the keys in hashtable, and the second is a
+    vector containing the corresponding values. The keys and values may appear in any order, but the order is the same
+    for the keys and for the corresponding values.])
+
+(src "
+(define ht (make-eq-hashtable))
+(define p1 (cons 'a 'b))
+(define p2 (cons 'a 'b))
+(hashtable-set! ht p1 \"one\")
+(hashtable-set! ht p2 \"two\")
+(hashtable-set! ht 'q \"three\")
+(hashtable-entries ht) → #((a . b) q (a . b))
+                        #(\"two\" \"three\" \"one\")"))
 
    (section :title [Enumerations]
-      (p [TODO])))
+      (p [Enumerations are ordered sets of symbols, typically used to name and manipulate options, as with the buffer modes
+    and file options that may be specified when files are created.])
+
+    (formdef
+    :syntax "(define-enumeration name (symbol ...) constructor)"
+    :libraries "(rnrs enums), (rnrs)")
+
+    (p [A define-enumeration form is a definition and can appear anywhere any other definition can appear.])
+
+    (p [The define-enumeration syntax creates a new enumeration set with the specified symbols in the specified order
+    forming the enumeration's universe. It defines a new syntactic form named by name that may be used to verify that a
+    symbol is in the universe. If x is in the universe, (name x) evaluates to x. It is a syntax violation if x is not in
+    the universe.])
+
+    (p [define-enumeration also defines a new syntactic form named by constructor that may be used to create subsets of the
+    enumeration type. If x ... are each in the universe, (constructor x ...) evaluates to an enumeration set containing
+    x .... Otherwise, it is a syntax violation. The same symbol may appear more than once in x ..., but the resulting
+    set contains only one occurrence of the symbol.])
+
+(src "
+(define-enumeration weather-element
+  (hot warm cold sunny rainy snowy windy)
+  weather)
+
+(weather-element hot) → hot
+(weather-element fun) → syntax violation
+(weather hot sunny windy) → #<enum-set>
+(enum-set->list (weather rainy cold rainy)) → (cold rainy)")
+
+(formdef
+    :syntax "(make-enumeration symbol-list)"
+    :returns "an enumeration set"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [This procedure creates a new enumeration type whose universe comprises the elements of symbol-list, which must be a
+    list of symbols, in the order of their first appearance in the list. It returns the universe of the new enumeration
+    type as an enumeration set.])
+
+(src "
+(define positions (make-enumeration '(top bottom above top beside)))
+(enum-set->list positions) → (top bottom above beside)")
+
+(formdef
+    :syntax "(enum-set-constructor enum-set)"
+    :returns "an enumeration-set construction procedure"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [This procedure returns a procedure p that may be used to create subsets of the universe of enum-set. p must be
+    passed a list of symbols, and each element of the list must be an element of the universe of enum-set. The
+    enumeration set returned by p contains all and only the symbols in the list it is passed. The value returned by p
+    may contain elements not in enum-set if the universe of enum-set contains those elements.])
+
+(src "
+(define e1 (make-enumeration '(one two three four)))
+(define p1 (enum-set-constructor e1))
+(define e2 (p1 '(one three)))
+(enum-set->list e2) → (one three)
+(define p2 (enum-set-constructor e2))
+(define e3 (p2 '(one two four)))
+(enum-set->list e3) → (one two four)")
+
+(formdef
+    :syntax "(enum-set-universe enum-set)"
+    :returns "the universe of enum-set, as an enumeration set"
+    :libraries "(rnrs enums), (rnrs)")
+
+(src "
+(define e1 (make-enumeration '(a b c a b c d)))
+(enum-set->list (enum-set-universe e1)) → (a b c d)
+(define e2 ((enum-set-constructor e1) '(c)))
+(enum-set->list (enum-set-universe e2)) → (a b c d)")
+
+(formdef
+    :syntax "(enum-set->list enum-set)"
+    :returns "a list of the elements of enum-set"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [The symbols in the resulting list appear in the order given to them when the enumeration type of enum-set was
+    created.])
+
+(src "
+(define e1 (make-enumeration '(a b c a b c d)))
+(enum-set->list e1) → (a b c d)
+(define e2 ((enum-set-constructor e1) '(d c a b)))
+(enum-set->list e2) → (a b c d)")
+
+(formdef
+    :syntax "(enum-set-subset? enum-set1 enum-set2)"
+    :returns "#t if enum-set1 is a subset of enum-set2, #f otherwise"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [An enumeration set enum-set1 is a subset of an enumeration set enum-set2 if and only if the universe of enum-set1 is
+    a subset of the universe of enum-set2 and each element of enum-set1 is an element of enum-set2.])
+
+(src "
+(define e1 (make-enumeration '(a b c)))
+(define e2 (make-enumeration '(a b c d e)))
+(enum-set-subset? e1 e2) → #t
+(enum-set-subset? e2 e1) → #f
+(define e3 ((enum-set-constructor e2) '(a c)))
+(enum-set-subset? e3 e1) → #f
+(enum-set-subset? e3 e2) → #t")
+
+(formdef
+    :syntax "(enum-set=? enum-set1 enum-set2)"
+    :returns "#t if enum-set1 and enum-set2 are equivalent, #f otherwise"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [Two enumeration sets enum-set1 and enum-set2 are equivalent if each is a subset of the other.])
+
+(src "
+(define e1 (make-enumeration '(a b c d)))
+(define e2 (make-enumeration '(b d c a)))
+(enum-set=? e1 e2) → #t
+(define e3 ((enum-set-constructor e1) '(a c)))
+(define e4 ((enum-set-constructor e2) '(a c)))
+(enum-set=? e3 e4) → #t
+(enum-set=? e3 e2) → #f")
+
+(p [enum-set=? could be defined in terms of enum-set-subset? as follows.])
+
+(src "
+(define enum-set=?
+  (lambda (e1 e2)
+    (and (enum-set-subset? e1 e2) (enum-set-subset? e2 e1))))")
+
+(formdef
+    :syntax "(enum-set-member? symbol enum-set)"
+    :returns "#t if symbol is an element of enum-set, #f otherwise"
+    :libraries "(rnrs enums), (rnrs)")
+
+(src "
+(define e1 (make-enumeration '(a b c d e)))
+(define e2 ((enum-set-constructor e1) '(d b)))
+(enum-set-member? 'c e1) → #t
+(enum-set-member? 'c e2) → #f")
+
+(formdef
+    :syntax "(enum-set-union enum-set1 enum-set2)"
+    :returns "the union of enum-set1 and enum-set2"
+    :libraries "(rnrs enums), (rnrs)")
+(formdef
+    :syntax "(enum-set-intersection enum-set1 enum-set2)"
+    :returns "the intersection of enum-set1 and enum-set2"
+    :libraries "(rnrs enums), (rnrs)")
+(formdef
+    :syntax "(enum-set-difference enum-set1 enum-set2)"
+    :returns "the difference of enum-set1 and enum-set2"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [enum-set1 and enum-set2 must have the same enumeration type. Each procedure returns a new enumeration set
+    representing the union, intersection, or difference of the two sets.])
+
+(src "
+(define e1 (make-enumeration '(a b c d)))
+(define e2 ((enum-set-constructor e1) '(a c)))
+(define e3 ((enum-set-constructor e1) '(b c)))
+(enum-set->list (enum-set-union e2 e3)) → (a b c)
+(enum-set->list (enum-set-intersection e2 e3)) → (c)
+(enum-set->list (enum-set-difference e2 e3)) → (a)
+(enum-set->list (enum-set-difference e3 e2)) → (b)
+(define e4 (make-enumeration '(b d c a)))
+(enum-set-union e1 e4) → exception: different enumeration types")
+
+(formdef
+    :syntax "(enum-set-complement enum-set)"
+    :returns "the complement of enum-set relative to its universe"
+    :libraries "(rnrs enums), (rnrs)")
+
+(src "
+(define e1 (make-enumeration '(a b c d)))
+(enum-set->list (enum-set-complement e1)) → ()
+(define e2 ((enum-set-constructor e1) '(a c)))
+(enum-set->list (enum-set-complement e2)) → (b d)")
+
+(formdef
+    :syntax "(enum-set-projection enum-set1 enum-set2)"
+    :returns "the projection of enum-set1 into the universe of enum-set2"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [Any elements of enum-set1 not in the universe of enum-set2 are dropped. The result is of the same enumeration type
+    as enum-set2.])
+
+(src "
+(define e1 (make-enumeration '(a b c d)))
+(define e2 (make-enumeration '(a b c d e f g)))
+(define e3 ((enum-set-constructor e1) '(a d)))
+(define e4 ((enum-set-constructor e2) '(a c e g)))
+(enum-set->list (enum-set-projection e4 e3)) → (a c)
+(enum-set->list
+  (enum-set-union e3
+    (enum-set-projection e4 e3))) → (a c d)")
+
+(formdef
+    :syntax "(enum-set-indexer enum-set)"
+    :returns "a procedure that returns the index of a symbol in the universe of enum-set"
+    :libraries "(rnrs enums), (rnrs)")
+
+(p [enum-set-indexer returns a procedure p that, when applied to a symbol in the universe of enum-set, returns the index
+    of the symbol (zero-based) in the ordered set of symbols that form the universe. If applied to a symbol not in the
+    universe, p returns #f.])
+
+(src "
+(define e1 (make-enumeration '(a b c d)))
+(define e2 ((enum-set-constructor e1) '(a d)))
+(define p (enum-set-indexer e2))
+(list (p 'a) (p 'c) (p 'e)) → (0 2 #f)")))
