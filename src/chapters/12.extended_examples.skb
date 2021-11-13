@@ -23,5 +23,5 @@
       (p [TODO]))
    (section :title [A Unification Algorithm]
       (p [TODO]))
-   (section :title [Multitasking with Engines]
+   (section :title "Многопоточность на Engines"
       (p [TODO])))

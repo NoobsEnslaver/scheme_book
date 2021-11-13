@@ -5,13 +5,23 @@
              (skribilo writer)
              (ice-9 string-fun))
 
+(define my-ids (list))
+(define (make-id x)
+  (cond
+   ((symbol? x)
+    (let* ((x-str (symbol->string x))
+           (rec (assq x my-ids))
+           (num (if (pair? rec)
+                    (+ 1 (cdr rec))
+                    1)))
+      (set! my-ids (assq-set! my-ids x num))
+      (string-append x-str "-" (number->string num))))
+   ((string? x) (string-replace-substring (string-replace-substring x "#|+" "") "|#" ""))
+   (else #f)))
+
 ;; TODO: вынести
 (define* (src-lite :key line inline . body)
   (prog :line line :inline inline
-        (source :language scheme body)))
-
-(define* (src-inline :key line . body)
-  (prog :line line :inline #t
         (source :language scheme body)))
 
 (define* (src . body)
@@ -21,6 +31,12 @@
 (define (code . body)
   (src-lite :inline #t body))
 
+(define old-var var)
+(define (var . body)
+  (if (eq? (engine-ident (*current-engine*)) 'latex)
+      (font :size -2 (it (old-var body)))
+      (old-var body)))
+
 (define* (include-src path
                       :optional (from #f)
                                 (to* #f)
@@ -28,10 +44,13 @@
   (let ((to (cond
              (to* to*)
              ((string? from) (string-replace-substring from "#|+" "#|-"))
-             (else from))))
-    (frame :width 100.0 :minted-frame-type 'leftline
-           (prog :line #t
-            (source :language scheme :file path :start from :stop to :definition definition)))))
+             (else from)))
+        (ident (make-id (or definition from))))
+    (list
+     (when ident (mark ident))
+     (frame :width 100.0 :minted-frame-type 'leftline
+       (prog :line #t
+         (source :language scheme :file path :start from :stop to :definition definition))))))
 
 (define (chapter-image path)
     (flush :side 'left (image :file path :width 25.0)))
@@ -67,16 +86,16 @@
 (let ((le (find-engine 'latex)))
   (define (opt-append key val)
     (if (string? (engine-custom le key))
-        (engine-custom-set! le key (string-append "\n" val (engine-custom le key) "\n"))
+        (engine-custom-set! le key (string-append val (engine-custom le key)))
         (engine-custom-set! le key val)))
 
-    (engine-custom-set! le 'class-has-chapters? #t)
-    (engine-custom-set! le 'image-engine 'graphicx)
-    (engine-custom-set! le 'toc-depth 'section)
-    (engine-custom-set! le 'toc-depth 'section)
-    (engine-custom-set! le 'documentclass "\\documentclass[12pt,fleqn,oneside]{book}\n")
-    (opt-append 'usepackage "\\usepackage[margin=0.8in]{geometry}")
-    (opt-append 'predocument "\\usemintedstyle{default}
+  (russify-latex! le)
+  (engine-custom-set! le 'class-has-chapters? #t)
+  (engine-custom-set! le 'image-engine 'graphicx)
+  (engine-custom-set! le 'toc-depth 'section)
+  (engine-custom-set! le 'documentclass "\\documentclass[12pt,fleqn,oneside]{book}\n")
+  (opt-append 'usepackage "\\usepackage[margin=0.8in]{geometry}\n")
+  (opt-append 'predocument "\\usemintedstyle{default}
 \\hypersetup{
 colorlinks=true,
 linkcolor=blue,

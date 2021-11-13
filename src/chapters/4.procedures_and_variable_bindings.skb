@@ -9,7 +9,7 @@
        ,(var "let-values") и ,(var "set!").])
    (p [Различные другие формы, которые связывают или присваивают переменные, для которых привязка или присваивание не
        является основной целью (например, именованный ,(var "let")), описаны в главе 5.])
-   (section :title [Ссылки на переменные]
+   (section :title "Ссылки на переменные"
       (formdef
       :syntax "variable"
       :returns "значение переменной")
@@ -37,7 +37,7 @@
 
    (include-src "src/scheme/procedures_and_variable_bindings.scm" "#|+variables-bindings-3|#")
 
-   (section :title [lambda]
+   (section :title "lambda"
       (formdef
       :syntax "(lambda formals body1 body2 ...)"
       :returns "процедуру"
@@ -85,7 +85,7 @@
  1 2 3 4) → (1 2 (3 4))
 ((lambda x x) 7 13) → (7 13)"))
 
-   (section :title [case-lambda]
+   (section :title "case-lambda"
       (p [Лямбда-выражение Scheme всегда создает процедуру с фиксированным числом аргументов или с неопределенным числом
           аргументов, большим или равным определенному числу. В частности, ])
 
@@ -145,7 +145,7 @@
           опустив среднюю клаузу:])
       (include-src "src/scheme/procedures_and_variable_bindings.scm" :definition 'substring3))
 
-   (section :title [Локальные связывания]
+   (section :title "Локальные связывания"
       (formdef
       :syntax "(let ((var expr) ...) body1 body2 ...)"
       :returns "значение последнего выражения в теле"
@@ -253,7 +253,7 @@
 
       (include-src "src/scheme/procedures_and_variable_bindings.scm" "#|+local-bindings-4|#"))
 
-   (section :title [Множественные значения]
+   (section :title "Множественные значения"
       (formdef
       :syntax '("(let-values ((formals expr) ...) body1 body2 ...)"
                 "(let*-values ((formals expr) ...) body1 body2 ...)")
@@ -266,7 +266,7 @@
           ,(var "lambda") выше. Определение допустимых значений приведено в разделе 8.3.])
 
       (include-src "src/scheme/procedures_and_variable_bindings.scm" "#|+multiple-values-1|#"))
-   (section :title [Объявление переменных]
+   (section :title "Объявление переменных"
       (formdef
       :syntax '("(define var expr)"
                 "(define var)"
@@ -319,7 +319,7 @@
           будет связана как переменная, окажется ложным, и если ,(var "f") не переопределено до его вызова, реализация, вероятно,
           вызовет исключение.]))
 
-   (section :title [Присваивания]
+   (section :title "Присваивания"
       (formdef
       :syntax "(set! var expr)"
       :returns "unspecified"

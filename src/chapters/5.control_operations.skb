@@ -2,116 +2,118 @@
 
 (chapter :title "Управляющие структуры"
    (chapter-image "images/ch5.png")
-   (p [This chapter introduces the syntactic forms and procedures that serve as control structures for Scheme programs, The
-       first section covers the most basic control structure, procedure application, and the remaining sections cover
-       sequencing, conditional evaluation, recursion, mapping, continuations, delayed evaluation, multiple values, and
-       evaluation of programs constructed at run time.])
-   (section :title [Procedure Application]
+   (p [В этой главе представлены синтаксические формы и процедуры, которые служат в качестве управляющих структур для программ Scheme.
+       Первый раздел охватывает самую базовую структуру управления, применение процедуры, а остальные разделы охватывают последовательное и
+       условное выполнение, рекурсию, отображение (mapping), продолжения, отложенные вычисления (delayed evaluation), множественные значения
+       и выполнение программ, созданных во время выполнения.])
+
+   (section :title [Применение процедуры]
       (formdef
       :syntax "(expr0 expr1 ...)"
-      :returns "values of applying the value of expr0 to the values of expr1 ...")
-      (p [Procedure application is the most basic Scheme control structure. Any structured form without a syntax keyword in
-          the first position is a procedure application. The expressions expr0 and expr1 ... are evaluated; each should
-          evaluate to a single value. After each of these expressions has been evaluated, the value of expr0 is applied to the
-          values of expr1 .... If expr0 does not evaluate to a procedure, or if the procedure does not accept the number of
-          arguments provided, an exception with condition type &assertion is raised.])
-      (p [The order in which the procedure and argument expressions are evaluated is unspecified. It may be left to right,
-          right to left, or any other order. The evaluation is guaranteed to be sequential, however: whatever order is chosen,
-          each expression is fully evaluated before evaluation of the next is started.])
+      :returns "значение(я), как результат применения результата вычисления expr0 к результату вычисления expr1 ...")
+      (p [Применение процедуры - самая базовая управляющая структура в Scheme. Любая составная форма, у которой в первой позиции не
+          стоит синтаксическое ключевое слово, это применение процедуры. Выражения ,(var "expr0, expr1 ...") вычисляются, каждое должно быть
+          вычислено в единственное значение. После того, как каждое из этих выражений вычислено, результат вычисления ,(var "expr0") применяется
+          к результатам вычисления ,(var "expr1 ..."). Если expr0 вычисляется не в процедуру, или в процедуру с количеством аргементов, отличным
+          от представленного, возбуждается исключение типа ,(var "&assertion").])
+      (p [Порядок, в котором вычисляются выражения процедуры и аргумента, не указан. Он может быть слева направо, справа налево или в любом
+          другом порядке. Однако гарантируется, что вычисление будет последовательным: какой бы порядок ни был выбран, каждое выражение
+          должно быть полностью вычислено до начала вычисления следующего.])
       (include-src "src/scheme/5.control_operations.scm" "#|+procedure-application-1|#")
 
       (formdef
       :syntax "(apply procedure obj ... list)"
-      :returns "the values of applying procedure to obj ... and the elements of list"
+      :returns "значение(я), как результат применения procedure к obj ... и элементам списка list"
       :libraries "(rnrs base), (rnrs)")
-      (p [apply invokes procedure, passing the first obj as the first argument, the second obj as the second argument, and so
-          on for each object in obj ..., and passing the elements of list in order as the remaining arguments. Thus, procedure
-          is called with as many arguments as there are objs plus elements of list.])
-      (p [apply is useful when some or all of the arguments to be passed to a procedure are in a list, since it frees the
-          programmer from explicitly destructuring the list.])
+      (p [,(var "apply") выполняет процедуру ,(var "procedure"), передавая первый объект ,(var "obj") в качестве первого аргумента,
+          второй в качестве второго и так далее, для каждого объекта из ,(var "..."), а элементы из ,(var "list") добавляются к
+          списку аргументов в порядке, в котором они находятся в списке. Таким образом, процедура вызывается с таким количеством
+          аргументов, сколько есть объектов плюс элементы списка.])
+      (p [,(var "apply") полезен, когда некоторые или все аргументы, которые должны быть переданы процедуре, находятся в списке,
+          поскольку он освобождает программиста от явного деструктурирования списка.])
       (include-src "src/scheme/5.control_operations.scm" "#|+procedure-application-2|#"))
 
-   (section :title [Sequencing]
+   (section :title [Последовательное выполнение]
       (formdef
       :syntax "(begin expr1 expr2 ...)"
-      :returns "the values of the last subexpression"
+      :returns "результат(ы) вычисления последнего подвыражения"
       :libraries "(rnrs base), (rnrs)")
-      (p [The expressions expr1 expr2 ... are evaluated in sequence from left to right. begin is used to sequence assignments,
-          input/output, or other operations that cause side effects.])
+      (p [Выражения ,(var "expr1 expr2 ...") выполняются последовательно слева направо. ,(var "begin") используется для упорядочивания
+          присваиваний, операций ввода/вывода и других операций с побочными эффектами.])
       (include-src "src/scheme/5.control_operations.scm" "#|+sequencing-1|#")
-      (p [A begin form may contain zero or more definitions in place of the expressions expr1 expr2 ..., in which case it is
-          considered to be a definition and may appear only where definitions are valid.])
+      (p [,(var "begin") может содеждать ноль и более объявлений на местах выражений ,(var "expr1 expr2 ..."), тогда эти объявления
+          учитываются и считаются действительными в области их действия.])
       (include-src "src/scheme/5.control_operations.scm" "#|+sequencing-2|#")
-      (p [This form of begin is primarily used by syntactic extensions that must expand into multiple definitions. (See page 101.)])
-      (p [The bodies of many syntactic forms, including lambda, case-lambda, let, let*, letrec, and letrec*, as well as the
-          result clauses of cond, case, and do, are treated as if they were inside an implicit begin; i.e., the expressions
-          making up the body or result clause are executed in sequence, with the values of the last expression being
-          returned.]))
+      (p [Подобным образом ,(var "begin") используется в основном в расширениях синтаксиса, которые должны раскрыться в несколко объявлений.
+          (,(ref :text "см." :ident "variable-definitions-2" :page #t))])
+      (p [Тела многих синтаксических форм, таких как ,(var "lambda"), ,(var "case-lambda"), ,(var "let"), ,(var "let*"), ,(var "letrec"),
+          ,(var "letrec*"), так же как и клаузы результата в ,(var "cond"), ,(var "case"), и ,(var "do") обрабатываются, как будто они неявно
+          заключены в ,(var "begin") т.е. выражения, составляющие тело, или результирующую клаузу выполняются последовательно, а значение
+          последнего выражения возвращается в качестве результата]))
 
-   (section :title [Conditionals]
+   (section :title [Условия]
       (formdef
       :syntax '("(if test consequent alternative)"
                 "(if test consequent)")
-      :returns "the values of consequent or alternative depending on the value of test"
+      :returns "результат(ы) вычисления выражения consequent или выражения alternative в зависимости от результата вычисления test"
       :libraries "(rnrs base), (rnrs)")
-      (p [The test, consequent, and alternative subforms must be expressions. If test evaluates to a true value (anything
-          other than #f), consequent is evaluated and its values are returned. Otherwise, alternative is evaluated and its
-          values are returned. With the second, "one-armed," form, which has no alternative, the result is unspecified if test
-          evaluates to false.])
+      (p [Формы ,(var "test"), ,(var "consequent"), и ,(var "alternative") должны быть выражениями. Если ,(var "test") вычисляется в истину
+         (что угодно, кроме #f), то вычисляется выражение ,(var "consequent") и возвращается его результат. Иначе, вычисляется
+          ,(var "alternative") и результат этого вычисления возвращается как результат. Для второй, "однорукой", формы, не имеющей ,(var "alternative"),
+          возвращаемый результат не определён, если тест вычислился в ложь.])
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-1|#")
 
       (formdef
       :syntax "(not obj)"
-      :returns "#t if obj is false, #f otherwise"
+      :returns "#t если obj это ложь, иначе #f"
       :libraries "(rnrs base), (rnrs)")
-      (p [,(var "not") is equivalent to ,(code "(lambda (x) (if x #f #t))").])
+      (p [,(var "not") это эквивалент ,(code "(lambda (x) (if x #f #t))").])
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-2|#")
 
       (formdef
       :syntax "(and expr ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [If no subexpressions are present, the and form evaluates to #t. Otherwise, and evaluates each subexpression in
-          sequence from left to right until only one subexpression remains or a subexpression returns #f. If one subexpression
-          remains, it is evaluated and its values are returned. If a subexpression returns #f, and returns #f without
-          evaluating the remaining subexpressions. A syntax definition of and appears on page 62.])
+      (p [Если подвыражения отсутствуют, то форма ,(var "and") вычисляется в ,(var "#t"). В ином случае, подвыражения вычисляются
+          последовательно слева направо до тех пор, пока не останется только одно подвыражение или одно из подвыражений не вернёт ,(var "#f").
+          Если осталось только одно подвыражение, оно вычисляется и результат его вычисления возвращается в качестве результата.
+          Если подвыражение вернуло ,(var "#f"), то всё выражение ,(var "and") возвращает ,(var "#f"), не производя вычисления оставшихся
+          подвыражений. Определение синтаксиса ,(var "and") приведено на ,(ref :text "стр." :ident "and-1" :page #t)])
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-3|#")
 
       (formdef
       :syntax "(or expr ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [If no subexpressions are present, the or form evaluates to #f. Otherwise, or evaluates each subexpression in
-          sequence from left to right until only one subexpression remains or a subexpression returns a value other than
-          #f. If one subexpression remains, it is evaluated and its values are returned. If a subexpression returns a value
-          other than #f, or returns that value without evaluating the remaining subexpressions. A syntax definition of or
-          appears on page 63.])
+      (p [Если подвыражения отсутствуют, то форма ,(var "or") вычисляется в ,(var "#f"). В ином случае, подвыражения вычисляются
+          последовательно слева направо до тех пор, пока не останется только одно подвыражение или одно из подвыражений не вернёт
+          нечто отличное от ,(var "#f"). Если осталось только одно подвыражение, оно вычисляется и результат его вычисления возвращается
+          в качестве результата. Если подвыражение вернуло значение, отличное от ,(var "#f"), то всё выражение ,(var "or") возвращает это значение,
+          не производя вычисления оставшихся подвыражений. Определение синтаксиса ,(var "or") приведено на ,(ref :text "стр." :ident "or-1" :page #t)])
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-4|#")
 
       (formdef
       :syntax "(cond clause1 clause2 ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [Each clause but the last must take one of the forms below.])
-
-      (src-lite "(test)
+      (p [Каждая клауза, кроме последней, должна иметь одну из следующих форм:])
+      (src "(test)
 (test expr1 expr2 ...)
 (test => expr)")
-
-      (p [The last clause may be in any of the above forms, or it may be an "else clause" of the form])
+      (p [Последняя клауза может иметь одну из представленых выше форм, либо это может быть else-клауза следующей формы:])
       (src-lite "(else expr1 expr2 ...)")
-      (p [Each test is evaluated in order until one evaluates to a true value or until all of the tests have been
-          evaluated. If the first clause whose test evaluates to a true value is in the first form given above, the value of
-          test is returned.])
-      (p [If the first clause whose test evaluates to a true value is in the second form given above, the expressions expr1
-          expr2... are evaluated in sequence and the values of the last expression are returned.])
-      (p [If the first clause whose test evaluates to a true value is in the third form given above, the expression expr is
-          evaluated. The value should be a procedure of one argument, which is applied to the value of test. The values of
-          this application are returned.])
-      (p [If none of the tests evaluates to a true value and an else clause is present, the expressions expr1 expr2 ... of the
-          else clause are evaluated in sequence and the values of the last expression are returned.])
-      (p [If none of the tests evaluates to a true value and no else clause is present, the value or values are unspecified.])
-      (p [See page 305 for a syntax definition of cond.])
+      (p [Каждый ,(var "test") вычисляется по порядку, до тех пор пока один из них не вычислится в истину, либо пока не будут вычислены все.
+          Если первая клаузка, тест которой вычислился в истину, имеет первую из представленных выше форм, то результат вычисления теста возвращается
+          в качестве результата вычисления всего выражения.])
+      (p [Если первая клаузка, тест которой вычислился в истину, имеет вторую из представленных выше форм, то выражения ,(var "expr1 expr2 ...")
+          вычисляются по порядку и значение последнего выражения возвращается в качестве результата.])
+      (p [Если первая клаузка, тест которой вычислился в истину, имеет третью из представленных выше форм, то выражение ,(var "expr") вычисляется.
+          Выражение должно представлять из себя процедуру от одного аргумента, которая будет применена к результату вычисления выражения ,(var "test").
+          Результат этого применения возвращается в качестве результата.])
+      (p [Если не один из тестов не вычислился в истину и else-клауза присутствует, то выражения ,(var "expr1 expr2 ...")
+          из else-клаузы вычисляются по порядку и значение последнего выражения возвращается в качестве результата.])
+      (p [Если не один из тестов не вычислился в истину и else-клауза отсутствует, возвращаемое значение не определено.])
+      (p [На ,(ref :text "стр." :section "syntax-case преобразователи" :page #t) вы найдёте определение синтаксиса ,(var "cond")]) ;;TODO: :ident "cond-1"
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-5|#")
 
       (formdef
@@ -119,442 +121,488 @@
                 "=>")
       :returns ""
       :libraries "(rnrs base), (rnrs)")
-      (p [These identifiers are auxiliary keywords for cond. Both also serve as auxiliary keywords for guard, and else also
-          serves as an auxiliary keyword for case. It is a syntax violation to reference these identifiers except in contexts
-          where they are recognized as auxiliary keywords.])
+      (p [Эти идентификаторы являются вспомогательными ключевыми словами для cond. Оба они также служат вспомогательными ключевыми словами
+          для охранных выражений (guards), а также служат вспомогательными ключевыми словами для case. Упоминание этих идентификаторов является
+          нарушением синтаксиса, за исключением случаев, когда они распознаются как вспомогательные ключевые слова.])
 
       (formdef
       :syntax '("(when test-expr expr1 expr2 ...)"
                 "(unless test-expr expr1 expr2 ...)")
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [For when, if test-expr evaluates to a true value, the expressions expr1 expr2 ... are evaluated in sequence, and the
-          values of the last expression are returned. If test-expr evaluates to false, none of the other expressions are
-          evaluated, and the value or values of when are unspecified.])
-      (p [For unless, if test-expr evaluates to false, the expressions expr1 expr2 ... are evaluated in sequence, and the
-          values of the last expression are returned. If test-expr evaluates to a true value, none of the other expressions
-          are evaluated, and the value or values of unless are unspecified.])
-      (p [A when or unless expression is usually clearer than the corresponding "one-armed" if expression.])
+      (p [Для ,(var "when"), если ,(var "test-expr") вычисляется в истину, выражения ,(var "expr1 expr2 ...") вычисляются последовательно
+          и значение последнего выражения возвращается в качестве результата. Если ,(var "test-expr") вычисляется в ложь, то не одно другое
+          выражение не вычисляется и возвращаемый результат всего выражения не определён.])
+      (p [Для ,(var "unless"), если ,(var "test-expr") вычисляется в ложь, выражения ,(var "expr1 expr2 ...") вычисляются последовательно
+          и значение последнего выражения возвращается в качестве результата. Если ,(var "test-expr") вычисляется в истину, то не одно другое
+          выражение не вычисляется и возвращаемый результат всего выражения не определён.])
+      (p [Выражения ,(var "when") и ,(var "unless") обычно используются как более понятные альтернативы 'одноруким' выражениям ,(var "if").])
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-6|#")
-      (p [when may be defined as follows:])
+      (p [,(var "when") может быть определён следующим образом:])
       (include-src "src/scheme/5.control_operations.scm" :definition 'when)
-      (p [unless may be defined as follows:])
+      (p [,(var "unless") может быть определён следующим образом:])
       (include-src "src/scheme/5.control_operations.scm" :definition 'unless)
-      (p [or in terms of when as follows:])
+      (p [либо в терминах ,(var "when"), как показано ниже:])
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-7|#")
 
       (formdef
       :syntax "(case expr0 clause1 clause2 ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [Each clause but the last must take the form])
+      (p [Все клаузы, кроме последней, должны иметь следующий вид:])
       (src-lite "((key ...) expr1 expr2 ...)")
-      (p [where each key is a datum distinct from the other keys. The last clause may be in the above form or it may be an
-          else clause of the form])
+      (p [где каждый ключ является объектом данных (datum), отличным от других ключей. Последняя клауза может иметь такой-же вид,
+          как описано выше, или это может else-клауза вида:])
       (src-lite "(else expr1 expr2 ...)")
-      (p [expr0 is evaluated and the result is compared (using eqv?) against the keys of each clause in order. If a clause
-          containing a matching key is found, the expressions expr1 expr2 ... are evaluated in sequence and the values of the
-          last expression are returned.])
-      (p [If none of the clauses contains a matching key and an else clause is present, the expressions expr1 expr2 ... of the
-          else clause are evaluated in sequence and the values of the last expression are returned.])
-      (p [If none of the clauses contains a matching key and no else clause is present, the value or values are unspecified.])
-      (p [See page 306 for a syntax definition of case.])
+      (p [,(var "expr0") вычисляется и сравнивается (с помощью ,(var "eqv?")) с ключами каждой клаузы по порядку. Если клауза, содержащая
+          совпадающий ключ найдена, выражения ,(var "expr1 expr2 ...") вычисляются по порядку и значение последнего возвращается в качестве
+          результата.])
+      (p [Если не одна из клауз не содержит совпадающий ключ и else-клауза присутствует, то выражения ,(var "expr1 expr2 ...")
+          из else-клаузы вычисляются по порядку и значение последнего выражения возвращается в качестве результата.])
+      (p [Если не одна клауза не содержит совпадающий ключ и else-клауза отсутствует, возвращаемое значение не определено.])
+      (p [На ,(ref :text "стр." :section "syntax-case преобразователи" :page #t) вы найдёте определение синтаксиса ,(var "case")]) ;;TODO: :ident "case-1"?
       (include-src "src/scheme/5.control_operations.scm" "#|+conditionals-8|#"))
 
-   (section :title [Recursion and Iteration]
+   (section :title [Рекурсия и итерация]
       (formdef
       :syntax "(let name ((var expr) ...) body1 body2 ...)"
-      :returns "values of the final body expression"
+      :returns "значение(я) вычисления последнего выражения body"
       :libraries "(rnrs base), (rnrs)")
-      (p [This form of let, called named let, is a general-purpose iteration and recursion construct. It is similar to the
-          more common form of let (see Section 4.4) in the binding of the variables var ... to the values of expr ... within
-          the body body1 body2 ..., which is processed and evaluated like a lambda body. In addition, the variable name is
-          bound within the body to a procedure that may be called to recur or iterate\; the arguments to the procedure become
-          the new values of the variables var ....])
-      (p [A named let expression of the form])
+      (p [Эта форма let, называемая именованый-let, является конструкцией для итерации и рекурсии общего назначения. Она так же,
+          как и обычная let (см. ,(ref :text "Глава 4.4 " :section "Локальные связывания")) связывает переменные ,(var "var ...") со значениями
+          ,(var "expr ...") в пределах тела ,(var "body1 body2 ..."), которое обрабатывается и вычисляется как тело лямбда-выражения. В дополнение к этому,
+          в теле выражения происходит связывание переменной ,(var "name") которая может быть вызвана для рекурсии или итерации; аргументами
+          процедуры выступают новые значения переменных ,(var "var ...")])
+      (p [Именованый let вида])
       (src-lite "(let name ((var expr) ...)
   body1 body2 ...)")
-      (p [can be rewritten with letrec as follows.])
+      (p [может быть выражен через ,(var "letrec") следующим образом:])
       (src-lite "((letrec ((name (lambda (var ...) body1 body2 ...)))
    name)
  expr ...)")
-      (p [A syntax definition of let that implements this transformation and handles unnamed let as well can be found on
-          page 312.])
-      (p [The procedure divisors defined below uses named let to compute the nontrivial divisors of a nonnegative integer.])
+      (p [Синтаксическое определение let, реализующее данные преобразования и так-же поддерживающее неименованый вариант
+          let  может быть найдено на ,(ref :text "стр. " :section "Примеры" :page #t)]) ;;TODO: :ident "let-4"?
+      (p [Процедура divisors определённая ниже использует именованый let для вычисления нетривиальных делителей для
+          неотрицательного целого числа.])
       (include-src "src/scheme/5.control_operations.scm" "#|+iterations-1|#")
-      (p [The version above is non-tail-recursive when a divisor is found and tail-recursive when a divisor is not found. The
-          version below is fully tail-recursive. It builds up the list in reverse order, but this is easy to remedy, if
-          desired, by reversing the list on exit.])
+      (p [Версия выше не имеет хвостовой рекурсии, когда делитель найден, и имеет хвостовую рекурсию, пока не
+          найден. Версия ниже реализует хвостовую рекурсию полностью. Список строится в обратном порядке, но при желании
+          это легко исправить, перевернув список при выходе.])
       (include-src "src/scheme/5.control_operations.scm" :definition 'divisors)
 
       (formdef
       :syntax "(do ((var init update) ...) (test result ...) expr ...)"
-      :returns "the values of the last result expression"
+      :returns "значение(я) последнего вычисления result"
       :libraries "(rnrs base), (rnrs)")
-      (p [do allows a common restricted form of iteration to be expressed succinctly. The variables var ... are bound
-          initially to the values of init ... and are rebound on each subsequent iteration to the values of update .... The
-          expressions test, update ..., expr ..., and result ... are all within the scope of the bindings established for var
-          ....])
-      (p [On each step, the test expression test is evaluated. If the value of test is true, iteration ceases, the expressions
-          result ... are evaluated in sequence, and the values of the last expression are returned. If no result expressions
-          are present, the value or values of the do expression are unspecified.])
-      (p [If the value of test is false, the expressions expr ... are evaluated in sequence, the expressions update ... are
-          evaluated, new bindings for var ... to the values of update ... are created, and iteration continues.])
-      (p [The expressions expr ... are evaluated only for effect and are often omitted entirely. Any update expression may be
-          omitted, in which case the effect is the same as if the update were simply the corresponding var.])
-      (p [Although looping constructs in most languages require that the loop iterands be updated via assignment, do requires
-          the loop iterands var ... to be updated via rebinding. In fact, no side effects are involved in the evaluation of a
-          do expression unless they are performed explicitly by its subexpressions.])
-      (p [See page 313 for a syntax definition of do.])
-      (p [The definitions of factorial and fibonacci below are straightforward translations of the tail-recursive named-let
-          versions given in Section 3.2.])
+      (p [,(var "do") позволяет лаконично выразить общую форму итерации. В начале переменные ,(var "var ...")
+          связываются со значениями ,(var "init ...") и обновляются в каждой последующией итерации значениями ,(var
+          "update ..."). Выражения ,(var "test"), ,(var "update ..."), ,(var "expr ..."), и ,(var "result ...") все
+          находятся в области действия переменных, объявленных в ,(var "var ...")])
+
+      (p [На каждом шаге вычисляется тестовое выражение ,(var "test"). Если тест вычислился в истину, итерация
+          прекращается, выражения ,(var "result ...") последовательно вычисляются и значение последнего выражения
+          возвращается в качестве результата. Если форма ,(var "result") не была задана, то возвращаемое всем
+          выражением ,(var "do") значение не определено.])
+      (p [Если результат теста ложен, то последовательно выполняются выражения ,(var "expr ..."), затем вычисляются выражения обновления
+          ,(var "update ..."), результаты которых связываются с ,(var "var ...") и итерация продолжается.])
+      (p [Выражения ,(var "expr ...") выполняются только с целью побочных эффектов и часто полностью опускаются. Любое выражение
+          обновления (update) может быть опущено, и в этом случае эффект будет таким же, как если бы ,(var "update") было
+          просто соответствующей переменной.])
+      (p [Хотя конструкции цикла в большинстве языков требуют, чтобы итеранты цикла обновлялись посредством
+          присваивания, ,(var "do") требует, чтобы итеранты цикла ,(var "var ...") обновлялись посредством повторной
+          привязки. Фактически, при вычислении выражения ,(var "do") не задействуются побочные эффекты, если только они
+          не выполняются явно его подвыражениями.])
+      (p [Определение синтаксиса ,(var "do") смотри на ,(ref :text "стр. " :section "Примеры" :page #t)]) ;;TODO: :ident "do-1"?
+      (p [Приведенные ниже определения ,(var "factorial") и ,(var "fibonacci") являются прямым переводом хвостовой
+          рекурсивной версии именованой-let из ,(ref :text "Главы 3.2" :section "Больше о рекурсии")])
       (include-src "src/scheme/5.control_operations.scm" "#|+iterations-2|#")
-      (p [The definition of divisors below is similar to the tail-recursive definition of divisors given with the description
-          of named let above.])
+      (p [Определение ,(var "divisors"), приведенное ниже, аналогично определению ,(var "divisors") с хвостовой
+          рекурсией, приведенному выше с при описании именованого-let.])
       (include-src "src/scheme/5.control_operations.scm" "#|+iterations-3|#")
-      (p [The definition of scale-vector! below, which scales each element of a vector v by a constant k, demonstrates a
-          nonempty do body.])
+      (p [Определение ,(var "scale-vector!") ниже, где каждый элемент вектора ,(var "v") умножается на ,(var "k"),
+          демонстрируется непустое тело ,(var "do").])
       (include-src "src/scheme/5.control_operations.scm" "#|+iterations-4|#"))
 
-   (section :title [Mapping and Folding]
-      (p [When a program must recur or iterate over the elements of a list, a mapping or folding operator is often more
-          convenient. These operators abstract away from null checks and explicit recursion by applying a procedure to the
-          elements of the list one by one. A few mapping operators are also available for vectors and strings.])
+   (section :title "Отображения и свёртки"
+      (p [Когда программа должна рекурсивно пройти или итерировать элементы списка, часто удобнее использовать оператор
+          отображения или свёртки. Эти операторы абстрагируются от проверок конца списка и явной рекурсии, применяя
+          процедуру к элементам списка один за одним. Также доступно несколько операторов отображения для векторов и
+          строк.])
 
       (formdef
       :syntax "(map procedure list1 list2 ...)"
-      :returns "list of results"
+      :returns "список результатов"
       :libraries "(rnrs base), (rnrs)")
-      (p [map applies procedure to corresponding elements of the lists list1 list2 ... and returns a list of the resulting
-          values. The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are
-          lists, should return a single value, and should not mutate the list arguments.])
+      (p [,(var "map") применяет процедуру ,(var "procedure") к соответствующим элементам из списков ,(var "list1 list2 ...") и
+          возвращает список результатов. Списки ,(var "list1 list2 ...") должны быть одинаковой длины. Процедура должна
+          принимать столько аргументов, сколько списков передано, возвращать единственное значение и не изменять аргументы.])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-1|#")
-      (p [While the order in which the applications themselves occur is not specified, the order of the values in the output
-          list is the same as that of the corresponding values in the input lists.])
-      (p [map might be defined as follows.])
+      (p [Хотя порядок, в котором происходят применение само по себе, не указан, порядок значений в выходном списке
+          такой же, как и у соответствующих значений во входных списках.])
+      (p [,(var "map") может быть определена следующим образом:])
       (include-src "src/scheme/5.control_operations.scm" :definition 'map)
-      (p [No error checking is done by this version of map\; f is assumed to be a procedure and the other arguments are assumed
-          to be proper lists of the same length. An interesting feature of this definition is that map uses itself to pull out
-          the cars and cdrs of the list of input lists this works because of the special treatment of the single-list case.])
+      (p [В этой версии map проверка ошибок не выполняется; Предполагается, что f является процедурой, а другие
+          аргументы - правильными списками одинаковой длины. Интересной особенностью этого определения является то, что map
+          использует себя для извлечения голов (car) и хвостов (cdr) из списка входных списков, это работает из-за
+          особой обработки случая с одним списком.])
 
       (formdef
       :syntax "(for-each procedure list1 list2 ...)"
-      :returns "unspecified"
+      :returns "не определено"
       :libraries "(rnrs base), (rnrs)")
-      (p [for-each is similar to map except that for-each does not create and return a list of the resulting values, and
-          for-each guarantees to perform the applications in sequence over the elements from left to right. procedure should
-          accept as many arguments as there are lists and should not mutate the list arguments. for-each may be defined
-          without error checks as follows.])
+      (p [,(var "for-each") похож на ,(var "map"), за исключением того, что ,(var "for-each") не создает и не возвращает
+          список результирующих значений, и ,(var "for-each") гарантирует выполнение применений последовательно по элементам
+          слева направо. ,(var "procedure") должна принимать столько аргументов, сколько передано списков, и не должна
+          изменять аргументы списка. ,(var "for-each") можно определить без проверки ошибок следующим образом.])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-2|#")
 
       (formdef
       :syntax "(exists procedure list1 list2 ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
-          and should not mutate the list arguments. If the lists are empty, exists returns #f. Otherwise, exists applies
-          procedure to corresponding elements of the lists list1 list2 ... in sequence until either the lists each have only
-          one element or procedure returns a true value t. In the former case, exists tail-calls procedure, applying it to the
-          remaining element of each list. In the latter case, exists returns t.])
+      (p [Списки ,(var "list1 list2 ...") должны быть одной длины, процедура должна принимать столько же аргументов,
+          сколько списков передано, процедура не должна модифицировать свои аргументы. Если списки пусты, возвращается ,(var
+          "#f"). Иначе, ,(var "exists") последовательно применяет процедуру (procedure) к соответствующим элементам списков ,(var
+          "list1 list2 ...") до тех пор, пока либо в каждом из списков не останется только один элемент, либо процедура не
+          вернет истинное значение ,(var "#t"). В первом случае, ,(var "exists") продолжит применение процедуры к оставшимся
+          элементам путём хвостовой рекурсии, во втором же случае ,(var "exists") вернёт ,(var "#t")])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-3|#")
-      (p [exists may be defined (somewhat inefficiently and without error checks) as follows:])
+      (p [,(var "exists") может быть определена (несколько неэффективно и без обработки ошибок) следующим образом:])
       (include-src "src/scheme/5.control_operations.scm" :definition 'exists)
 
       (formdef
       :syntax "(for-all procedure list1 list2 ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists
-          and should not mutate the list arguments. If the lists are empty, for-all returns #t. Otherwise, for-all applies
-          procedure to corresponding elements of the lists list1 list2 ... in sequence until either the lists each have only
-          one element left or procedure returns #f. In the former case, for-all tail-calls procedure, applying it to the
-          remaining element of each list. In the latter case, for-all returns #f.])
+      (p [Списки ,(var "list1 list2 ...") должны быть одной длины, процедура должна принимать столько же аргументов,
+          сколько списков передано, процедура не должна модифицировать свои аргументы. Если списки пусты, возвращается ,(var
+          "#t"). Иначе, ,(var "for-all") последовательно применяет процедуру (procedure) к соответствующим элементам списков ,(var
+          "list1 list2 ...") до тех пор, пока либо в каждом из списков не останется только один элемент, либо процедура не
+          вернет ,(var "#f"). В первом случае, ,(var "for-all") продолжит применение процедуры к оставшимся
+          элементам путём хвостовой рекурсии, во втором же случае ,(var "for-all") вернёт ,(var "#f")])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-4|#")
-      (p [for-all may be defined (somewhat inefficiently and without error checks) as follows:])
+      (p [,(var "for-all") может быть определена (несколько неэффективно и без обработки ошибок) следующим образом:])
       (include-src "src/scheme/5.control_operations.scm" :definition 'for-all)
 
       (formdef
       :syntax "(fold-left procedure obj list1 list2 ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [The list arguments should all have the same length. procedure should accept one more argument than the number of
-          list arguments and return a single value. It should not mutate the list arguments.])
-      (p [fold-left returns obj if the list arguments are empty. If they are not empty, fold-left applies procedure to obj and
-          the cars of list1 list2 ..., then recurs with the value returned by procedure in place of obj and the cdr of each
-          list in place of the list.])
+      (p [Списки ,(var "list1 list2 ...") должны быть одной длины, процедура должна принимать аргументов на один больше, чем
+          количество переданых списков и возвращать единственное значение, процедура не должна модифицировать элементы списков.])
+      (p [,(var "fold-left") возвращает ,(var "obj"), если аргументы-списки пусты. Если не пусты, ,(var "fold-left")
+          применяет процедуру к ,(var "obj") и головам (,(var "car")) списков ,(var "list1 list2 ..."), а затем рекурсивно повторяет
+          вызов с результатом вычисления ,(var "procedure") вместо ,(var "obj") и с хвостами (,(var "cdr")) списков,
+          вместо самих списков.])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-5|#")
 
       (formdef
       :syntax "(fold-right procedure obj list1 list2 ...)"
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [The list arguments should all have the same length. procedure should accept one more argument than the number of
-          list arguments and return a single value. It should not mutate the list arguments.])
-      (p [fold-right returns obj if the list arguments are empty. If they are not empty, fold-right recurs with the cdr of
-          each list replacing the list, then applies procedure to the cars of list1 list2 ... and the result returned by the
-          recursion.])
+      (p [Списочные аргументы должны иметь одинаковую длину. procedure должна принимать на один аргумент больше, чем
+          кол-во переданых списков и возвращать единственное значение, а так же не должна модифицировать переданые
+          списки.])
+      (p [,(var "fold-left") возвращает ,(var "obj"), если аргументы-списки пусты. Если не пусты, ,(var "fold-left")
+          применяет процедуру к головам (,(var "car")) списков ,(var "list1 list2 ...") и ,(var "obj"), а затем рекурсивно повторяет
+          вызов с результатом вычисления ,(var "procedure") вместо ,(var "obj") и с хвостами (,(var "cdr")) списков,
+          вместо самих списков.])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-6|#")
 
       (formdef
       :syntax "(vector-map procedure vector1 vector1 ...)"
-      :returns "vector of results"
+      :returns "вектор результатов"
       :libraries "(rnrs base), (rnrs)")
-      (p [vector-map applies procedure to corresponding elements of vector1 vector2 ... and returns a vector of the resulting
-          values. The vectors vector1 vector2 ... must be of the same length, and procedure should accept as many arguments as
-          there are vectors and return a single value.])
+      (p [,(var "vector-map") применяет ,(var "procedure") к соответствующим элементам из ,(var "vector1 vector2 ...") и возвращает вектор
+          результатов. Векторы ,(var "vector1 vector2 ...") должны быть одной длины, процедура должна принимать столько
+          аргументов, сколько векторов было передано в аргументах и возвращать единственное значение.])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-7|#")
-      (p [While the order in which the applications themselves occur is not specified, the order of the values in the output
-          vector is the same as that of the corresponding values in the input vectors.])
+      (p [Хотя порядок, в котором происходят применение само по себе, не указан, порядок значений в выходном векторе
+          такой же, как и у соответствующих значений во входных векторах.])
 
       (formdef
       :syntax "(vector-for-each procedure vector1 vector2 ...)"
-      :returns "unspecified"
+      :returns "не определено"
       :libraries "(rnrs base), (rnrs)")
-      (p [vector-for-each is similar to vector-map except that vector-for-each does not create and return a vector of the
-          resulting values, and vector-for-each guarantees to perform the applications in sequence over the elements from left
-          to right.])
+      (p [,(var "vector-for-each") похож на ,(var "vector-map"), за исключением того, что ,(var "vector-for-each") не создает и не возвращает
+          вектор результирующих значений, и ,(var "vector-for-each") гарантирует выполнение применений последовательно по элементам
+          слева направо.])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-8|#")
 
       (formdef
       :syntax "(string-for-each procedure string1 string2 ...)"
-      :returns "unspecified"
+      :returns "не определено"
       :libraries "(rnrs base), (rnrs)")
-      (p [string-for-each is similar to for-each and vector-for-each except that the inputs are strings rather than lists or
-          vectors.])
+      (p [,(var "string-for-each") повторяет ,(var "for-each") и ,(var "vector-for-each") за исключением того, что на
+          вход подаются строки, а не списки или векторы.])
       (include-src "src/scheme/5.control_operations.scm" "#|+mapping-9|#"))
 
-   (section :title [Continuations]
-      (p [Continuations in Scheme are procedures that represent the remainder of a computation from a given point in the
-          computation. They may be obtained with call-with-current-continuation, which can be abbreviated to call/cc.])
+   (section :title "Продолжения"
+      (p [Продолжения в Scheme - это процедуры, которые представляют остаток вычисления от данной точки вычисления. Их
+          можно получить с помощью ,(var "call-with-current-continue"), которая может быть сокращена до ,(var "call/cc").])
 
       (formdef
       :syntax '("(call/cc procedure)"
                 "(call-with-current-continuation procedure)")
-      :returns "see below"
+      :returns "смотри ниже"
       :libraries "(rnrs base), (rnrs)")
-      (p [These procedures are the same. The shorter name is often used for the obvious reason that it requires fewer
-          keystrokes to type.])
-      (p [call/cc obtains its continuation and passes it to procedure, which should accept one argument. The continuation
-          itself is represented by a procedure. Each time this procedure is applied to zero or more values, it returns the
-          values to the continuation of the call/cc application. That is, when the continuation procedure is called, it
-          returns its arguments as the values of the application of call/cc.])
-      (p [If procedure returns normally when passed the continuation procedure, the values returned by call/cc are the values
-          returned by procedure.])
-      (p [Continuations allow the implementation of nonlocal exits, backtracking ,(ref :bib '(b14 b29)), coroutines ,(ref :bib 'b16), and multitasking
-          ,(ref :bib '(b10 b32)).])
-      (p [The example below illustrates the use of a continuation to perform a nonlocal exit from a loop.])
+      (p [Эти две процедуры - одно и то же. Чаще используется короткое имя, по понятным причинам.])
+      (p [,(var "call/cc") получает продолжение и передаёт его в процедуру, которая должна принимать один аргумент. Само
+          продолжение представлено в виде процедуры. Каждый раз, когда эта процедура применяется к нулю или более
+          аргументов, она возвращает значения в продолжение от применения ,(var "call/cc").]) ;;TODO: не уверен в переводе:
+      (p [Если переданная процедура успешно выполняется и возвращает результат, этот результат возвращается в качестве
+          результата всего выражения ,(var "call/cc").])
+      (p [Продолжения позволяют реализовать нелокальный выход, поиск с возвратом ,(ref :bib '(b14 b29)), сопрограммы
+          ,(ref :bib 'b16) и многопоточность ,(ref :bib '(b10 b32)).])
+      (p [В приведенном ниже примере показано использование продолжения для нелокального выхода из цикла.])
       (include-src "src/scheme/5.control_operations.scm" "#|+continuations-1|#")
-      (p [Additional examples are given in Sections 3.3 and 12.11.])
-      (p [The current continuation is typically represented internally as a stack of procedure activation records, and
-          obtaining the continuation involves encapsulating the stack within a procedural object. Since an encapsulated stack
-          has indefinite extent, some mechanism must be used to preserve the stack contents indefinitely. This can be done
-          with surprising ease and efficiency and with no impact on programs that do not use continuations ,(ref :bib 'b17).])
+      (p [Дополнительные примеры можно найти в ,(ref :text "Главе 3.3" :section "Продолжения") и ,(ref :text "Главе
+          12.11" :section "Многопоточность на Engines")])
+      (p [Текущее продолжение обычно представлено внутри как стек записей активации процедуры, и получение продолжения
+          производит инкапсуляцию стека в процедурный объект. Поскольку инкапсулированный стек имеет неопределённый размер,
+          необходимо использовать какой-то механизм для сохранения содержимого стека на неопределенный срок. Это можно
+          сделать с удивительной легкостью и эффективностью, не влияя на программы, в которых не используются
+          продолжения ,(ref :bib 'b17).])
 
       (formdef
       :syntax "(dynamic-wind in body out)"
-      :returns "values resulting from the application of body"
+      :returns "значения, возвращаемые от применения body"
       :libraries "(rnrs base), (rnrs)")
-      (p [dynamic-wind offers "protection" from continuation invocation. It is useful for performing tasks that must be
-          performed whenever control enters or leaves body, either normally or by continuation application.])
-      (p [The three arguments in, body, and out must be procedures and should accept zero arguments, i.e., they should be
-          thunks. Before applying body, and each time body is entered subsequently by the application of a continuation
-          created within body, the in thunk is applied. Upon normal exit from body and each time body is exited by the
-          application of a continuation created outside body, the out thunk is applied.])
-      (p [Thus, it is guaranteed that in is invoked at least once. In addition, if body ever returns, out is invoked at least
-          once.])
-      (p [The following example demonstrates the use of dynamic-wind to be sure that an input port is closed after processing,
-          regardless of whether the processing completes normally.])
+      (p [,(var "dynamic-wind") реализует "защиту" от выполнения продолжений. Это полезно для выполнения задач, которые должны
+          выполняться в любом случае, когда управление передаётся в тело или выходит из него, как обычным способом, так и с помощью
+          применения продолжения.])
+      (p [Три аргумента ,(var "in"), ,(var "body") и ,(var "out") должны быть процедурами и должны принимать ноль
+          аргументов, т.е. представлять из себя ,(it "санк") (thunk),(footnote "фрагмент кода для выполнения дополнительного
+          вычисления, устоявшегося перевода нет."). Перед выполнением ,(var "body") и каждый раз, когда происходит вход
+          в ,(var "body") путём применения продолжения, созданного внутри ,(var "body"), выполняется ,(var "in"). При
+          нормальном выходе из тела и каждый раз, когда происходит выходит из ,(var "body") из-за применения
+          продолжения, созданного вне ,(var "body"), выполняется ,(var "out").])
+      (p [Таким образом гарантируется, что ,(var "in") будет выполнен ходятбы один раз. А так же, если ,(var "body")
+          когда-либо вернёт результат, ,(var "out") будет выполнен хотя-бы один раз.])
+      (p [В следующем примере демонстрируется использование ,(var "dynamic-wind"), чтобы убедиться, что входной порт закрыт после
+          обработки, независимо от того, завершилась ли обработка нормально.])
       (include-src "src/scheme/5.control_operations.scm" "#|+continuations-2|#")
-      (p [Common Lisp provides a similar facility (unwind-protect) for protection from nonlocal exits. This is often
-          sufficient. unwind-protect provides only the equivalent to out, however, since Common Lisp does not support fully
-          general continuations. Here is how unwind-protect might be specified with dynamic-wind.])
+      (p [Common Lisp предоставляет аналогичное средство (,(var "unwind-protect")) для защиты от нелокальных
+          выходов. Часто этого бывает достаточно. Однако ,(var "unwind-protect") предоставляет только эквивалент ,(var "out"),
+          поскольку Common Lisp не поддерживает полностью продолжения общего назначения. Вот как можно определить ,(var
+          "unwind-protect") с помощью ,(var "dynamic-wind").])
       (include-src "src/scheme/5.control_operations.scm" "#|+continuations-3|#")
-      (p [Some Scheme implementations support a controlled form of assignment known as fluid binding, in which a variable
-          takes on a temporary value during a given computation and reverts to the old value after the computation has
-          completed. The syntactic form fluid-let defined below in terms of dynamic-wind permits the fluid binding of a single
-          variable x to the value of an expression e within a the body b1 b2 ....])
+      (p [Некоторые реализации Scheme поддерживают управляемую форму присваивания, известную как ,(it "подвижное
+          связывание"),(footnote "устоявшегося перевода нет") (fluid binding), в которой переменная принимает временное
+          значение на время вычисления и возвращается к старому значению после завершения вычисления. Синтаксическая форма
+          ,(var "fluid-let"), определенная ниже в терминах ,(var "dynamic-wind"), совершает подвижное связывание
+          единственной переменной ,(var "x") со значением выражения ,(var "e") в теле ,(var "b1 b2 ...").])
       (include-src "src/scheme/5.control_operations.scm" :definition 'fluid-let)
-      (p [Implementations that support fluid-let typically extend it to allow an indefinite number of ,(var "(x e)") pairs, as with
-          let.])
-      (p [If no continuations are invoked within the body of a fluid-let, the behavior is the same as if the variable were
-          simply assigned the new value on entry and assigned the old value on return.])
+      (p [Реализации, которые поддерживают ,(var "fluid-let") обычно расширяют его для поддержки любого количества пар ,(var "(x
+          e)") как в обычном ,(var "let").])
+      (p [Если никакие продолжения не вызываются в теле fluid-let, поведение будет таким же, как если бы переменной было
+          просто присвоено новое значение при входе и присвоено старое значение при возврате.])
       (include-src "src/scheme/5.control_operations.scm" "#|+continuations-4|#")
-      (p [A fluid-bound variable also reverts to the old value if a continuation created outside of the fluid-let is invoked.])
+      (p [Подвижно связанная переменная так же возвращает своё старое значение, если вызывается продолжение, созданное
+          за пределами ,(var "fluid-let")])
       (include-src "src/scheme/5.control_operations.scm" "#|+continuations-5|#")
-      (p [If control has left a fluid-let body, either normally or by the invocation of a continuation, and control reenters
-          the body by the invocation of a continuation, the temporary value of the fluid-bound variable is
-          reinstated. Furthermore, any changes to the temporary value are maintained and reflected upon reentry.])
+      (p [Если управление покинуло тело fluid-let, либо обычным способом, либо в результате вызова продолжения, а затем
+          управление повторно вернулось в тело с помощью вызова продолжения, временное значение подвижно связанной
+          переменной восстанавливается. Кроме того, любые изменения временного значения сохраняются и отражаются при
+          повторном входе.])
       (include-src "src/scheme/5.control_operations.scm" "#|+continuations-6|#")
-      (p [A library showing how dynamic-wind might be implemented were it not already built in is given below. In addition to
-          defining dynamic-wind, the code defines a version of call/cc that does its part to support dynamic-wind.])
+      (p [Ниже представлена библиотека, показывающая, как можно было бы реализовать ,(var "dynamic-wind"), если бы он
+          еще не был встроен. Помимо определения ,(var "dynamic-wind"), код определяет версию ,(var "call/cc"), которая
+          делает свою часть для поддержки ,(var "dynamic-wind").])
       (include-src "src/scheme/5.control_operations.scm" "#|+continuations-7|#")
-      (p [Together, dynamic-wind and call/cc manage a list of winders. A winder is a pair of in and out thunks established by
-          a call to dynamic-wind. Whenever dynamic-wind is invoked, the in thunk is invoked, a new winder containing the in
-          and out thunks is placed on the winders list, the body thunk is invoked, the winder is removed from the winders
-          list, and the out thunk is invoked. This ordering ensures that the winder is on the winders list only when control
-          has passed through in and not yet entered out. Whenever a continuation is obtained, the winders list is saved, and
-          whenever the continuation is invoked, the saved winders list is reinstated. During reinstatement, the out thunk of
-          each winder on the current winders list that is not also on the saved winders list is invoked, followed by the in
-          thunk of each winder on the saved winders list that is not also on the current winders list. The winders list is
-          updated incrementally, again to ensure that a winder is on the current winders list only if control has passed
-          through its in thunk and not entered its out thunk.])
-      (p [The test (not (eq? save winders)) performed in call/cc is not strictly necessary but makes invoking a continuation
-          less costly whenever the saved winders list is the same as the current winders list.]))
+      (p [Вместе ,(var "dynamic-wind") и ,(var "call/cc") управляют списком ,(it "намотчиков") (winder),(footnote "в оригинале игра слов, дело в том, что
+          названия ф-й dynamic-wind и unwind-protect можно перевести примерно как \"управляемая накрутка\" и \"защита от
+          раскрутки\" - это устоявшиеся термины, применяемые к стеку вызовов. Во многих ЯП, когда в коде выбрасывается
+          исключение, управление передаётся вверх по стеку вызовов, настолько далеко вверх, насколько далеко находится
+          обработчик данного типа исключения, данный процесс движения вверх по стеку вызовов и называется \"раскруткой
+          стека\". Здесь автор использовал слово winder (моталка) для обозначения вообще механизма управления
+          накруткой/раскруткой стека."). Намотчик - это пара входных и выходных санков, устанавливаемых при вызове
+          ,(var "dynamic-wind"). Всякий раз, когда вызывается ,(var "dynamic-wind"), выполняется санк ,(var "in"), новый
+          намотчик, содержащая ,(var "in") и ,(var "out") санки, помещается в список намотчиков, выполняется санк ,(var
+          "body"), намотчик удаляется из списка намотчиков, и вызывается санк ,(var "out"). Такой порядок гарантирует,
+          что намотчик будет в списке намотчиков только тогда, когда управление прошло ,(var "in"), но еще не дошло до
+          ,(var "out"). При получении продолжения список намотчиков сохраняется, а при каждом вызове продолжения
+          сохраненный намотчиков восстанавливается. Во время восстановления вызывается санк ,(var "out") каждого
+          намотчика из текущего списка намотчиков, который не входит в список сохраненных намотчиков, а затем санк ,(var
+          "in") каждого намотчика в списке сохраненных намотчиков, которого нет в текущем списке намотчиков. Список
+          намотчиков обновляется инкрементально, опять же, чтобы гарантировать, что намотчик находится в текущем списке
+          намотчиков, только если управление прошло через его санк ,(var "in") и не вошло в его санк ,(var "out").])
+      (p [Проверка ,(code "(not (eq? save winders))"), выполняемая в ,(var "call/cc") не является строго обязательной, однако
+          позволяет сделать выполнение продолжений менее накладным в случае, если сохраняемый и текущий списки
+          намотчиков совпадают.]))
 
-   (section :title [Delayed Evaluation]
-      (p [The syntactic form delay and the procedure force may be used in combination to implement lazy evaluation. An
-          expression subject to lazy evaluation is not evaluated until its value is required and, once evaluated, is never
-          reevaluated.])
+   (section :title "Отложенное вычисление"
+      (p [Синтаксическая форма ,(var "delay") и процедура ,(var "force") могут использоваться в паре для
+          реализации ленивых вычислений. Оленивленное выражение не вычисляется до тех пор, пока не потребуется его значение,
+          и, однажды вычисленное, не вычисляется повторно.])
+
       (formdef
        :syntax "(delay expr)"
-       :returns "a promise"
+       :returns "обещание"
        :libraries "(rnrs base), (rnrs)")
       (formdef
        :syntax "(force promise)"
-       :returns "result of forcing promise"
+       :returns "результат форсирования обещания"
        :libraries "(rnrs r5rs)")
-      (p [The first time a promise created by delay is forced (with force), it evaluates expr, "remembering" the resulting
-          value. Thereafter, each time the promise is forced, it returns the remembered value instead of reevaluating expr.])
-      (p [delay and force are typically used only in the absence of side effects, e.g., assignments, so that the order of
-          evaluation is unimportant.])
-      (p [The benefit of using delay and force is that some amount of computation might be avoided altogether if it is delayed
-          until absolutely required. Delayed evaluation may be used to construct conceptually infinite lists, or streams. The
-          example below shows how a stream abstraction may be built with delay and force. A stream is a promise that, when
-          forced, returns a pair whose cdr is a stream.])
+      (p [В первый раз, когда ,(it "обещание") (promise), созданное с помощью ,(var "delay"), форсируется (с помощью, ,(var "force")), это
+          приводит к вычислению ,(var "expr") и запоминанию результата. Позже, каждый раз, когда данное обещание форсируется, это
+          приводит к возврату запомненого значения, вместо его повторного вычисления. ])
+      (p [,(var "delay") и ,(var "force") обычно используются только при отсутствии побочных эффектов, например присваивания, так что
+          порядок вычисления не важен.])
+      (p [Преимущество использования ,(var "delay") и ,(var "force") состоит в том, что некоторого объема вычислений можно вообще
+          избежать, если они откладываются до тех пор, пока они не станут абсолютно необходимыми. Отложенное вычисление
+          может использоваться для построения концептуально бесконечных списков или потоков. В приведенном ниже примере
+          показано, как можно построить абстракцию потока с помощью ,(var "delay") и ,(var "force"). Поток (stream) - это обещание, которое
+          при форсировании возвращает пару, ,(var "cdr") которой является потоком.])
       (include-src "src/scheme/5.control_operations.scm" "#|+delayed-evaluation-1|#")
-      (p [delay may be defined by])
+      (p [,(var "delay") может быть определена следующим образом:])
       (include-src "src/scheme/5.control_operations.scm" :definition 'delay)
-      (p [where make-promise might be defined as follows.])
+      (p [где ,(var "make-promise") может быть определена следующим образом:.])
       (include-src "src/scheme/5.control_operations.scm" :definition 'make-promise)
-      (p [With this definition of delay, force simply invokes the promise to force evaluation or to retrieve the saved value.])
+      (p [С подобным определением ,(var "delay"), ,(var "force") просто выполняет обещание для форсирования вычисления, или возвращает
+          сохранённое значениие.])
       (include-src "src/scheme/5.control_operations.scm" :definition 'force)
-      (p [The second test of the variable set? in make-promise is necessary in the event that, as a result of applying p, the
-          promise is recursively forced. Since a promise must always return the same value, the result of the first
-          application of p to complete is returned.])
-      (p [Whether delay and force handle multiple return values is unspecified\; the implementation given above does not, but
-          the following version does, with the help of call-with-values and apply.])
+      (p [Второй тест переменной ,(var "set?") в ,(var "make-promise") необходим в случае, если в результате применения ,(var "p") обещание
+          рекурсивно форсируется. Поскольку обещание должно всегда возвращать одно и то же значение, результат первого
+          применения ,(var "p") в итоге возвращается.])
+      (p [Каким образом ,(var "delay") и force должны обрабатывать случай возврата нескольких значений не определено; приведённая выше
+          реализация не обрабатывает этот случай, но следующая версия делает это с помощью ,(var "call-with-values") и
+          ,(var "apply").])
       (include-src "src/scheme/5.control_operations.scm" "#|+delayed-evaluation-2|#")
-      (p [Neither implementation is quite right, since force must raise an exception with condition type &assertion if its
-          argument is not a promise. Since distinguishing procedures created by make-promise from other procedures is
-          impossible, force cannot do so reliably. The following reimplementation of make-promise and force represents
-          promises as records of the type promise to allow force to make the required check.])
+      (p [Ни одна из реализаций не является правильной до конца, поскольку force должна вызывать исключение с типом
+          ,(var "&assertion"), если его аргумент не является обещанием. Поскольку невозможно отличить процедуру, созданную с помощью
+          ,(var "make-promise,") от других процедур, ,(var "force") не может удовлетворить этому требованию. Следующая повторная
+          реализация ,(var "make-promise") и ,(var "force") представляет обещания как записи типа обещания (см. ,(ref
+          :text "Главу 9" :chapter "Записи")), позволяющие ,(var "force") выполнить требуемую проверку.])
       (include-src "src/scheme/5.control_operations.scm" "#|+delayed-evaluation-3|#"))
 
-   (section :title [Multiple Values]
-      (p [While all Scheme primitives and most user-defined procedures return exactly one value, some programming problems are
-          best solved by returning zero values, more than one value, or even a variable number of values. For example, a
-          procedure that partitions a list of values into two sublists needs to return two values. While it is possible for
-          the producer of multiple values to package them into a data structure and for the consumer to extract them, it is
-          often cleaner to use the built-in multiple-values interface. This interface consists of two procedures: values and
-          call-with-values. The former produces multiple values and the latter links procedures that produce multiple-value
-          values with procedures that consume them.])
+   (section :title "Множественные значения"
+      (p [В то время как все примитивы Scheme и большинство определённых пользователем процедур возвращают в точности
+          одно значение, некоторые программные задачи имеют лучшее решение, если возвращают ноль, более одного или
+          переменное количество результатов. Например, процедуре, которая разделяет список значений на два подсписка,
+          необходимо возвращать два значения. Хотя и возможно для производителя результатов упаковать их в структуру
+          данных, а получателю значений извлечь их оттуда, часто более понятным в использовании будет использовании
+          встроенного интерфейса работы с множественными значениями. Этот интерфейс содержит две процедуры: ,(var "values") и
+          ,(var "call-with-values"). Первая производит несколько значений, а вторая связывает процедуры, которые производят
+          многозначные значения, с процедурами, которые их используют.])
 
       (formdef
        :syntax "(values obj ...)"
        :returns "obj ..."
        :libraries "(rnrs base), (rnrs)")
-      (p [The procedure values accepts any number of arguments and simply passes (returns) the arguments to its continuation.])
+      (p [Процедура ,(var "values") принимает любое количество аргументов и просто передаёт (возвращает) аргументы
+          своему продолжению.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-1|#")
+
       (formdef
        :syntax "(call-with-values producer consumer)"
-       :returns "see below"
+       :returns "смотри ниже"
        :libraries "(rnrs base), (rnrs)")
-      (p [producer and consumer must be procedures. call-with-values applies consumer to the values returned by invoking
-          producer without arguments.])
+      (p [,(var "producer") (производитель) и ,(var "consumer") (потребитель) должны быть процедурами. ,(var
+      "call-with-values") применяет ,(var "consumer") к значениями, возвращаемым выполнением producer без аргументов.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-2|#")
-      (p [In the second example, values itself serves as the producer. It receives no arguments and thus returns no
-          values. list is thus applied to no arguments and so returns the empty list.])
-      (p [The procedure dxdy defined below computes the change in x and y coordinates for a pair of points whose coordinates
-          are represented by ,(var "(x . y)") pairs.])
+      (p [Во втором примере, values сама по себе выступает в роли производителя. Она выполняется без аргументов, из-за
+          чего не возвращает значений. Затем list применяется без аргументов и производит пустой список. ])
+      (p [Процедура ,(var "dxdy,") определённая ниже, вычисляет изменение в координатах ,(var "x") и ,(var "y") для пары
+      точек, чьи координаты представлены в виде пары ,(var "(x . y)")])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-3|#")
-      (p [dxdy can be used to compute the length and slope of a segment represented by two endpoints.])
+      (p [,(var "dxdy") можно использовать для вычисления длины и наклона сегмента, представленного двумя конечными точками.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-4|#")
-      (p [We can of course combine these to form one procedure that returns two values.])
+      (p [Конечно, мы можем объединить их, чтобы сформировать одну процедуру, которая возвращает два значения.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-5|#")
-      (p [The example below employs multiple values to divide a list nondestructively into two sublists of alternating
-          elements.])
+      (p [В приведенном ниже примере используется несколько значений для неразрушающего разделения списка на два
+          подсписка чередующихся элементов.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-6|#")
-      (p [At each level of recursion, the procedure split returns two values: a list of the odd-numbered elements from the
-          argument list and a list of the even-numbered elements.])
-      (p [The continuation of a call to values need not be one established by a call to call-with-values, nor must only values
-          be used to return to a continuation established by call-with-values. In particular, (values e) and e are equivalent
-          expressions. For example:])
+      (p [На каждом уровне рекурсии, процедура split возвращает два элемента: список элементов из чётных позиций из
+          списка переданного в аргументе, и список элементов из нечётных позиций.])
+      (p [Продолжение вызова ,(var "values") не обязательно должно быть сопровождаться вызовом ,(var "call-with-values,") и
+          не только ,(var "values") может использоваться для возврата продолжения, устанавлеваемого ,(var
+          "call-with-values.") В частности, ,(var "(values e)") и ,(var "e") являются эквивалентными
+          выражениями. Например:])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-7|#")
-      (p [Similarly, values may be used to pass any number of values to a continuation that ignores the values, as in the
-          following.])
+      (p [Точно так же, values может быть использовано, чтобы передать любое кол-во значений в продолжение, которое
+          игнорирует значения, как в примере ниже:])
       (src-lite "(begin (values 1 2 3) 4) → 4")
-      (p [Because a continuation may accept zero or more than one value, continuations obtained via call/cc may accept zero or
-          more than one argument.])
+      (p [Благодаря тому, что продолжение может принимать ноль и более одного значений, продолжение, полученное с помощью
+          ,(var "call/cc") может принимать ноль или более одного аргумента.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-8|#")
-      (p [The behavior is unspecified when a continuation expecting exactly one value receives zero values or more than one
-          value. For example, the behavior of each of the following expressions is unspecified. Some implementations raise an
-          exception, while others silently suppress additional values or supply defaults for missing values.])
+      (p [Для случаев, когда продолжение, ожидающее в точности одно значение, получает ноль или более значений,
+          поведение не определено. Например, поведение каждого выражения ниже не определено. Некоторый реализации
+          вызывают исключение, в то время как другие молча изымают дополнительные значения или поддерживают значение по
+          умолчанию для недостающих значений.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-9|#")
-      (p [Programs that wish to force extra values to be ignored in particular contexts can do so easily by calling
-          call-with-values explicitly. A syntactic form, which we might call first, can be defined to abstract the discarding
-          of more than one value when only one is desired.])
+      (p [Программы, которые хотят принудительно игнорировать дополнительные значения в определенных контекстах, могут
+          легко сделать это, явно вызвав ,(var "call-with-values"). Синтаксическая форма, которую мы назовём ,(var "first"), может
+          быть определена следующим образом, чтобы абстрагировать отбрасывание лишних значений, когда требуется только одно.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-10|#")
-      (p [Since implementations are required to raise an exception with condition type &assertion if a procedure does not
-          accept the number of arguments passed to it, each of the following raises an exception.])
+      (p [Если же требуется реализация, вызывающая исключение с типом &assertion в случае, если процедура принимает
+          количество аргументов отличное от того, которое ей передали, подойдёт любая из следующий реализаций:])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-11|#")
-      (p [Since producer is most often a lambda expression, it is often convenient to use a syntactic extension that
-          suppresses the lambda expression in the interest of readability.])
+      (p [Так как ,(var "producer") это чаще всего лямбда-выражение, часто удобно использовать синтаксическое расширение, которое
+          скрывает лямбда-выражение в целях удобства чтения.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-12|#")
-      (p [If the consumer is also a lambda expression, the multiple-value variants of let and let* described in Section 4.5
-          are usually even more convenient.])
+      (p [Если же consumer так же лямбда-выражение, то специальные варианты, с поддержкой множественных значений ,(var "let")
+          и ,(var "let*"), описанных в ,(ref :text "Главе 4.5" :section "Множественные значения"), обычно более удобны.])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-13|#")
-      (p [Many standard syntactic forms and procedures pass along multiple values. Most of these are "automatic," in the sense
-          that nothing special must be done by the implementation to make this happen. The usual expansion of let into a
-          direct lambda call automatically propagates multiple values produced by the body of the let. Other operators must be
-          coded specially to pass along multiple values. The call-with-port procedure (page 7.6), for example, calls its
-          procedure argument, then closes the port argument before returning the procedure's values, so it must save the
-          values temporarily. This is easily accomplished via let-values, apply, and values:])
+      (p [Многие стандартные синтаксические формы и процедуры пробрасывают множественные значения. Большинство из них
+          делают это "автоматически" в том смысле, что в реализации не нужно делать ничего особенного, чтобы это
+          произошло. Обычное раскрытие ,(var "let") в прямой лямбда-вызов автоматически пробрасывает множественные значения,
+          созданные телом ,(var "let"). Другие операторы должны быть написаны специальным образом, чтобы пробрасывать
+          множественные значения. Например, процедура ,(var "call-with-port") (,(ref :text "Глава 7.6" :section
+          "Операции с портом")) вызывает свой аргумент-процедуру, затем закрывает аргумент-порт, перед возвратом
+          значений процедуры, поэтому она должна временно сохранить значения. Это легко сделать с помощью ,(var
+          "let-values,") ,(var "apply") и ,(var "values"):])
       (include-src "src/scheme/5.control_operations.scm" :definition 'call-with-port)
-      (p [If this seems like too much overhead when a single value is returned, the code can use call-with-values and
-          case-lambda to handle the single-value case more efficiently:])
+      (p [Если это покажется слишком большим объемом накладных расходов, для случая с одним возвращаемым значением, в
+          коде можно использовать ,(var "call-with-values") и ,(var "case-lambda") для более эффективной обработки
+          случая с одним значением:])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-14|#")
-      (p [The definitions of values and call-with-values (and concomitant redefinition of call/cc) in the library below
-          demonstrate that the multiple-return-values interface could be implemented in Scheme if it were not already built
-          in. No error checking can be done, however, for the case in which more than one value is returned to a single-value
-          context, such as the test part of an if expression.])
+      (p [Определения для ,(var "values") и ,(var "call-with-values") (и сопутствующее переопределение ,(var "call/cc")) в библиотеке ниже,
+          демонстрирует, как мог бы быть реализован интерфей работы со множественными значениями в Scheme, если бы он не
+          был уже встроен. Проверка ошибок невозможна, тем не менее, выполняется для случая, когда более одного значения
+          возвращается в контекст с одним значением, например в тестовую часть выражения ,(var "if").])
       (include-src "src/scheme/5.control_operations.scm" "#|+multiple values-15|#")
-      (p [Multiple values can be implemented more efficiently ,(ref :bib 'b2), but this code serves to illustrate the meanings of the
-          operators and may be used to provide multiple values in older, nonstandard implementations that do not support
-          them.]))
+      (p [Множественные значения могут быть реализваны более эффективно ,(ref :bib 'b2), однако этот код служит целями
+          демонстрации смысла операторов и может быть использован, чтобы предоставить поддежку множественных значений
+          в старые, нестандартные реализации, которые не поддеживают их.]))
 
-   (section :title [Eval]
-      (p [Scheme's eval procedure allows programmers to write programs that construct and evaluate other programs. This
-          ability to do run-time meta programming should not be overused but is handy when needed.])
+   (section :title "eval"
+      (p [,(var "eval") в Scheme это процедура, позволяющая писать программы, которые конструируют и выполняют другие
+          программы. Этой возможностью метапрограммирования в реальном времени не стоит злоупотреблять, но иметь её под
+          рукой в некоторых случаях приятно.])
 
       (formdef
        :syntax "(eval obj environment)"
-       :returns "values of the Scheme expression represented by obj in environment"
+       :returns "результат Scheme-выражения, описанного в obj, выполненного в контексте environment"
        :libraries "(rnrs eval)")
-      (p [If obj does not represent a syntactically valid expression, eval raises an exception with condition type
-          &syntax. The environments returned by environment, scheme-report-environment, and null-environment are
-          immutable. Thus, eval also raises an exception with condition type &syntax if an assignment to any of the variables
-          in the environment appears within the expression.])
+      (p [Если ,(var "obj") не представляет синтаксически корректное выражение, ,(var "eval") вызывает исключение с типом
+          ,(var "&syntax"). Окружения (environment) возвращаемые ,(var "environment"), ,(var "scheme-report-environment")
+          и ,(var "null-environment") неизменяемые. Поэтому, ,(var "eval") обычно вызывает исключение с типом ,(var
+          "&syntax"), если в выражении появляется присвоение какой-либо из переменных среды.])
       (include-src "src/scheme/5.control_operations.scm" "#|+eval-1|#")
+
       (formdef
        :syntax "(environment import-spec ...)"
-       :returns "an environment"
+       :returns "окружение"
        :libraries "(rnrs eval)")
-      (p [environment returns an environment formed from the combined bindings of the given import specifiers. Each
-          import-spec must be an s-expression representing a valid import specifier (see Chapter 10).])
+      (p [environment возвращает окружение, сформированное из комбинации связываний, заданных в спецификации
+          импорта. Каждая спецификация импорта должна быть s-выражением, представляющим корерктное определение импорта
+          (см. ,(ref :text "Главу 10" :chapter "Библиотеки и программы верхнего уровня"))])
       (include-src "src/scheme/5.control_operations.scm" "#|+eval-2|#")
 
       (formdef
        :syntax "(null-environment version)"
        :syntax "(scheme-report-environment version)"
-       :returns "an R5RS compatibility environment"
+       :returns "R5RS-совместимов окружение"
        :libraries "(rnrs r5rs)")
-      (p [version must be the exact integer 5.])
-      (p [null-environment returns an environment containing bindings for the keywords whose meanings are defined by the
-          Revised5 Report on Scheme, along with bindings for the auxiliary keywords else, =>, ..., and _.])
-      (p [scheme-report-environment returns an environment containing the same keyword bindings as the environment returned by
-          null-environment along with bindings for the variables whose meanings are defined by the Revised5 Report on Scheme,
-          except those not defined by the Revised6 Report: load, interaction-environment, transcript-on, transcript-off, and
-          char-ready?.])
-      (p [The bindings for each of the identifiers in the environments returned by these procedures are those of the
-          corresponding Revised6 Report library, so this does not provide full backward compatibility, even if the excepted
-          identifier bindings are not used.])))
+      (p [,(var "version") должна быть целым числом 5.])
+      (p [,(var "null-environment") возвращает окружение, состоящее из связываний ключевых слов, чьё значение определено Revised,(sup "5")
+          отчётом стандарта Scheme, а так же связывания для вспомогательных ключевых слов ,(var "else"), ,(var "=>"),
+          ,(var "..."), ,(var "_").])
+      (p [,(var "scheme-report-environment") возвращает окружение, содержащее те же связывания с ключевыми словами, что и
+          окружение возвращаемое ,(var "null-environment"), а так же связывания, чьё значение определено Revised,(sup "5") отчётом
+          стандарта Scheme, за исключением тех, которые не определены Revised,(sup "6") версией стандарта: ,(var "load"),
+          ,(var "interaction-environment"), ,(var "transcript-on"), ,(var "transcript-off"), ,(var "char-ready?").])
+      (p [Связывания для каждого из идентификаторов в окружениях, возвращаемых этими процедурами, принадлежат
+          соответствующей библиотеке Revised,(sup "6"), поэтому это не обеспечивает полной обратной совместимости, даже если
+          связывания исключенных идентификаторов не используются.])))

@@ -562,8 +562,8 @@ x → 0
 
 (define p (delay (values 1 2 3)))
 (force p) → 1
-           2
-           3
+            2
+            3
 (call-with-values (lambda () (force p)) +) → 6
 #|-delayed-evaluation-2|#
 
@@ -591,8 +591,8 @@ x → 0
 (values 1) → 1
 
 (values 1 2 3) → 1
-                2
-                3
+                 2
+                 3
 
 (define head&tail
   (lambda (ls)

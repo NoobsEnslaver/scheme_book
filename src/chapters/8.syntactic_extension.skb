@@ -5,9 +5,9 @@
    (p [TODO])
    (section :title [Keyword Bindings]
       (p [TODO]))
-   (section :title [Syntax-Rules Transformers]
+   (section :title "syntax-rules преобразователи"
       (p [TODO]))
-   (section :title [Syntax-Case Transformers]
+   (section :title "syntax-case преобразователи"
       (p [TODO]))
-   (section :title [Examples]
+   (section :title "Примеры"
       (p [TODO])))

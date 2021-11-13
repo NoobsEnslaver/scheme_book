@@ -13,7 +13,7 @@
       (p [TODO]))
    (section :title [Opening Custom Ports]
       (p [TODO]))
-   (section :title [Port Operations]
+   (section :title "Операции с портом"
       (p [TODO]))
    (section :title [Input Operations]
       (p [TODO]))
