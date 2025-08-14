@@ -2,49 +2,48 @@
 
 (chapter :title "Операции над объектами"
    (chapter-image "images/ch6.png")
-   (p [This chapter describes the operations on objects, including lists, numbers, characters, strings, vectors,
-   bytevectors, symbols, booleans, hashtables, and enumerations. The first section covers constant objects and
-   quotation. The second section describes generic equivalence predicates for comparing two objects and predicates for
-   determining the type of an object. Later sections describe procedures that deal primarily with one of the object
-   types mentioned above. There is no section treating operations on procedures, since the only operation defined
-   specifically for procedures is application, and this is described in Chapter 5. Operations on ports are covered in
-   the more general discussion of input and output in Chapter 7. A mechanism for defining new data types is described in
-   Chapter 9.])
-   (section :title [Constants and Quotation]
+   (p [В этой главе рассматриваются операции над объектами, такими как списки, числа, буквы (characters), символы,
+       строки, векторы, байтвекторы, булевы, хэш-таблицы и перечисления. Первая секция охватывает константные объекты и
+       цитирование. Вторая секция рассматривает предикаты сравнения двух объектов общего назначения и предикаты для
+       определения типа объекта. Последующие главы описывают процедуры, работающие преимущественно с одним из типов
+       объектов, упомянутых выше. Здесь нет секции, посвященной операциям над процедурами т.к. единственная операция,
+       определённая специально для процедур, это применение, и эта тема уже обсуждалась в Главе 5. Операции над портами
+       рассматирваются в более общем обсуждении вопросов ввода-вывода в Главе 7. Механизм определения новых типов данных
+       описан в Главе 9.])
+
+   (section :title [Константы и цитирование]
       (formdef
-    :syntax "constant"
-    :returns "constant")
+       :syntax "константа"
+       :returns "константа")
+      (p [константа это любая само-вычисляющаяся константа, такая как число, булево значение, буква, строки или
+          байтвектор. Константы иммутабельны. Смотри примечания к описанию ,(var "quote") ниже.])
 
-(p [constant is any self-evaluating constant, i.e., a number, boolean, character, string, or bytevector. Constants are
-    immutable; see the note in the description of quote below.])
-
-(src "
-3.2 → 3.2
+      (src "3.2 → 3.2
 #f → #f
 #\\c → #\\c
 \"hi\" → \"hi\"
 #vu8(3 4 5) → #vu8(3 4 5)")
 
-(formdef
-    :syntax '("(quote obj)"
-              "'obj")
-    :returns "obj"
-    :libraries "(rnrs base), (rnrs)")
+      (formdef
+      :syntax '("(quote obj)"
+                "'obj")
+      :returns "obj"
+      :libraries "(rnrs base), (rnrs)")
 
-(p ['obj is equivalent to (quote obj). The abbreviated form is converted into the longer form by the Scheme reader (see
-    read).])
+      (p [,(var "'obj") эквивалентно ,(var "(quote obj)"). Сокращённая форма конвертируется в полную форму считывателем
+          Scheme (см. ,(var "read"))]) ;;TODO: link to read
 
-(p [quote inhibits the normal evaluation rule for obj, allowing obj to be employed as data. Although any Scheme object
-    may be quoted, quotation is not necessary for self-evaluating constants, i.e., numbers, booleans, characters,
-    strings, and bytevectors.])
+      (p [,(var "quote") тормозит нормлаьный процесс вычисления для ,(var "obj"), позволяя использовать ,(var "obj") в
+          качестве данных. Несмотря на то, что каждый Scheme-объект может быть цитирован, нет никакой необходимости
+          цитировать самовычисляющиеся объекты, такие как числа, булевы значения, буквы, строки, байтвекторы и т.д.])
 
-(p [Quoted and self-evaluating constants are immutable. That is, programs should not alter a constant via set-car!,
-    string-set!, etc., and implementations are permitted to raise an exception with condition type &assertion if such an
-    alteration is attempted. If an attempt to alter an immutable object is undetected, the behavior of the program is
-    unspecified. An implementation may choose to share storage among different constants to save space.])
+      (p [Цитированные и самовычисляющиеся константы иммутабельны. Это значит, что программа не должна модифицировать
+          константы с помощью ,(var "set-car!"), ,(var "string-set!") и т.д. и реализациям разрешено генерировать
+          исключение с типом условия &assertion при попытке такого изменения. Если попытка изменить неизменяемый объект
+          не обнаружена, поведение программы не определено. Реализация может использовать разделяемую (общую) память
+          между различными константами для экономии места.])
 
-(src "
-(+ 2 3) → 5
+      (src "(+ 2 3) → 5
 '(+ 2 3) → (+ 2 3)
 (quote (+ 2 3)) → (+ 2 3)
 'a → a
@@ -52,25 +51,28 @@
 '() → ()
 '7 → 7")
 
-(formdef
-    :syntax '("(quasiquote obj ...)"
-              "`obj"
-              "(unquote obj ...)"
-              ",obj"
-              "(unquote-splicing obj ...)"
-              ",@obj")
-    :returns "see below"
-    :libraries "(rnrs base), (rnrs)")
+      (formdef
+      :syntax '("(quasiquote obj ...)"
+                "`obj"
+                "(unquote obj ...)"
+                ",obj"
+                "(unquote-splicing obj ...)"
+                ",@obj")
+      :returns "see below"
+      :libraries "(rnrs base), (rnrs)")
 
+      (p [])
  (p [,(var "`obj") is equivalent to ,(var "(quasiquote obj)"), ,(var ",obj") is equivalent to ,(var "(unquote obj)"), and ,(var ",@obj") is equivalent to
     ,(var "(unquote-splicing obj)"). The abbreviated forms are converted into the longer forms by the Scheme reader (see read).])
 
+      (p [])
  (p [quasiquote is similar to quote, but it allows parts of the quoted text to be "unquoted." Within a quasiquote
     expression, unquote and unquote-splicing subforms are evaluated, and everything else is quoted, i.e., left
     unevaluated. The value of each unquote subform is inserted into the output in place of the ,(var "unquote") form, while the
     value of each unquote-splicing subform is spliced into the surrounding list or vector structure. unquote and
     unquote-splicing are valid only within quasiquote expressions.])
 
+      (p [])
  (p [quasiquote expressions may be nested, with each quasiquote introducing a new level of quotation and each unquote or
     unquote-splicing taking away a level of quotation. An expression nested within n quasiquote expressions must be
     within n unquote or unquote-splicing expressions to be evaluated.])
